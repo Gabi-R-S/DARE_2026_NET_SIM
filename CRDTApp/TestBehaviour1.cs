@@ -9,6 +9,6 @@ namespace CRDTApp
         public async Task Run()
         {
             Console.WriteLine("TestBehaviour1 is running.");
-            }
+        }
     }
 }
