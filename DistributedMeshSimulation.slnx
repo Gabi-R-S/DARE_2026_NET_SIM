@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="CRDTApp/CRDTApp.csproj" Id="35c6a0ba-ff33-405b-a12f-bda0dc3c6c8f" />
+  <Project Path="CRDTs/CRDTs.csproj" />
+  <Project Path="Simulator/Simulator.csproj" Id="38f867e6-8dce-4aee-9c84-747157222ed4" />
+</Solution>
