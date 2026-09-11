@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTs
+namespace CRDTs.Basic
 {
     internal class GSet<T>
     {

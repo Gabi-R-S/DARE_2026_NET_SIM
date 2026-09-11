@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SimSharp" Version="3.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\CRDTs\CRDTs.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,5 @@
 ﻿using Shared;
+using SimSharp;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,8 +13,10 @@ namespace Simulator
         Dictionary<ReplicaID, List<Action<ReplicaID>>> connectionInterruptedHandlers = new Dictionary<ReplicaID, List<Action<ReplicaID>>>();
 
         ConnectionMap connectionMap;
+        Simulation env;
 
-        public NetworkSimulator(ConnectionMap connectionMap) {
+        public NetworkSimulator(Simulation env,ConnectionMap connectionMap) {
+            this.env=env;
             this.connectionMap = connectionMap;
         }
 
@@ -55,12 +58,28 @@ namespace Simulator
             }
         }
 
-        public bool ScheduleMessageDelivery(NetworkMessage message)
+
+
+        public bool ScheduleMessageDelivery( NetworkMessage message)
         {
+            if (connectionMap.IsConnectionAvailable(message.Source,message.Recipient)) {
+                var connection = connectionMap.GetConnection(message.Source,message.Recipient);
+                if (connection != null)
+                {
+                    Event ev = new Event(env);
+                    ev.AddCallback( (env) => {
+                        foreach (var callback in messageDeliveredHandlers[message.Recipient]) {
+                            callback(message);
+                        }
+                    });
+                    env.ScheduleD(connection.TransmissionTime, ev);
+                }
+            }
             
-            throw new NotImplementedException("Message delivery scheduling is not implemented yet.");
-            // Implementation for scheduling message delivery
-            //return Task.FromResult(true);
+            return false;
+
         }
+
+
     }
 }

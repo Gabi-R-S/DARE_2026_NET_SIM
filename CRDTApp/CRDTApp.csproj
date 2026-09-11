@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CRDTs\CRDTs.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\Simulator\Simulator.csproj" />
   </ItemGroup>
 
