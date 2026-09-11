@@ -36,6 +36,7 @@ namespace Tests_1
 
             counter1.Merge(op3);
             counter2.Merge(op3);
+            counter3.Merge(op3);
 
             Assert.AreEqual(3, counter1.Value);
             Assert.AreEqual(3, counter2.Value);
