@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="CRDTApp/CRDTApp.csproj" Id="35c6a0ba-ff33-405b-a12f-bda0dc3c6c8f" />
   <Project Path="CRDTs/CRDTs.csproj" />
+  <Project Path="RunSimulations/RunSimulations.csproj" Id="5c2237ad-d4b7-4a30-a180-33d29cf1b794" />
   <Project Path="Shared/Shared.csproj" Id="bf4ec58f-1b52-472d-a76e-281cc94527d2" />
   <Project Path="Simulator/Simulator.csproj" Id="38f867e6-8dce-4aee-9c84-747157222ed4" />
   <Project Path="Tests_1/Tests_1.csproj" Id="bd44c577-a80a-4e77-b575-a3b6efe6a94f" />

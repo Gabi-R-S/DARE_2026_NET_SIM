@@ -38,7 +38,6 @@ namespace Simulator
             if (!messageDeliveredHandlers.ContainsKey(id)) {
                 messageDeliveredHandlers[id] = new List<Action<NetworkMessage>>();
             }
-
             messageDeliveredHandlers[id].Add(handler);
         }
 
@@ -68,16 +67,28 @@ namespace Simulator
                 {
                     Event ev = new Event(env);
                     ev.AddCallback( (env) => {
-                        foreach (var callback in messageDeliveredHandlers[message.Recipient]) {
-                            callback(message);
+                        if (messageDeliveredHandlers.ContainsKey(message.Recipient))
+                        {
+                            foreach (var callback in messageDeliveredHandlers[message.Recipient])
+                            {
+                                callback(message);
+                            }
                         }
                     });
                     env.ScheduleD(connection.TransmissionTime, ev);
+                    return true;
                 }
             }
             
             return false;
 
+        }
+
+        public void ExecuteAfter(float time, Action action)
+        {
+            var actionEvent = new Event(env);
+            actionEvent.AddCallback(e => action());
+            env.ScheduleD(time, actionEvent);
         }
 
 

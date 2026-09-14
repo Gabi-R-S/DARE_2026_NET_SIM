@@ -1,22 +1,20 @@
-﻿using SimSharp;
+﻿using Simulator;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CRDTApp
 {
-    internal class SimulationScheduler:IScheduler
+    public class SimulationScheduler:IScheduler
     {
-        Simulation env;
-        public SimulationScheduler(Simulation simulation) {
-            env = simulation;
+        NetworkSimulator sim;
+        public SimulationScheduler(NetworkSimulator sim) {
+            this.sim = sim;
         }
 
         public void ExecuteAfter(float time, Action action)
         {
-            var actionEvent = new Event(env);
-            actionEvent.AddCallback(e => action());
-            env.ScheduleD(time, actionEvent);
+            sim.ExecuteAfter(time,action);
         }
 
 

@@ -9,8 +9,8 @@ namespace Simulator
     {
         public ReplicaID Source { get; private set; }
         public ReplicaID Recipient { get; private set; }
-        public object Payload { get; private set; }
-        public NetworkMessage(ReplicaID source, ReplicaID destination, object payload)
+        public string Payload { get; private set; }
+        public NetworkMessage(ReplicaID source, ReplicaID destination, string payload)
         {
             Source = source;
             Recipient = destination;

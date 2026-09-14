@@ -6,6 +6,10 @@ namespace Shared
 {
     public class ReplicaID
     {
+        public override int GetHashCode()
+        {
+            return ID.GetHashCode();
+        }
         public static bool operator ==(ReplicaID obj1, ReplicaID obj2)
         {
             return obj1.ID == obj2.ID;
@@ -14,7 +18,7 @@ namespace Shared
         {
             return obj1.ID != obj2.ID;
         }
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is ReplicaID) { 
                 return this==(ReplicaID)obj;

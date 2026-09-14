@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CRDTApp
 {
-    internal interface INetworkManager
+    public interface INetworkManager
     {
         public Task Run();
 

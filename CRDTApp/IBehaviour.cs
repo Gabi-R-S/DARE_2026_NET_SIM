@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CRDTApp
 {
-    internal interface IBehaviour
+    public interface IBehaviour
     {
         public Task Run();
     }

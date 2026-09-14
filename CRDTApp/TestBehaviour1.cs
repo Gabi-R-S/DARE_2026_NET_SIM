@@ -1,14 +1,57 @@
-﻿using System;
+﻿using Shared;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CRDTApp
 {
-    internal class TestBehaviour1 :IBehaviour
+    public class TestBehaviour1 :IBehaviour
     {
+        IScheduler scheduler;
+        INetworkManager manager;
+
+        ReplicaID otherReplica;
+        public TestBehaviour1(IScheduler scheduler, INetworkManager manager, ReplicaID otherReplica) { 
+            this.scheduler = scheduler;
+            this.manager = manager;
+            this.otherReplica = otherReplica;
+            
+            manager.AddOnMessageReceivedHandler(ReceiveMessage);
+        }
+
+        object lck = new object();
+        void ReceiveMessage(ReplicaID id, Message message)
+        {
+            lock (lck){
+                if (message != null)
+                {
+                    Console.WriteLine(message);
+                    if (message.Payload == "ACK")
+                    {
+                        Send();
+                    }
+                    else
+                    {
+                        manager.SendMessage(otherReplica, new Message("ACK"));
+                    }
+
+                }
+            } 
+        }
+
+        void Send() {
+            scheduler.ExecuteAfter(1, () => {
+                if (!manager.SendMessage(otherReplica, new Message("HI")))
+                {
+                    Console.WriteLine("Couldn't send message!");
+                    Send();
+                }
+            });
+        }
         public async Task Run()
         {
-            Console.WriteLine("TestBehaviour1 is running.");
+            Send();
+            
         }
     }
 }

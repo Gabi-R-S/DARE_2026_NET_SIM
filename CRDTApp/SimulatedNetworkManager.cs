@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CRDTApp
 {
-    internal class SimulatedNetworkManager : INetworkManager
+    public class SimulatedNetworkManager : INetworkManager
     {
         ReplicaID replicaID;
         NetworkSimulator networkSimulator;
@@ -16,8 +16,12 @@ namespace CRDTApp
         event Action<ReplicaID>? ConnectionInterrupted;
         public SimulatedNetworkManager(NetworkSimulator simulator, ReplicaID id)
         {
+
             this.networkSimulator = simulator;
             this.replicaID = id;
+
+            networkSimulator.AddConnectionInterruptedHandler(replicaID, OnConnectionInterrupted);
+            networkSimulator.AddMessageDeliveredHandler(replicaID, OnMessageReceived);
         }
 
         SemaphoreSlim? endProgramSemaphore;
@@ -27,14 +31,12 @@ namespace CRDTApp
         }
         
         void OnMessageReceived(NetworkMessage message) {
-            MessageReceived?.Invoke(message.Recipient,message.Payload as Message);
+            MessageReceived?.Invoke(message.Recipient,new Message(message.Payload));
         }
         void OnConnectionInterrupted(ReplicaID destination) { 
             ConnectionInterrupted?.Invoke(destination);
         }
         public async Task Run() {
-            networkSimulator.AddConnectionInterruptedHandler(replicaID, OnConnectionInterrupted);
-            networkSimulator.AddMessageDeliveredHandler(replicaID,OnMessageReceived);
 
             endProgramSemaphore = new SemaphoreSlim(0, 1);
             await endProgramSemaphore.WaitAsync();

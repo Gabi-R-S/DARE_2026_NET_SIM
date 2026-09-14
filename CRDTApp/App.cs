@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CRDTApp
 {
-    internal class App
+    public class App
     {
         IBehaviour behaviour;
         INetworkManager networkManager;
@@ -14,6 +14,7 @@ namespace CRDTApp
             this.behaviour = behaviour;
             this.networkManager = networkManager;
         }
+        
         public async Task Run()
         {
             var t1 = behaviour.Run();
