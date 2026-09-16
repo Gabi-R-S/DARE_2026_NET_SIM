@@ -6,6 +6,10 @@ namespace Shared
 {
     public struct ReplicaID
     {
+        public override string ToString()
+        {
+            return ID.ToString();
+        }
         public override int GetHashCode()
         {
             return ID.GetHashCode();

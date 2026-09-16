@@ -10,6 +10,7 @@ using System.Threading.Channels;
 
 namespace CRDTApp.Messages
 {
+    //TODO: for this to be fully correct, there should be a way to abstract the wait time into the scheduler, like "scheduler.await_task_or_timeout()"
     // Goal: ensuring causal delivery and implementing at-least-once semantics 
     public class MessageHistoryTracker : NetworkManager
     {
@@ -73,28 +74,6 @@ namespace CRDTApp.Messages
         }
 
 
-        async Task ScheduleSend(ReplicaID recipient, TrackerMessage message, NetworkManager manager)
-        {
-
-            var networkMessage = new Message(message.ToJson());
-
-            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT; i++)
-            {
-                var semaphore = new SemaphoreSlim(0);
-                pendingAcks[(message.CausalityTracker, recipient)] = semaphore;
-
-                manager.SendMessage(recipient, networkMessage);
-
-                if (await semaphore.WaitAsync(WAIT_TIME_MILLISECONDS))
-                {
-                    return;
-                }
-
-
-            }
-
-            CallConnectionInterrupted(recipient);
-        }
 
         void OnAckReceived(VersionVector version, ReplicaID senderID)
         {
@@ -136,8 +115,9 @@ namespace CRDTApp.Messages
                         if (!latest.LacksDependencies(pendingReceivedMessages[i].Item2.CausalityTracker))
                         {
                             latest.Merge(pendingReceivedMessages[i].Item2.CausalityTracker);
+                            var atPos = pendingReceivedMessages[i];
                             pendingReceivedMessages.RemoveAt(i);
-                            CallMessageReceived(pendingReceivedMessages[i].Item1, pendingReceivedMessages[i].Item2.Message);
+                            CallMessageReceived(atPos.Item1, atPos.Item2.Message);
                             shouldContinue = true;
                             break;
                         }
@@ -151,12 +131,32 @@ namespace CRDTApp.Messages
 
 
 
-        public override bool SendMessage(ReplicaID recipient, Message message)
+        public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
             var vector = IncrementVersion(replicaID);
 
-            var _ = ScheduleSend(recipient, new TrackerMessage(message, vector), networkManager);
+            var trackerMessage = new TrackerMessage(message, vector);
+            
+            var networkMessage = new Message(trackerMessage.ToJson());
 
+            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT; i++)
+            {
+                var semaphore = new SemaphoreSlim(0);
+                pendingAcks[(vector, recipient)] = semaphore;
+
+                if (!await networkManager.SendMessage(recipient, networkMessage)) {
+                    return false;
+                }
+
+                if (await semaphore.WaitAsync(WAIT_TIME_MILLISECONDS))
+                {
+                    return false;
+                }
+
+
+            }
+
+            CallConnectionInterrupted(recipient);
 
             return true;
         }

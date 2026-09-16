@@ -12,9 +12,9 @@ namespace Tests_1
         public Queue<(ReplicaID, Message)> MessagesSent { get; private set; } = new();
 
 
-        public override bool SendMessage(ReplicaID recipient, Message message) {
+        public override Task<bool> SendMessage(ReplicaID recipient, Message message) {
             MessagesSent.Enqueue((recipient,message));
-            return true;
+            return Task.FromResult(true);
         }
 
 

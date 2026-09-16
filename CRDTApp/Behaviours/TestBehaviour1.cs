@@ -44,7 +44,9 @@ namespace CRDTApp.Behaviours
 
         void Send() {
             scheduler.ExecuteAfter(1, () => {
-                if (!manager.SendMessage(otherReplica, new Message("HI")))
+                var t = manager.SendMessage(otherReplica, new Message("HI"));
+                t.Wait();
+                if (!t.Result)
                 {
                     Console.WriteLine("Couldn't send message!");
                     Send();

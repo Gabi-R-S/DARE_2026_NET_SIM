@@ -1,4 +1,5 @@
-﻿using Shared;
+﻿using Newtonsoft.Json;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -139,10 +140,38 @@ namespace Shared
             return merged;
         }
 
-        Dictionary<ReplicaID, ulong> versions = new Dictionary<ReplicaID, ulong>();
         
-        public VersionVector() { 
+
+        public string JSON { get {
+                string s = "{";
+
+                foreach (var (id, version) in versions)
+                {
+                    s += "\"" + id.ID + "\":\"" + version + "\",";
+                }
+
+                if (s.Length != 1) {
+                    s = s.Remove(s.Length-1);
+                }
+                s += "}";
+                return s;
+            } 
+            set {
+                versions = new Dictionary<ReplicaID, ulong>();
+                var v = JsonConvert.DeserializeObject<Dictionary<string, string>>(value);
+                if (v != null)
+                {   
+                    foreach (var (id, version) in v)
+                    {
+                        versions[new ReplicaID(ulong.Parse(id))] = ulong.Parse(version);
+                    }
+                }
+            } }
         
+        Dictionary<ReplicaID, ulong> versions;
+        
+        public VersionVector() {
+            versions = new();
         }
         public VersionVector(Dictionary<ReplicaID, ulong> versions) { 
             this.versions = versions;

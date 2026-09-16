@@ -65,7 +65,7 @@ namespace CRDTApp.NetworkManagers
             }
         }
 
-        public abstract bool SendMessage(ReplicaID recipient, Message message);
+        public abstract Task<bool> SendMessage(ReplicaID recipient, Message message);
 
     }
 }

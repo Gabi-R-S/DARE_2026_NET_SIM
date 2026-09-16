@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-//TODO: THESE LOCKS MAY BE UNSAFE WHEN COMBINED WITH ASYNC
+//TODO: MAKE THREAD-SAFE!!!!
 namespace CRDTApp.NetworkManagers
 {
     public class TCPNetworkManager: NetworkManager
@@ -81,35 +81,7 @@ namespace CRDTApp.NetworkManagers
 
         }
 
-        async Task ConnectAndSendMessage(TcpClient client, ReplicaID recipient,Message message) {
-            try
-            {
-                (IPAddress ip, int port) = addressMap[recipient];
-                await client.ConnectAsync(ip, port);
-
-                byte[] bytes = Encoding.UTF8.GetBytes(message.Payload);
-                await client.GetStream().WriteAsync(bytes);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                CallConnectionInterrupted(recipient);
-            }
-        }
-        async Task SendMessage(TcpClient client,ReplicaID recipient, Message message) {
-            try
-            {
-                byte[] bytes = Encoding.UTF8.GetBytes(message.Payload);
-                await client.GetStream().WriteAsync(bytes);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                CallConnectionInterrupted(recipient);
-            }
-        }
-
-        public override bool SendMessage(ReplicaID recipient, Message message) {
+        public override async Task<bool> SendMessage(ReplicaID recipient, Message message) {
             TcpClient client;
             if (!outputSockets.ContainsKey(recipient))
             {
@@ -117,16 +89,35 @@ namespace CRDTApp.NetworkManagers
                     return false;
                 }
                 client = new TcpClient();
+                try
+                {
+                    (IPAddress ip, int port) = addressMap[recipient];
+                    await client.ConnectAsync(ip, port);
 
-                var t = ConnectAndSendMessage(client, recipient,message);
+                    outputSockets[recipient] = client;
+                }
+                catch (Exception e) {
+                    Console.WriteLine(e);
+                    return false;
+                }
             }
-            else { 
+            else {
+
                 client = outputSockets[recipient];
-                var t = SendMessage(client,recipient, message);
             }
 
-            
-            return true;
+            try
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(message.Payload);
+                await client.GetStream().WriteAsync(bytes);
+                return true;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                outputSockets.Remove(recipient);
+                return false;
+            }
         }
 
        

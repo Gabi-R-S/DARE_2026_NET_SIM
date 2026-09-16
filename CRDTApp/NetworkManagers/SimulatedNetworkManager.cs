@@ -43,7 +43,7 @@ namespace CRDTApp.NetworkManagers
         }
 
         
-        public override bool SendMessage(ReplicaID recipient, Message message)
+        public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
             return networkSimulator.ScheduleMessageDelivery(new NetworkMessage(this.replicaID, recipient, message.Payload));
         }
