@@ -1,2 +1,2 @@
-- I assume that INetworkManager does not ensure any kind of delivery, but may be able to detect channel failures, returning false in that case
-- The MesseageHistoryTracker sits on top of INetworkManager and introduces causal delivery and at-least-once behaviour.
+- I assume that NetworkManager does not ensure any kind of delivery, but may be able to detect channel failures, returning false in that case
+- The MesseageHistoryTracker sits on top of NetworkManager and introduces causal delivery and at-least-once behaviour.

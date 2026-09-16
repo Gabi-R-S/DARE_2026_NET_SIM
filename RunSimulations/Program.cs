@@ -1,4 +1,8 @@
 ﻿using CRDTApp;
+using CRDTApp.Behaviours;
+using CRDTApp.Messages;
+using CRDTApp.NetworkManagers;
+using CRDTApp.Schedulers;
 using Shared;
 using SimSharp;
 using Simulator;

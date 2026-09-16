@@ -9,9 +9,9 @@ namespace CRDTApp
     public class App
     {
         IBehaviour behaviour;
-        INetworkManager networkManager;
+        NetworkManager networkManager;
 
-        public App(IBehaviour behaviour, INetworkManager networkManager)
+        public App(IBehaviour behaviour, NetworkManager networkManager)
         {
             this.behaviour = behaviour;
             this.networkManager = networkManager;

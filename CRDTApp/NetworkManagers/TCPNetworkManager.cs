@@ -10,7 +10,7 @@ using System.Text;
 //TODO: THESE LOCKS MAY BE UNSAFE WHEN COMBINED WITH ASYNC
 namespace CRDTApp.NetworkManagers
 {
-    public class TCPNetworkManager: INetworkManager
+    public class TCPNetworkManager: NetworkManager
     {
         const int MESSAGE_SIZE_LIMIT = 2048;
         Dictionary<ReplicaID, TcpClient> outputSockets = new(); //this client class is thread safe, supposedly
@@ -19,57 +19,6 @@ namespace CRDTApp.NetworkManagers
         Dictionary<ReplicaID, (IPAddress, int)> addressMap;
 
 
-
-
-        object receiveLock = new object();
-        object interruptedLock = new object();
-        event Action<ReplicaID, Message?>? MessageReceived;
-        event Action<ReplicaID>? ConnectionInterrupted;
-
-        void CallMessageReceived(ReplicaID replica, Message? message) {
-            lock (receiveLock)
-            {
-                MessageReceived?.Invoke(replica, message);
-            }
-        }
-
-        void CallConnectionInterrupted(ReplicaID replica) {
-            lock (interruptedLock)
-            {
-                ConnectionInterrupted?.Invoke(replica);
-            }
-        }
-
-        public void AddOnMessageReceivedHandler(Action<ReplicaID, Message> handler)
-        {
-            lock (receiveLock)
-            {
-                MessageReceived += handler;
-            }
-        }
-
-        public void RemoveOnMessageReceivedHandler(Action<ReplicaID, Message> handler)
-        {
-            lock (receiveLock)
-            {
-                MessageReceived -= handler;
-            }
-        }
-
-        public void AddOnConnectionInterruptedHandler(Action<ReplicaID> handler)
-        {
-            lock (interruptedLock)
-            {
-                ConnectionInterrupted += handler;
-            }
-        }
-        public void RemoveOnConnectionInterruptedHandler(Action<ReplicaID> handler)
-        {
-            lock (interruptedLock)
-            {
-                ConnectionInterrupted -= handler;
-            }
-        }
 
         public TCPNetworkManager(Dictionary<string, ReplicaID> listenerPortMap, Dictionary< ReplicaID, (IPAddress, int)> addressMap, IPAddress localAddress, int port) { 
             this.listenerPortMap = listenerPortMap;
@@ -91,13 +40,14 @@ namespace CRDTApp.NetworkManagers
                     CallMessageReceived(id, messageObj);
                 }
                 catch (Exception e) {
+                    Console.WriteLine(e);
                     CallConnectionInterrupted(id);
                     break;
                 }
             }
 
         }
-        public async Task Run() { 
+        public override async Task Run() { 
             var tasks = new List<Task>();
             while (true) 
             {
@@ -159,7 +109,7 @@ namespace CRDTApp.NetworkManagers
             }
         }
 
-        public bool SendMessage(ReplicaID recipient, Message message) {
+        public override bool SendMessage(ReplicaID recipient, Message message) {
             TcpClient client;
             if (!outputSockets.ContainsKey(recipient))
             {

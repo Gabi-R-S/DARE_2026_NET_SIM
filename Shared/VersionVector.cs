@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Shared
 {
+    //TODO: I THINK THIS ISN'T SERIALIZING CORRECTLY!
     public struct VersionVector
     {
         public override int GetHashCode()
@@ -28,7 +29,7 @@ namespace Shared
         }
         public override bool Equals(object? obj)
         {
-            if (obj is ReplicaID)
+            if (obj is VersionVector)
             {
                 return this == (VersionVector)obj;
             }
@@ -74,7 +75,18 @@ namespace Shared
         }
 
         bool IsEqual(VersionVector other) {
-            return Dominates(other) && other.Dominates(this);
+            
+            foreach (var (k,v) in versions)
+            {
+                if (!other.versions.ContainsKey(k)) {
+                    return false;
+                }
+                if (other.versions[k] != v) {
+                    return false;
+                }
+            }
+            return other.versions.Count == versions.Count; // before it was Dominates(other) && other.Dominates(this);
+
         }
 
         public bool Dominates(VersionVector other) {
