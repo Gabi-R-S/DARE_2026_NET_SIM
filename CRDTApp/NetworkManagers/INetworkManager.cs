@@ -1,9 +1,10 @@
-﻿using Shared;
+﻿using CRDTApp.Messages;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp
+namespace CRDTApp.NetworkManagers
 {
     public interface INetworkManager
     {
@@ -16,5 +17,6 @@ namespace CRDTApp
 
         public void AddOnConnectionInterruptedHandler(Action<ReplicaID> handler);
         public void RemoveOnConnectionInterruptedHandler(Action<ReplicaID> handler);
+
     }
 }

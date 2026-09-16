@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Shared
 {
-    public class ReplicaID
+    public struct ReplicaID
     {
         public override int GetHashCode()
         {

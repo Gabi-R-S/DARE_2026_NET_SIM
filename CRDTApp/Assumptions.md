@@ -1,3 +1,2 @@
-- I assume that INetworkManager ensures at-least-once delivery, 
-RETURNING FALSE IF THE MESSAGE COULDN'T BE DELIVERED DUE TO CHANNEL INTERRUPTION/EXCESSIVE TIMEOUT
-(i.e in this case, we assume the other node cannot be reached directly)
+- I assume that INetworkManager does not ensure any kind of delivery, but may be able to detect channel failures, returning false in that case
+- The MesseageHistoryTracker sits on top of INetworkManager and introduces causal delivery and at-least-once behaviour.

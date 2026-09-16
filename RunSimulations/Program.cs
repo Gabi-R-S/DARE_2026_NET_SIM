@@ -9,12 +9,13 @@ namespace RunSimulations
     {
         static void Main(string[] args)
         {
-            Simulation env = new ThreadSafeSimulation();
+            var now = DateTime.Now;
+            Simulation env = new ThreadSafeSimulation(now);
 
             var connectionMap = new ConnectionMap();
 
-            connectionMap.SetConnection(new ReplicaID(0), new ReplicaID(1), new NetworkConnection());
-            connectionMap.SetConnection(new ReplicaID(1), new ReplicaID(0), new NetworkConnection());
+            connectionMap.SetConnection(new ReplicaID(0), new ReplicaID(1), new NetworkConnection(2));
+            connectionMap.SetConnection(new ReplicaID(1), new ReplicaID(0), new NetworkConnection(2));
 
             NetworkSimulator sim = new NetworkSimulator(env, connectionMap);
             
@@ -28,7 +29,7 @@ namespace RunSimulations
 
             var t1 = app1.Run();
             var t2 = app1.Run();
-            env.Run();
+            env.Run(now.AddSeconds(10));
             
 
 

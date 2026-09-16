@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp
+namespace CRDTApp.Schedulers
 {
     public class SimulationScheduler:IScheduler
     {

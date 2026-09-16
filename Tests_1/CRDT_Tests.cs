@@ -5,7 +5,7 @@ using Shared;
 namespace Tests_1
 {
     [TestClass]
-    public sealed class Test1
+    public sealed class CRDT_Tests
     {
         [TestMethod]
         public void TestGCounter()

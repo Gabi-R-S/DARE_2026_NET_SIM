@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp
+namespace Tests_1
 {
-    internal class FloodingBehaviour
+    [TestClass]
+    internal class MessageHistoryTrackerTests
     {
     }
 }

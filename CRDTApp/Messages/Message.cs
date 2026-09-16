@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp
+namespace CRDTApp.Messages
 {
     public class Message
     {

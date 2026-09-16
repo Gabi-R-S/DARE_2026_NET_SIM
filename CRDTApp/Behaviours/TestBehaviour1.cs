@@ -1,9 +1,12 @@
-﻿using Shared;
+﻿using CRDTApp.Messages;
+using CRDTApp.NetworkManagers;
+using CRDTApp.Schedulers;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp
+namespace CRDTApp.Behaviours
 {
     public class TestBehaviour1 :IBehaviour
     {

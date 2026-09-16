@@ -3,10 +3,69 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTs
+namespace Shared
 {
-    internal class VersionVector
+    public struct VersionVector
     {
+        public override int GetHashCode()
+        {
+            int hash = 0;
+
+            foreach (var pair in versions)
+            {
+                hash ^= HashCode.Combine(pair.Key, pair.Value);
+            }
+
+            return hash;
+        }
+        public static bool operator ==(VersionVector obj1, VersionVector obj2)
+        {
+            return obj1.IsEqual(obj2);
+        }
+        public static bool operator !=(VersionVector obj1, VersionVector obj2)
+        {
+            return !obj1.IsEqual(obj2);
+        }
+        public override bool Equals(object? obj)
+        {
+            if (obj is ReplicaID)
+            {
+                return this == (VersionVector)obj;
+            }
+            return false;
+        }
+
+
+        //TODO: Check if correct
+        public bool LacksDependencies(VersionVector newState) {
+            int numIncreases = 0;
+
+            foreach (var (replica, version) in newState.versions) {
+                if (versions.ContainsKey(replica))
+                {
+                    if (version > versions[replica] + 1) {
+                        return true;
+                    }
+                    if (version == versions[replica] + 1) {
+
+                        numIncreases += 1;
+                    }
+                }
+                else {
+                    if (version > 1) {
+                        return true;
+                    }
+                    numIncreases++;
+                }
+
+                if (numIncreases > 1) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
         public enum Comparison { 
             Concurrent,
             ThisHappenedBeforeOther,
@@ -85,11 +144,13 @@ namespace CRDTs
             }
             versions[id] += 1;
         }
-        VersionVector Clone() { 
+        public VersionVector Clone() { 
             return new VersionVector(new Dictionary<ReplicaID, ulong>(versions));;
         }
+
+      
         public VersionVector CreateIncremented(ReplicaID id) {
-            VersionVector newVector = new VersionVector(new Dictionary<ReplicaID, ulong>(versions));
+            VersionVector newVector = Clone();
             if (!newVector.versions.ContainsKey(id)) {
                 newVector.versions[id] = 0;
             }
