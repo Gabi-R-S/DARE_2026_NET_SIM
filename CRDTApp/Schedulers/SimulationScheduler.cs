@@ -24,9 +24,10 @@ namespace CRDTApp.Schedulers
 
             sim.ExecuteAfter(time, () => { sem.Release(); });
 
-            var ind = Task.WaitAny(sem.WaitAsync(),task);
+            var t = sem.WaitAsync();
+            var ind = await Task.WhenAny(t,task);
 
-            if (ind == 0) {
+            if (ind == t) {
                 return (false, defaultValue);
             }
 
@@ -40,9 +41,10 @@ namespace CRDTApp.Schedulers
 
             sim.ExecuteAfter(time, () => { sem.Release(); });
 
-            var ind = Task.WaitAny(sem.WaitAsync(), task);
+            var t = sem.WaitAsync();
+            var ind = await Task.WhenAny(t, task);
 
-            if (ind == 0)
+            if (ind == t)
             {
                 return false;
             }

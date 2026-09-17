@@ -20,13 +20,29 @@ namespace CRDTApp.Schedulers
 
             var t = Task.Delay((int)time*1000);
 
-            var res = Task.WaitAny(t,task);
+            var res = Task.WhenAny(t,task);
 
-            if (res == 0) {
+            if (res == t) {
                 return (false, defaultValue);
             }
 
             return (true, task.Result);
+
+        }
+
+        public async Task<bool> ExecuteTaskOrTimeout(Task task, float time)
+        {
+
+            var t = Task.Delay((int)time * 1000);
+
+            var res = Task.WhenAny(t, task);
+
+            if (res == t)
+            {
+                return false;
+            }
+
+            return true;
 
         }
     }
