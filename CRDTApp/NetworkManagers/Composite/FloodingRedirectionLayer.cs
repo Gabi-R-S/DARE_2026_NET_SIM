@@ -11,11 +11,10 @@ namespace CRDTApp.NetworkManagers.Composite
 
     //IDEA: move the heartbeat mechanism to a different layer? doesn't work very well stacked on top of this one, though, I think...
     //TODO: make thread-safe
-    internal class FloodingManager : NetworkManager
+    internal class FloodingRedirectionLayer : NetworkLayer
     {
         class FloodMessage
         {
-            public bool HeartBeat { get; set; }
             public ReplicaID OriginalSender { get; set; }
             public ReplicaID IntendedTarget { get; set; }
             public uint NumberOfHops { get; set; }
@@ -26,13 +25,13 @@ namespace CRDTApp.NetworkManagers.Composite
 
             }
 
-            public FloodMessage(ReplicaID intendedTarget, ReplicaID originalSender, Message? message, uint numberOfHops, bool heartbeat = false)
+            public FloodMessage(ReplicaID intendedTarget, ReplicaID originalSender, Message? message, uint numberOfHops)
             {
                 OriginalSender = originalSender;
                 IntendedTarget = intendedTarget;
                 Message = message;
                 NumberOfHops = numberOfHops;
-                HeartBeat = heartbeat;
+
             }
 
             public string ToJson()
@@ -50,23 +49,22 @@ namespace CRDTApp.NetworkManagers.Composite
         ReplicaID replicaID;
         HashSet<ReplicaID> activeConnections = new();
         HashSet<ReplicaID> innactiveConnections;
-        IScheduler scheduler;
-        NetworkManager lowerLevelManager;
+        NetworkLayer lowerLevelManager;
 
         uint numHops = 10;
 
-        public FloodingManager(ReplicaID replicaID, HashSet<ReplicaID> connections, IScheduler scheduler, NetworkManager lowerLevelManager, uint numHops)
+        public FloodingRedirectionLayer(ReplicaID replicaID, HashSet<ReplicaID> connections, NetworkLayer lowerLevelManager, uint numHops)
         {
             this.replicaID = replicaID;
             this.innactiveConnections = new HashSet<ReplicaID>(connections);
-            this.scheduler = scheduler;
             this.lowerLevelManager = lowerLevelManager;
 
             lowerLevelManager.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
             lowerLevelManager.AddOnConnectionInterruptedHandler(OnConnectionLost);
         }
 
-        void OnConnectionLost(ReplicaID id) {
+        void OnConnectionLost(ReplicaID id)
+        {
             innactiveConnections.Add(id);
             activeConnections.Add(id);
         }
@@ -83,24 +81,22 @@ namespace CRDTApp.NetworkManagers.Composite
                 throw new Exception("UNEXPECTED MESSAGE FORMAT IN FLOODING LAYER!");
             }
 
-            if (floodMessage.HeartBeat)
+
+            if (floodMessage.IntendedTarget == replicaID)
             {
-                if (floodMessage.IntendedTarget == replicaID)
+                CallMessageReceived(floodMessage.OriginalSender, floodMessage.Message);
+            }
+            else
+            {
+                if (floodMessage.NumberOfHops > 0)
                 {
-                    CallMessageReceived(floodMessage.OriginalSender, floodMessage.Message);
-                }
-                else
-                {
-                    if (floodMessage.NumberOfHops > 0)
+                    floodMessage.NumberOfHops -= 1;
+                    var newMessage = new Message(floodMessage.ToJson());
+                    foreach (var connection in activeConnections)
                     {
-                        floodMessage.NumberOfHops -= 1;
-                        var newMessage = new Message(floodMessage.ToJson());
-                        foreach (var connection in activeConnections)
+                        if (connection != senderID)
                         {
-                            if (connection != senderID)
-                            {
-                                lowerLevelManager.SendMessage(connection, newMessage);
-                            }
+                            lowerLevelManager.SendMessage(connection, newMessage);
                         }
                     }
                 }
@@ -109,7 +105,9 @@ namespace CRDTApp.NetworkManagers.Composite
 
 
 
-        async Task ProcessFurtherTasks(Dictionary<Task<bool>, ReplicaID> tasks) {
+
+        async Task ProcessFurtherTasks(Dictionary<Task<bool>, ReplicaID> tasks)
+        {
 
             while (tasks.Count > 0)
             {
@@ -119,7 +117,7 @@ namespace CRDTApp.NetworkManagers.Composite
 
                 if (!await completed)
                 {
-                 
+
                     activeConnections.Remove(replica);
                     innactiveConnections.Add(replica);
                 }
@@ -132,13 +130,13 @@ namespace CRDTApp.NetworkManagers.Composite
 
             var cons = new List<ReplicaID>(activeConnections);
 
-            Dictionary<Task<bool>,ReplicaID> tasks = new();
+            Dictionary<Task<bool>, ReplicaID> tasks = new();
 
             foreach (var connection in cons)
             {
 
                 var newMessage = new Message(new FloodMessage(recipient, replicaID, message, numHops).ToJson());
-                tasks[(lowerLevelManager.SendMessage(connection, newMessage))]= connection;
+                tasks[(lowerLevelManager.SendMessage(connection, newMessage))] = connection;
             }
 
 
@@ -151,9 +149,10 @@ namespace CRDTApp.NetworkManagers.Composite
                 if (await completed)
                 {
                     ProcessFurtherTasks(tasks);
-                    return true; 
+                    return true;
                 }
-                else {
+                else
+                {
                     activeConnections.Remove(replica);
                     innactiveConnections.Add(replica);
                 }
@@ -164,24 +163,7 @@ namespace CRDTApp.NetworkManagers.Composite
 
         }
 
-        const float heartbeatTime = 0.5f;
 
-        async Task Hearbeat()
-        {
-            FloodMessage message = new FloodMessage(new ReplicaID(),new ReplicaID(),null, 0, true);
-            Message messg = new Message(message.ToJson());
-            foreach (var connection in innactiveConnections) {
-                lowerLevelManager.SendMessage(connection, messg);
-            }
-
-            scheduler.ExecuteAfter(heartbeatTime,()=>{ Hearbeat(); });
-        }
-
-        public override Task Run()
-        {
-            Hearbeat();
-            return base.Run();
-        }
 
     }
 }

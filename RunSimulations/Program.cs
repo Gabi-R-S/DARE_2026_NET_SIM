@@ -23,12 +23,12 @@ namespace RunSimulations
 
             NetworkSimulator sim = new NetworkSimulator(env, connectionMap);
             
-            var net1 = new SimulatedNetworkManager(sim, new ReplicaID(0));
+            var net1 = new SimulatedNetworkBaseLayer(sim, new ReplicaID(0));
             App app1 = new App(new TestBehaviour1(new SimulationScheduler(sim), net1, new ReplicaID(1)),net1);
 
 
 
-            var net2 = new SimulatedNetworkManager(sim, new ReplicaID(1));
+            var net2 = new SimulatedNetworkBaseLayer(sim, new ReplicaID(1));
             App app2 = new App(new TestBehaviour1(new SimulationScheduler(sim), net2, new ReplicaID(0)), net2);
 
             var t1 = app1.Run();

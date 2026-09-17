@@ -8,7 +8,7 @@ using System.Text;
 namespace CRDTApp.NetworkManagers.Composite
 {
     // Goal: ensure at-least-once delivery (or return false if impossible)
-    internal class EnsureAckNetworkManager<T>: NetworkManager
+    internal class EnsureAckNetworkLayer<T>: NetworkLayer
     {
         class EnsureAckMessage {
             public T Tag { get; set; }
@@ -39,10 +39,10 @@ namespace CRDTApp.NetworkManagers.Composite
         Func<ReplicaID,T> GenerateNextTag;
         Dictionary<(T, ReplicaID), SemaphoreSlim> pendingAcks = new();
         
-        NetworkManager lowerLayerNetworkManager;
+        NetworkLayer lowerLayerNetworkManager;
 
 
-        public EnsureAckNetworkManager(ReplicaID replicaID, NetworkManager lowerLayerNetworkManager, Func<ReplicaID, T> generateNextTag)
+        public EnsureAckNetworkLayer(ReplicaID replicaID, NetworkLayer lowerLayerNetworkManager, Func<ReplicaID, T> generateNextTag)
         {
             this.replicaID = replicaID;
             GenerateNextTag = generateNextTag;

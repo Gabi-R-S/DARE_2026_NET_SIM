@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CRDTApp.NetworkManagers
 {
-    public abstract class NetworkManager
+    public abstract class NetworkLayer
     {
         public virtual Task Run(){
             return Task.CompletedTask;
@@ -15,9 +15,16 @@ namespace CRDTApp.NetworkManagers
 
         object receiveLock = new object();
         object interruptedLock = new object();
+        object regainedLock = new object();
         event Action<ReplicaID, Message?>? MessageReceived;
         event Action<ReplicaID>? ConnectionInterrupted;
+        event Action<ReplicaID>? ConnectionRegained;
 
+        protected void CallConnectionRegained(ReplicaID replica) {
+            lock (regainedLock) {
+                ConnectionRegained?.Invoke(replica);
+            }
+        }
         protected void CallMessageReceived(ReplicaID replica, Message? message)
         {
             lock (receiveLock)
@@ -65,6 +72,20 @@ namespace CRDTApp.NetworkManagers
             }
         }
 
+        public void AddOnConnectionRegainedHandler(Action<ReplicaID> handler)
+        {
+            lock (regainedLock)
+            {
+                ConnectionRegained += handler;
+            }
+        }
+        public void RemoveOnConnectionRegainedHandler(Action<ReplicaID> handler)
+        {
+            lock (regainedLock)
+            {
+                ConnectionRegained -= handler;
+            }
+        }
         public abstract Task<bool> SendMessage(ReplicaID recipient, Message message);
 
     }

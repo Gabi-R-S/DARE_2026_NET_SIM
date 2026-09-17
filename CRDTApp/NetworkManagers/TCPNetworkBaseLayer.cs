@@ -10,7 +10,7 @@ using System.Text;
 //TODO: MAKE THREAD-SAFE!!!!
 namespace CRDTApp.NetworkManagers
 {
-    public class TCPNetworkManager: NetworkManager
+    public class TCPNetworkBaseLayer: NetworkLayer
     {
         const int MESSAGE_SIZE_LIMIT = 2048;
         Dictionary<ReplicaID, TcpClient> outputSockets = new(); //this client class is thread safe, supposedly
@@ -20,7 +20,7 @@ namespace CRDTApp.NetworkManagers
 
 
 
-        public TCPNetworkManager(Dictionary<string, ReplicaID> listenerPortMap, Dictionary< ReplicaID, (IPAddress, int)> addressMap, IPAddress localAddress, int port) { 
+        public TCPNetworkBaseLayer(Dictionary<string, ReplicaID> listenerPortMap, Dictionary< ReplicaID, (IPAddress, int)> addressMap, IPAddress localAddress, int port) { 
             this.listenerPortMap = listenerPortMap;
             listener = new TcpListener(localAddress,port);
             this.addressMap = addressMap;

@@ -7,7 +7,7 @@ using CRDTApp.Messages;
 
 namespace Tests_1
 {
-    internal class MockNetworkManager:NetworkManager
+    internal class MockNetworkManager:NetworkLayer
     {
         public Queue<(ReplicaID, Message)> MessagesSent { get; private set; } = new();
 

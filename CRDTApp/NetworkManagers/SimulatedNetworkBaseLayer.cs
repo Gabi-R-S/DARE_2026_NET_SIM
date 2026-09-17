@@ -8,12 +8,12 @@ using System.Text;
 
 namespace CRDTApp.NetworkManagers
 {
-    public class SimulatedNetworkManager : NetworkManager
+    public class SimulatedNetworkBaseLayer : NetworkLayer
     {
         ReplicaID replicaID;
         NetworkSimulator networkSimulator;
         
-        public SimulatedNetworkManager(NetworkSimulator simulator, ReplicaID id)
+        public SimulatedNetworkBaseLayer(NetworkSimulator simulator, ReplicaID id)
         {
 
             this.networkSimulator = simulator;

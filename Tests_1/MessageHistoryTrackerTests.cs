@@ -17,11 +17,11 @@ namespace Tests_1
         {
             MockNetworkManager manager1 = new MockNetworkManager();
             ReplicaID id1 = new ReplicaID();
-            MessageHistoryTracker tracker1 = new MessageHistoryTracker(id1, manager1);
+            CausalHistoryTrackerLayer tracker1 = new CausalHistoryTrackerLayer(id1, manager1);
 
             MockNetworkManager manager2 = new MockNetworkManager();
             ReplicaID id2 = new ReplicaID();
-            MessageHistoryTracker tracker2 = new MessageHistoryTracker(id2, manager2);
+            CausalHistoryTrackerLayer tracker2 = new CausalHistoryTrackerLayer(id2, manager2);
 
             bool something = false;
             tracker1.AddOnMessageReceivedHandler((id, message) => {

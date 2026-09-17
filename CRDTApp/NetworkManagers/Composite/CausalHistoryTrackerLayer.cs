@@ -13,7 +13,7 @@ namespace CRDTApp.NetworkManagers.Composite
 {
     //TODO: for this to be fully correct, there should be a way to abstract the wait time into the scheduler, like "scheduler.await_task_or_timeout()"
     // Goal: ensuring causal delivery
-    public class MessageHistoryTracker : NetworkManager
+    public class CausalHistoryTrackerLayer : NetworkLayer
     {
         class TrackerMessage
         {
@@ -46,9 +46,9 @@ namespace CRDTApp.NetworkManagers.Composite
 
 
         ReplicaID replicaID;
-        NetworkManager networkManager;
+        NetworkLayer networkManager;
 
-        public MessageHistoryTracker(ReplicaID replicaID, NetworkManager networkManager, VersionVector? latest = null)
+        public CausalHistoryTrackerLayer(ReplicaID replicaID, NetworkLayer networkManager, VersionVector? latest = null)
         {
             this.replicaID = replicaID;
             this.latest = latest ?? new VersionVector();
@@ -58,7 +58,7 @@ namespace CRDTApp.NetworkManagers.Composite
             networkManager.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
         }
 
-VersionVector latest;
+        VersionVector latest;
         List<(ReplicaID, TrackerMessage)> pendingReceivedMessages;
 
 

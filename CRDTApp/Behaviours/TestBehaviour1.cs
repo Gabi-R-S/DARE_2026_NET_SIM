@@ -11,10 +11,10 @@ namespace CRDTApp.Behaviours
     public class TestBehaviour1 :IBehaviour
     {
         IScheduler scheduler;
-        NetworkManager manager;
+        NetworkLayer manager;
 
         ReplicaID otherReplica;
-        public TestBehaviour1(IScheduler scheduler, NetworkManager manager, ReplicaID otherReplica) { 
+        public TestBehaviour1(IScheduler scheduler, NetworkLayer manager, ReplicaID otherReplica) { 
             this.scheduler = scheduler;
             this.manager = manager;
             this.otherReplica = otherReplica;
