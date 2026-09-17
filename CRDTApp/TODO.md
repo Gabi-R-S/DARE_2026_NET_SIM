@@ -1,4 +1,2 @@
-- Make sure network layer events are getting hooked up correctly
-- Finish heartbeat logic to notify upper layers of reconnections/loss of connections/keep table of active connections.
 - Make sure everything is thread-safe/there isn't any kind of weird parallelism behaviour.
 - Make sure all semaphore logic is correct

@@ -15,7 +15,7 @@ namespace CRDTApp.NetworkManagers.Composite
     // Goal: ensuring causal delivery
     public class CausalHistoryTrackerLayer : NetworkLayer
     {
-        class TrackerMessage
+        class TrackerMessage :NetworkLayerMessage<TrackerMessage>
         {
             public Message? Message { get; set; }
 
@@ -32,29 +32,19 @@ namespace CRDTApp.NetworkManagers.Composite
 
 
             }
-            public string ToJson()
-            {
-                return JsonConvert.SerializeObject(this);
-            }
-
-            public static TrackerMessage? FromJson(string json)
-            {
-                return JsonConvert.DeserializeObject<TrackerMessage>(json);
-            }
+            
         }
 
 
 
         ReplicaID replicaID;
-        NetworkLayer networkManager;
-
-        public CausalHistoryTrackerLayer(ReplicaID replicaID, NetworkLayer networkManager, VersionVector? latest = null)
+        
+        public CausalHistoryTrackerLayer(ReplicaID replicaID, NetworkLayer networkManager, VersionVector? latest = null): base(networkManager,false,true,true)
         {
             this.replicaID = replicaID;
             this.latest = latest ?? new VersionVector();
             pendingReceivedMessages = new();
 
-            this.networkManager = networkManager;
             networkManager.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
         }
 
@@ -115,7 +105,7 @@ namespace CRDTApp.NetworkManagers.Composite
 
             var networkMessage = new Message(trackerMessage.ToJson());
 
-            return await networkManager.SendMessage(recipient, networkMessage);
+            return await layerBelow.SendMessage(recipient, networkMessage);
         }
 
 

@@ -1,4 +1,5 @@
 ﻿using CRDTApp.Messages;
+using CRDTApp.Schedulers;
 using Newtonsoft.Json;
 using Shared;
 using System;
@@ -10,7 +11,8 @@ namespace CRDTApp.NetworkManagers.Composite
     // Goal: ensure at-least-once delivery (or return false if impossible)
     internal class EnsureAckNetworkLayer<T>: NetworkLayer
     {
-        class EnsureAckMessage {
+        class EnsureAckMessage : NetworkLayerMessage<EnsureAckMessage>
+        {
             public T Tag { get; set; }
             public Message? Message { get; set; }
             public bool IsAck { get; set; }
@@ -24,30 +26,23 @@ namespace CRDTApp.NetworkManagers.Composite
                 Message = message;
                 IsAck = isAck;
             }
-            public string ToJson()
-            {
-                return JsonConvert.SerializeObject(this);
-            }
-
-            public static EnsureAckMessage? FromJson(string json)
-            {
-                return JsonConvert.DeserializeObject<EnsureAckMessage>(json);
-            }
 
         }
+
+        IScheduler scheduler;
         ReplicaID replicaID;
         Func<ReplicaID,T> GenerateNextTag;
         Dictionary<(T, ReplicaID), SemaphoreSlim> pendingAcks = new();
         
-        NetworkLayer lowerLayerNetworkManager;
 
 
-        public EnsureAckNetworkLayer(ReplicaID replicaID, NetworkLayer lowerLayerNetworkManager, Func<ReplicaID, T> generateNextTag)
+        public EnsureAckNetworkLayer(ReplicaID replicaID, NetworkLayer lowerLayerNetworkManager,IScheduler scheduler, Func<ReplicaID, T> generateNextTag,float waitTime=0.5f):base(lowerLayerNetworkManager,false,true,true)
         {
             this.replicaID = replicaID;
             GenerateNextTag = generateNextTag;
-            
-            this.lowerLayerNetworkManager = lowerLayerNetworkManager;
+            this.scheduler = scheduler;
+            this.waitTime = waitTime;
+
             lowerLayerNetworkManager.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
         }
 
@@ -78,7 +73,7 @@ namespace CRDTApp.NetworkManagers.Composite
             else
             {
                 var ack = new EnsureAckMessage( pendingAckMessage.Tag, pendingAckMessage.Message,true);
-                lowerLayerNetworkManager.SendMessage(senderID, new Message(ack.ToJson()));
+                layerBelow.SendMessage(senderID, new Message(ack.ToJson()));
                 
                 CallMessageReceived(senderID,pendingAckMessage.Message);
             }
@@ -87,7 +82,7 @@ namespace CRDTApp.NetworkManagers.Composite
 
 
         const int NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT = 3;
-        const int WAIT_TIME_MILLISECONDS = 1000;
+        float waitTime = 0.5f;
 
 
 
@@ -104,20 +99,20 @@ namespace CRDTApp.NetworkManagers.Composite
                 var semaphore = new SemaphoreSlim(0);
                 pendingAcks[(newTag, recipient)] = semaphore;
 
-                if (!await lowerLayerNetworkManager.SendMessage(recipient, networkMessage))
+                if (!await layerBelow.SendMessage(recipient, networkMessage))
                 {
+                    CallConnectionInterrupted(recipient);
                     return false;
                 }
 
-                if (await semaphore.WaitAsync(WAIT_TIME_MILLISECONDS))
+                if (await scheduler.ExecuteTaskOrTimeout(semaphore.WaitAsync(), waitTime))
                 {
                     return true;
                 }
 
-
             }
 
-            //CallConnectionInterrupted(recipient);
+            CallConnectionInterrupted(recipient);
 
             return false;
         }

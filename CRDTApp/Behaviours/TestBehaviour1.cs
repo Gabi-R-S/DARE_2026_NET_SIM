@@ -22,24 +22,13 @@ namespace CRDTApp.Behaviours
             manager.AddOnMessageReceivedHandler(ReceiveMessage);
         }
 
-        object lck = new object();
         void ReceiveMessage(ReplicaID id, Message message)
         {
-            lock (lck){
                 if (message != null)
                 {
                     Console.WriteLine(message);
-                    if (message.Payload == "ACK")
-                    {
-                        Send();
-                    }
-                    else
-                    {
-                        manager.SendMessage(otherReplica, new Message("ACK"));
-                    }
-
                 }
-            } 
+             
         }
 
         void Send() {

@@ -1,4 +1,5 @@
 ﻿using CRDTApp.Messages;
+using Newtonsoft.Json;
 using Shared;
 using Simulator;
 using System;
@@ -9,6 +10,39 @@ namespace CRDTApp.NetworkManagers
 {
     public abstract class NetworkLayer
     {
+        protected NetworkLayer? layerBelow;
+        public NetworkLayer(NetworkLayer? layerBelow = null, bool connectMessageReceived=false, bool connectConnectionInterrupted = false, bool connectConnectionRegained = false) {
+            this.layerBelow = layerBelow;
+
+            if (layerBelow != null) {
+                if (connectMessageReceived) {
+                    layerBelow.AddOnMessageReceivedHandler(CallMessageReceived);
+                }
+                if (connectConnectionInterrupted)
+                {
+                    layerBelow.AddOnConnectionInterruptedHandler(CallConnectionInterrupted);
+                }
+                if (connectConnectionRegained)
+                {
+                    layerBelow.AddOnConnectionRegainedHandler(CallConnectionRegained);
+                }
+
+            }
+        
+        }
+        protected abstract class NetworkLayerMessage<T> {
+
+            public string ToJson() {
+
+                return JsonConvert.SerializeObject(this);
+            }
+            static public T? FromJson(string json)
+            {
+                return JsonConvert.DeserializeObject<T>(json);
+
+            }
+        
+        }
         public virtual Task Run(){
             return Task.CompletedTask;
         }
