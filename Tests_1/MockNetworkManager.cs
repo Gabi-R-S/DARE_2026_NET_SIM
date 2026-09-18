@@ -1,4 +1,4 @@
-﻿using CRDTApp.NetworkManagers;
+﻿using CRDTApp.NetworkLayers;
 using Shared;
 using System;
 using System.Collections.Generic;

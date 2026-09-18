@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp.NetworkManagers.Composite
+namespace CRDTApp.NetworkLayers.Composite
 {
-    internal class TrackActiveConnactionsLayer:NetworkLayer
+    public class TrackActiveConnactionsLayer:NetworkLayer
     {
 
         ActiveConnectionTracker tracker;

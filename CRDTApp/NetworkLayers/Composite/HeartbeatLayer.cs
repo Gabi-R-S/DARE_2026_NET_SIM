@@ -6,11 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp.NetworkManagers.Composite
+namespace CRDTApp.NetworkLayers.Composite
 {
-    internal class HeartbeatLayer:NetworkLayer
+    public class HeartbeatLayer:NetworkLayer
     {
-        class HeartbeatMessage :NetworkLayerMessage<HeartbeatMessage>
+        public class HeartbeatMessage : NetworkLayerMessage<HeartbeatMessage>
         {
             public bool HeartBeat { get; set; }
             public Message? Message { get; set; }

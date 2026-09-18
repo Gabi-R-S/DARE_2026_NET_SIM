@@ -13,7 +13,12 @@ namespace Simulator
             if (!connectionMap.ContainsKey(source)) {
                 connectionMap[source] = new Dictionary<ReplicaID, NetworkConnection>();
             }
+            if (!connectionMap.ContainsKey(destination))
+            {
+                connectionMap[destination] = new Dictionary<ReplicaID, NetworkConnection>();
+            }
             connectionMap[source][destination] = connection;
+            connectionMap[destination][source] = connection;
         }
         public NetworkConnection? GetConnection(ReplicaID source, ReplicaID destination) {
             if (!connectionMap.ContainsKey(source)) {

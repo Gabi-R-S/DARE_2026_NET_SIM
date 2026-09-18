@@ -1,5 +1,5 @@
 ﻿using CRDTApp.Messages;
-using CRDTApp.NetworkManagers;
+using CRDTApp.NetworkLayers;
 using CRDTApp.Schedulers;
 using Shared;
 using System;

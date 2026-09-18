@@ -6,12 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp.NetworkManagers.Composite
+namespace CRDTApp.NetworkLayers.Composite
 {
     // Goal: ensure at-least-once delivery (or return false if impossible)
-    internal class EnsureAckNetworkLayer<T>: NetworkLayer
+    public class EnsureAckNetworkLayer<T>: NetworkLayer
     {
-        class EnsureAckMessage : NetworkLayerMessage<EnsureAckMessage>
+        public class EnsureAckMessage : NetworkLayerMessage<EnsureAckMessage>
         {
             public T Tag { get; set; }
             public Message? Message { get; set; }

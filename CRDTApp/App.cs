@@ -1,5 +1,5 @@
 ﻿using CRDTApp.Behaviours;
-using CRDTApp.NetworkManagers;
+using CRDTApp.NetworkLayers;
 using CRDTApp.Schedulers;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace CRDTApp
         {
         }
 
-        public async Task Run(IBehaviour behaviour,  IScheduler? scheduler, float executionTime =-1)
+        public async Task Run(IBehaviour behaviour,  IScheduler? scheduler = null, float executionTime =-1)
         {
            var t1 = behaviour.Run();
 

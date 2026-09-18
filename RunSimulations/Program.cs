@@ -1,8 +1,9 @@
 ﻿using CRDTApp;
 using CRDTApp.Behaviours;
 using CRDTApp.Messages;
-using CRDTApp.NetworkManagers;
+using CRDTApp.NetworkLayers;
 using CRDTApp.Schedulers;
+using Newtonsoft.Json;
 using Shared;
 using SimSharp;
 using Simulator;
@@ -13,32 +14,18 @@ namespace RunSimulations
     {
         static void Main(string[] args)
         {
-            var now = DateTime.Now;
-            Simulation env = new ThreadSafeSimulation(now);
-
-            var connectionMap = new ConnectionMap();
-
-            connectionMap.SetConnection(new ReplicaID(0), new ReplicaID(1), new NetworkConnection(2));
-            connectionMap.SetConnection(new ReplicaID(1), new ReplicaID(0), new NetworkConnection(2));
-
-            NetworkSimulator sim = new NetworkSimulator(env, connectionMap);
             
-            var net1 = new SimulatedNetworkBaseLayer(sim, new ReplicaID(0));
-            App app1 = new App(new TestBehaviour1(new SimulationScheduler(sim), net1, new ReplicaID(1)),net1);
+            List<Experiment> experiments = new List<Experiment>() { new FullyConnectedExperiment()};
 
-
-
-            var net2 = new SimulatedNetworkBaseLayer(sim, new ReplicaID(1));
-            App app2 = new App(new TestBehaviour1(new SimulationScheduler(sim), net2, new ReplicaID(0)), net2);
-
-            var t1 = app1.Run();
-            var t2 = app1.Run();
-            env.Run(now.AddSeconds(10));
             
 
+            List<ExperimentResults> results = new();
 
-            t1.Wait();
-            t2.Wait();
+            foreach (var experiment in experiments) {
+                results.AddRange(experiment.Run());
+            }
+
+            Console.WriteLine(JsonConvert.SerializeObject(results));
 
         }
     }

@@ -1,4 +1,5 @@
-﻿using Shared;
+﻿using Newtonsoft.Json;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,6 +8,46 @@ namespace CRDTs.Basic
 {
     public class ORSet<T> where T : notnull
     {
+
+        public static ORSet<T> FromJSON(string json,Func<string,T> converter) {
+            var obj=JsonConvert.DeserializeObject(json);
+            Console.WriteLine(obj.ToString());
+
+            throw new NotImplementedException();
+        }
+
+        string MapToJson(Dictionary<T, HashSet<Tag>> map, Func<T, string> converter) {
+            var mapStr = "{";
+            foreach (var (t, set) in adds)
+            {
+                var setStr = "[";
+
+                foreach (var tag in set)
+                {
+                    setStr += "\"" + tag + "\",";
+                }
+                if (set.Count > 0) {
+                    setStr.Remove(setStr.Length-1);
+                }
+                setStr += "]";
+                mapStr += "\"" + converter(t) + "\":" + setStr + ",";
+            }
+
+            if (adds.Count > 0)
+            {
+                mapStr.Remove(mapStr.Length - 1);
+            }
+            return mapStr;
+        }
+
+
+        public string ToJson(Func<T,string> converter) {
+            var addsStr = MapToJson(adds, converter);
+
+            var removesString = MapToJson(removes, converter);
+
+            return "{\"adds\":"+addsStr+",\"removes\":"+removesString+"}";
+        }
 
         public struct Tag
         {

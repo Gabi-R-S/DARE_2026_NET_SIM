@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp.NetworkManagers
+namespace CRDTApp.NetworkLayers
 {
     public abstract class NetworkLayer
     {
@@ -30,7 +30,7 @@ namespace CRDTApp.NetworkManagers
             }
         
         }
-        protected abstract class NetworkLayerMessage<T> {
+        public abstract class NetworkLayerMessage<T> {
 
             public string ToJson() {
 

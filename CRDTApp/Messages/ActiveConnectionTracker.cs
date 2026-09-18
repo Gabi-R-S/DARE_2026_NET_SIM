@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CRDTApp.Messages
 {
-    internal class ActiveConnectionTracker
+    public class ActiveConnectionTracker
     {
         object connectionLock = new object();
         HashSet<ReplicaID> activeConnections = new();
@@ -28,7 +28,7 @@ namespace CRDTApp.Messages
                 return replicas;
                 
             
-            }; }
+            } }
         public List<ReplicaID> InnactiveConnections { get {
                 List<ReplicaID> replicas = new();
                 lock (connectionLock)

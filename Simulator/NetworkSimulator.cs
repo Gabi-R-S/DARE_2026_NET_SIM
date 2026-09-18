@@ -8,6 +8,49 @@ namespace Simulator
 {
     public class NetworkSimulator
     {
+        event Action<NetworkMessage>? MessageSendAttempted;
+        event Action<NetworkMessage>? MessageSendScheduled;
+        event Action<NetworkMessage>? MessageLost;
+        event Action<NetworkMessage>? MessageDelivered;
+
+        public void AddMessageSendAttemptedHandler(Action<NetworkMessage>handler) {
+            MessageSendAttempted += handler;
+
+        }
+        public void RemoveMessageSendAttemptedHandler(Action<NetworkMessage> handler)
+        {
+            MessageSendAttempted -= handler;
+
+        }
+        public void AddMessageSendScheduledHandler(Action<NetworkMessage> handler)
+        {
+            MessageSendScheduled += handler;
+
+        }
+        public void RemoveMessageSendScheduledHandler(Action<NetworkMessage> handler)
+        {
+            MessageSendScheduled -= handler;
+
+        }
+
+        public void AddMessageLostHandler(Action<NetworkMessage> handler)
+        {
+            MessageLost += handler;
+
+        }
+        public void RemoveMessageLostHandler(Action<NetworkMessage> handler)
+        {
+            MessageLost -= handler;
+        }
+        public void AddMessageDeliveredHandler(Action<NetworkMessage> handler) {
+            MessageDelivered += handler;
+        }
+        public void RemoveMessageDeliveredHandler(Action<NetworkMessage> handler)
+        {
+            MessageDelivered -= handler;
+        }
+
+
         Dictionary<ReplicaID, List<Action<NetworkMessage>>> messageDeliveredHandlers = new Dictionary<ReplicaID, List<Action<NetworkMessage>>>();
 
         Dictionary<ReplicaID, List<Action<ReplicaID>>> connectionInterruptedHandlers = new Dictionary<ReplicaID, List<Action<ReplicaID>>>();
@@ -53,7 +96,8 @@ namespace Simulator
                 foreach (var handler in handlers)
                 {
                     handler(message);
-                }   
+                }
+                MessageDelivered?.Invoke(message);
             }
         }
 
@@ -61,6 +105,7 @@ namespace Simulator
 
         public bool ScheduleMessageDelivery( NetworkMessage message)
         {
+            MessageSendAttempted?.Invoke(message);
             if (connectionMap.IsConnectionAvailable(message.Source,message.Recipient)) {
                 var connection = connectionMap.GetConnection(message.Source,message.Recipient);
                 if (connection != null)
@@ -76,6 +121,7 @@ namespace Simulator
                         }
                     });
                     env.ScheduleD(connection.TransmissionTime, ev);
+                    MessageSendScheduled?.Invoke(message);
                     return true;
                 }
             }

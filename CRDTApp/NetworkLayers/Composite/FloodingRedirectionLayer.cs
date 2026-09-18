@@ -6,14 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp.NetworkManagers.Composite
+namespace CRDTApp.NetworkLayers.Composite
 {
 
-    //IDEA: move the heartbeat mechanism to a different layer? doesn't work very well stacked on top of this one, though, I think...
     //TODO: make thread-safe
-    internal class FloodingRedirectionLayer : NetworkLayer
+    public class FloodingRedirectionLayer : NetworkLayer
     {
-        class FloodMessage : NetworkLayerMessage<FloodMessage>
+        public class FloodMessage : NetworkLayerMessage<FloodMessage>
         {
             public ReplicaID OriginalSender { get; set; }
             public ReplicaID IntendedTarget { get; set; }

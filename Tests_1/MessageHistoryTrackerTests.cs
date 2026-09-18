@@ -1,5 +1,5 @@
 ﻿using CRDTApp.Messages;
-using CRDTApp.NetworkManagers.Composite;
+using CRDTApp.NetworkLayers.Composite;
 using Shared;
 using System;
 using System.Collections.Generic;

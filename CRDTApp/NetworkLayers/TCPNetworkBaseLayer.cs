@@ -8,7 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 
 //TODO: MAKE THREAD-SAFE!!!!
-namespace CRDTApp.NetworkManagers
+namespace CRDTApp.NetworkLayers
 {
     public class TCPNetworkBaseLayer: NetworkLayer
     {

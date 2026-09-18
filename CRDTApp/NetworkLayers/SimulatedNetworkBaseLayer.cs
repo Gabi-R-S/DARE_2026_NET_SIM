@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp.NetworkManagers
+namespace CRDTApp.NetworkLayers
 {
     public class SimulatedNetworkBaseLayer : NetworkLayer
     {
