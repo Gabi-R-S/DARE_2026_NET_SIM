@@ -9,31 +9,27 @@ namespace CRDTApp
 {
     public class App
     {
-        IBehaviour behaviour;
-        NetworkLayer networkManager;
         SemaphoreSlim closeSem = new SemaphoreSlim(0);
 
         public void Close() {
             closeSem.Release();
         }
-        public App(IBehaviour behaviour, NetworkLayer networkManager)
+        public App()
         {
-            this.behaviour = behaviour;
-            this.networkManager = networkManager;
         }
 
-        public App(IBehaviour behaviour, NetworkLayer networkManager, IScheduler scheduler, float executionTime)
+        public async Task Run(IBehaviour behaviour,  IScheduler? scheduler, float executionTime =-1)
         {
-            this.behaviour = behaviour;
-            this.networkManager = networkManager;
-            scheduler.ExecuteAfter(executionTime,Close);
-        }
-        public async Task Run()
-        {
-            var t1 = behaviour.Run();
-            var t2 = networkManager.Run();
+           var t1 = behaviour.Run();
 
-            await Task.WhenAny(Task.WhenAll(t1, t2), closeSem.WaitAsync());
+            var wait = Task.WhenAny(t1, closeSem.WaitAsync());
+            if (scheduler != null && executionTime > 0) {
+                scheduler.ExecuteAfter(executionTime, Close);
+                await scheduler.ExecuteTaskOrTimeout( wait, executionTime);
+            }
+            else {
+                await wait;
+            }
         }
     }
 }

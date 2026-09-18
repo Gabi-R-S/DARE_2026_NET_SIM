@@ -67,8 +67,11 @@ namespace CRDTApp.NetworkManagers.Composite
                 throw new Exception("Error: unexpected message format!");
             }
 
-
-            pendingReceivedMessages.Add((senderID, trackerMessage));
+            var comp = trackerMessage.CausalityTracker.Compare(latest);
+            if (comp != VersionVector.Comparison.ThisHappenedAfterOther && comp != VersionVector.Comparison.Equal)
+            {
+                pendingReceivedMessages.Add((senderID, trackerMessage));
+            }
 
 
 

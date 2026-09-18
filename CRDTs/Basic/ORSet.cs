@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CRDTs.Basic
 {
-    internal class ORSet<T> where T : notnull
+    public class ORSet<T> where T : notnull
     {
 
         public struct Tag
