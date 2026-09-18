@@ -50,7 +50,6 @@ namespace CRDTApp.Behaviours
                 foreach (ReplicaID replica in otherReplicas) {
                     tasks.Add(SendUntilSuccess(replica,message));
                 }
-                Console.WriteLine("hi");
             }
             
             await Task.WhenAll(tasks);

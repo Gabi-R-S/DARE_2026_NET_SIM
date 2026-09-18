@@ -36,7 +36,7 @@ namespace RunSimulations
 
             for (int i = 0; i < replicaIDs.Count; i++) {
 
-                for (int j=i;i<replicaIDs.Count;i++) {
+                for (int j=i;j<replicaIDs.Count;j++) {
                     map.SetConnection(replicaIDs[i], replicaIDs[j], new NetworkConnection(delay));
                 }
             }

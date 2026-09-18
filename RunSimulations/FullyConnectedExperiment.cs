@@ -42,14 +42,11 @@ namespace RunSimulations
             List<Task> tasks = new List<Task>();
             int i = 0;
             foreach (var replica in replicas) {
-                Console.WriteLine("here!");
+                
                 var networkManager = new SimulatedNetworkBaseLayer(simulator,replica);
-                Console.WriteLine("here!");
-
+                
                 var app = new App();
-                Console.WriteLine("here!");
                 var otherReplicas = new List<ReplicaID>(replicas);
-                Console.WriteLine("here!");
                 otherReplicas.Remove(replica);
                 Console.WriteLine("here! "+(opsPerReplica*i).ToString()+" " + (opsPerReplica * (i+1)-1).ToString());
                 tasks.Add(app.Run(new InsertBehaviour(app,networkManager,replica,otherReplicas.ToArray(),opsPerReplica*i,opsPerReplica*(i+1)-1,opsPerReplica*replicas.Count)));
