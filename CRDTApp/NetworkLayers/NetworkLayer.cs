@@ -81,7 +81,7 @@ namespace CRDTApp.NetworkLayers
             {
                 MessageReceived += handler;
             }
-        }
+         }
 
         public void RemoveOnMessageReceivedHandler(Action<ReplicaID, Message> handler)
         {
