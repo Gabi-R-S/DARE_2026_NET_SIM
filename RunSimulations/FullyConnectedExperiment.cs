@@ -48,7 +48,7 @@ namespace RunSimulations
                 var app = new App();
                 var otherReplicas = new List<ReplicaID>(replicas);
                 otherReplicas.Remove(replica);
-                Console.WriteLine("here! "+(opsPerReplica*i).ToString()+" " + (opsPerReplica * (i+1)-1).ToString());
+                //Console.WriteLine("here! "+(opsPerReplica*i).ToString()+" " + (opsPerReplica * (i+1)-1).ToString());
                 tasks.Add(app.Run(new InsertBehaviour(app,networkManager,replica,otherReplicas.ToArray(),opsPerReplica*i,opsPerReplica*(i+1)-1,opsPerReplica*replicas.Count)));
                 i++;
                 Console.WriteLine("completed loop!");

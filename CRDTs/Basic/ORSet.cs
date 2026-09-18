@@ -38,7 +38,7 @@ namespace CRDTs.Basic
 
         string MapToJson(Dictionary<T, HashSet<Tag>> map, Func<T, string> converter) {
             var mapStr = "{";
-            foreach (var (t, set) in adds)
+            foreach (var (t, set) in map)
             {
                 var setStr = "[";
 
@@ -46,17 +46,19 @@ namespace CRDTs.Basic
                 {
                     setStr += "\"" + tag.ToString() + "\",";
                 }
-                if (set.Count > 0) {
-                    setStr.Remove(setStr.Length-1);
+                if (setStr.Length > 1) {
+                    setStr=setStr.Remove(setStr.Length-1);
                 }
                 setStr += "]";
+
                 mapStr += "\"" + converter(t) + "\":" + setStr + ",";
             }
 
-            if (adds.Count > 0)
+            if (mapStr.Length > 1)
             {
-                mapStr.Remove(mapStr.Length - 1);
+                mapStr = mapStr.Remove(mapStr.Length - 1);
             }
+            mapStr += "}";
             return mapStr;
         }
 
