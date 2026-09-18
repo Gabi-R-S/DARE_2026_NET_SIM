@@ -8,12 +8,32 @@ namespace CRDTs.Basic
 {
     public class ORSet<T> where T : notnull
     {
+        static Dictionary<T, HashSet<Tag>> DictionaryFromJsonParseResult(Dictionary<string, List<string>> res, Func<string, T> converter)
+        {
+            Dictionary<T, HashSet<Tag>> dic = new Dictionary<T, HashSet<Tag>>();
+
+
+            foreach (var (k, v) in res) {
+                HashSet<Tag> tags = new();
+                foreach (var tag in v) {
+                    tags.Add(new Tag(tag));
+                }
+                dic[converter(k)] = tags;
+            
+            }
+
+            return dic;
+        }
 
         public static ORSet<T> FromJSON(string json,Func<string,T> converter) {
-            var obj=JsonConvert.DeserializeObject(json);
-            Console.WriteLine(obj.ToString());
+            var obj=JsonConvert.DeserializeObject<Dictionary<string,Dictionary<string,List<string>>>>(json);
 
-            throw new NotImplementedException();
+            if (obj == null) {
+
+                throw new Exception("ERROR IN ORSET JSON FORMAT");
+            }
+            return new ORSet<T>(DictionaryFromJsonParseResult(obj["adds"], converter), DictionaryFromJsonParseResult(obj["removes"], converter));
+            
         }
 
         string MapToJson(Dictionary<T, HashSet<Tag>> map, Func<T, string> converter) {
@@ -24,7 +44,7 @@ namespace CRDTs.Basic
 
                 foreach (var tag in set)
                 {
-                    setStr += "\"" + tag + "\",";
+                    setStr += "\"" + tag.ToString() + "\",";
                 }
                 if (set.Count > 0) {
                     setStr.Remove(setStr.Length-1);
@@ -51,6 +71,10 @@ namespace CRDTs.Basic
 
         public struct Tag
         {
+            public override string ToString()
+            {
+                return tag;
+            }
             public readonly string tag;
             public Tag(string tag)
             {
