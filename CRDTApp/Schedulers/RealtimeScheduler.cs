@@ -45,5 +45,9 @@ namespace CRDTApp.Schedulers
             return true;
 
         }
+
+        public DateTime GetCurrentTime() {
+            return DateTime.Now;
+        }
     }
 }

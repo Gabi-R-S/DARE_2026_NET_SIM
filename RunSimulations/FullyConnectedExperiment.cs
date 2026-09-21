@@ -29,7 +29,7 @@ namespace RunSimulations
 
         ExperimentResults RunIndividualSimulation(string name, Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> networkCreator, Func<ConnectionMap, NetworkSimulator> simulatorCreator)
         {
-            (ConnectionMap map, List<ReplicaID> replicas) = CreateFullyConectedNetwork(20, delay);
+            (ConnectionMap map, List<ReplicaID> replicas) = CreateFullyConectedNetwork(5, delay);
 
             int messagesSend = 0;
             NetworkSimulator simulator = simulatorCreator(map);

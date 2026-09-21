@@ -68,5 +68,8 @@ namespace Simulator
 
 
 
+        public override void GetCurrentTime() {
+            return env.Now;
+        }
     }
 }

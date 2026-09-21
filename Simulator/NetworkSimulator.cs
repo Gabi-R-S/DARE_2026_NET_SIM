@@ -132,5 +132,7 @@ namespace Simulator
             return ConnectionMap.GetAllKnownReplicas();
         }
 
+
+        public abstract DateTime GetCurrentTime();
     }
 }

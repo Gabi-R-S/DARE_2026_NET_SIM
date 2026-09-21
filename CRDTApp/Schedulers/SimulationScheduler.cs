@@ -53,5 +53,12 @@ namespace CRDTApp.Schedulers
 
         }
 
+
+
+        public DateTime GetCurrentTime()
+        {
+            return sim.GetCurrentTime();
+        }
+
     }
 }
