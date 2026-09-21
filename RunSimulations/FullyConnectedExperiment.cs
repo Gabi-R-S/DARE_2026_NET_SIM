@@ -85,7 +85,8 @@ namespace RunSimulations
             // Flood routing case
             results.Add(RunIndividualSimulation("ack layer + flood routing with max hop count", CreateBasicFloodRoutingStack, CreateDiscreteSim));
 
-
+            // Distance Vector case
+            results.Add(RunIndividualSimulation("ack + distance vector", CreateBasicDistanceVectorStack, CreateDiscreteSim));
 
             return results;
         }

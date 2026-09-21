@@ -61,17 +61,19 @@ namespace CRDTApp.Messages
 
             }
         }
-        public void SetActive(ReplicaID replica) {
+        public bool SetActive(ReplicaID replica) {
             lock (connectionLock)
             {
                 if (innactiveConnections.Contains(replica))
                 {
                     innactiveConnections.Remove(replica);
                     activeConnections.Add(replica);
+                    return true;
                 }
             }
+            return false;
         }
-        public void SetInnactive(ReplicaID replica)
+        public bool SetInnactive(ReplicaID replica)
         {
             lock (connectionLock)
             {
@@ -79,8 +81,10 @@ namespace CRDTApp.Messages
                 {
                     activeConnections.Remove(replica);
                     innactiveConnections.Add(replica);
+                    return true;
                 }
             }
+            return false;
         }
         public bool IsActive(ReplicaID replica) {
             bool b;

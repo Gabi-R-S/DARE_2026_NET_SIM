@@ -59,20 +59,18 @@ namespace CRDTApp.NetworkLayers.Composite
             HeartbeatMessage message = new HeartbeatMessage(null, true);
             Message messg = new Message(message.ToJson());
 
-            if (!await layerBelow.SendMessage(replica, messg)) {
-                CallConnectionInterrupted(replica);
-            }
+            layerBelow.SendMessage(replica, messg);
             
-
-            scheduler.ExecuteAfter(heartbeatTime, () => { Hearbeat(replica); });
+            scheduler.ExecuteAfter(heartbeatTime, () => { Hearbeat(replica).Wait(); });
         }
 
         public override Task Run()
         {
+            var t = layerBelow.Run();
             foreach (var replica in connectionTracker.AllConnections) {
-                Hearbeat(replica); 
+                Hearbeat(replica).Wait(); 
             }
-            return base.Run();
+            return t;
         }
 
 

@@ -45,6 +45,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             this.connectionTracker = connectionTracker;
             this.replicaID = replicaID;
+            this.numHops = numHops;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
             
         }
