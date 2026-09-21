@@ -27,7 +27,6 @@ namespace CRDTApp.Behaviours
         }
 
         void OnMessageReceived(ReplicaID replica, Message message) { //TODO: retrieve CRDT and merge it
-            Console.WriteLine(message.Payload);
             var op = ORSet<int>.FromJSON(message.Payload, (str) => { return int.Parse(str); });
             ints.Merge(op);
         }
@@ -57,6 +56,8 @@ namespace CRDTApp.Behaviours
             while (ints.GetValues().Count<expectedCount) {
                 await Task.Yield();
             }
+
+            app.Close();
         }
 
     }

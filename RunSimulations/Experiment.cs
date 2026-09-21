@@ -1,4 +1,5 @@
-﻿using CRDTApp.NetworkLayers;
+﻿using CRDTApp.Messages;
+using CRDTApp.NetworkLayers;
 using CRDTApp.NetworkLayers.Composite;
 using CRDTApp.Schedulers;
 using Shared;
@@ -11,17 +12,40 @@ namespace RunSimulations
 {
     internal abstract class Experiment
     {
-        protected (NetworkLayer,IScheduler) CreateBasicNoRouteStack(NetworkSimulator simulator,ReplicaID id) {
+        protected (NetworkLayer, IScheduler, List<ExtraMetric>) CreateOnlyBaseLayer(NetworkSimulator simulator, ReplicaID id) {
+            IScheduler scheduler = new SimulationScheduler(simulator);
+            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
+            return (baseLayer, scheduler, new List<ExtraMetric>());
+
+        }
+        protected (NetworkLayer,IScheduler, List<ExtraMetric>) CreateBasicNoRouteStack(NetworkSimulator simulator,ReplicaID id) {
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator,id);
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id,baseLayer,scheduler, (_) => { i++; return i; });
-            return (ackLayer,scheduler);
+            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id,ackLayer);
+            return (historyTrackerLayer,scheduler, new List<ExtraMetric>());
         }
 
-        protected (NetworkLayer, IScheduler) CreateBasicFloodRoutingStack(NetworkSimulator simulator, ReplicaID id)
+        protected (NetworkLayer, IScheduler,List<ExtraMetric>) CreateBasicFloodRoutingStack(NetworkSimulator simulator, ReplicaID id)
         {
-            throw new NotImplementedException();
+            var set = simulator.GetAllKnownReplicas();
+            set.Remove(id);
+            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id}, set );
+            IScheduler scheduler = new SimulationScheduler(simulator);
+            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
+            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker,baseLayer,scheduler,0.1f);
+
+            int i = 0;
+            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, heartbeat, scheduler, (_) => { i++; return i; });
+            TrackActiveConnactionsLayer trackerLayer = new TrackActiveConnactionsLayer(ackLayer,tracker);
+            
+            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(id, tracker,trackerLayer,5);
+
+            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id,flood);
+            
+            return (historyTrackerLayer, scheduler, new List<ExtraMetric>());
+
         }
 
 

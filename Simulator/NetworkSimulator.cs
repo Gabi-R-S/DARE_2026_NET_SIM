@@ -6,12 +6,33 @@ using System.Text;
 
 namespace Simulator
 {
-    public class NetworkSimulator
+    public abstract class NetworkSimulator
     {
-        event Action<NetworkMessage>? MessageSendAttempted;
-        event Action<NetworkMessage>? MessageSendScheduled;
-        event Action<NetworkMessage>? MessageLost;
-        event Action<NetworkMessage>? MessageDelivered;
+        public abstract Task<(bool,float)> Run(float simulationTimeLimit);
+
+
+        protected event Action<NetworkMessage>? MessageSendAttempted;
+        protected event Action<NetworkMessage>? MessageSendScheduled;
+        protected event Action<NetworkMessage>? MessageLost;
+        protected event Action<NetworkMessage>? MessageDelivered;
+
+        protected void CallMessageSendAttempted(NetworkMessage message) {
+            MessageSendAttempted?.Invoke(message);
+        }
+        protected void CallMessageSendScheduled(NetworkMessage message)
+        {
+            MessageSendScheduled?.Invoke(message);
+        }
+        protected void CallMessageLost(NetworkMessage message)
+        {
+            MessageLost?.Invoke(message);
+        }
+        protected void CallMessageDelivered(NetworkMessage message)
+        {
+            MessageSendAttempted?.Invoke(message);
+        }
+
+
 
         public void AddMessageSendAttemptedHandler(Action<NetworkMessage>handler) {
             MessageSendAttempted += handler;
@@ -51,16 +72,15 @@ namespace Simulator
         }
 
 
-        Dictionary<ReplicaID, List<Action<NetworkMessage>>> messageDeliveredHandlers = new Dictionary<ReplicaID, List<Action<NetworkMessage>>>();
+        protected Dictionary<ReplicaID, List<Action<NetworkMessage>>> messageDeliveredHandlers = new Dictionary<ReplicaID, List<Action<NetworkMessage>>>();
 
-        Dictionary<ReplicaID, List<Action<ReplicaID>>> connectionInterruptedHandlers = new Dictionary<ReplicaID, List<Action<ReplicaID>>>();
+        protected Dictionary<ReplicaID, List<Action<ReplicaID>>> connectionInterruptedHandlers = new Dictionary<ReplicaID, List<Action<ReplicaID>>>();
 
-        ConnectionMap connectionMap;
-        Simulation env;
+        public ConnectionMap ConnectionMap { get; private set; }
+       
 
-        public NetworkSimulator(Simulation env,ConnectionMap connectionMap) {
-            this.env=env;
-            this.connectionMap = connectionMap;
+        public NetworkSimulator(ConnectionMap connectionMap) {
+            ConnectionMap = connectionMap;
         }
 
 
@@ -89,7 +109,7 @@ namespace Simulator
             messageDeliveredHandlers[id].Remove(handler);
         }
 
-        public void DeliverMessage(NetworkMessage message)
+        protected void DeliverMessage(NetworkMessage message)
         {
             if (messageDeliveredHandlers.TryGetValue(message.Recipient, out var handlers))
             {
@@ -103,40 +123,14 @@ namespace Simulator
 
 
 
-        public bool ScheduleMessageDelivery( NetworkMessage message)
-        {
-            MessageSendAttempted?.Invoke(message);
-            if (connectionMap.IsConnectionAvailable(message.Source,message.Recipient)) {
-                var connection = connectionMap.GetConnection(message.Source,message.Recipient);
-                if (connection != null)
-                {
-                    Event ev = new Event(env);
-                    ev.AddCallback( (env) => {
-                        if (messageDeliveredHandlers.ContainsKey(message.Recipient))
-                        {
-                            foreach (var callback in messageDeliveredHandlers[message.Recipient])
-                            {
-                                callback(message);
-                            }
-                        }
-                    });
-                    env.ScheduleD(connection.TransmissionTime, ev);
-                    MessageSendScheduled?.Invoke(message);
-                    return true;
-                }
-            }
-            
-            return false;
+        public abstract bool ScheduleMessageDelivery(NetworkMessage message);
 
+        public abstract void ExecuteAfter(float time, Action action);
+
+
+        public HashSet<ReplicaID> GetAllKnownReplicas() {
+            return ConnectionMap.GetAllKnownReplicas();
         }
-
-        public void ExecuteAfter(float time, Action action)
-        {
-            var actionEvent = new Event(env);
-            actionEvent.AddCallback(e => action());
-            env.ScheduleD(time, actionEvent);
-        }
-
 
     }
 }

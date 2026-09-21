@@ -89,10 +89,9 @@ namespace CRDTApp.NetworkLayers.Composite
             }
 
 
-
             bool shouldContinue = true;
             while (shouldContinue)
-            {
+            {     
                 shouldContinue = false;
                 for (int i = 0; i < pendingReceivedMessages.Count; i++)
                 {

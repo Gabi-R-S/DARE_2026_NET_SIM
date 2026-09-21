@@ -9,6 +9,18 @@ namespace Simulator
     {
         Dictionary<ReplicaID, Dictionary<ReplicaID, NetworkConnection>> connectionMap = new ();
 
+        public HashSet<ReplicaID> GetAllKnownReplicas()
+        {
+            HashSet<ReplicaID> set = new HashSet<ReplicaID>();
+            foreach (var (k, v) in connectionMap) {
+                set.Add(k);
+                foreach (var (k2, _) in v) {
+                    set.Add(k2);
+                }
+            }
+            return set;
+        }
+
         public void SetConnection(ReplicaID source, ReplicaID destination, NetworkConnection connection) {
             if (!connectionMap.ContainsKey(source)) {
                 connectionMap[source] = new Dictionary<ReplicaID, NetworkConnection>();

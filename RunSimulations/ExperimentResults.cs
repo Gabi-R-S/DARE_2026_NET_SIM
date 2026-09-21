@@ -17,6 +17,7 @@ namespace RunSimulations
             TotalMessagesSent = totalMessagesSent;
             CompletionTimeSeconds = completionTimeSeconds;
             Extras = extras;
+            CompletedSuccessfully = completedSuccessfully;
         }
     }
 }

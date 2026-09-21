@@ -43,6 +43,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public FloodingRedirectionLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, uint numHops) : base(layerBelow,false,true,true)
         {
+            this.connectionTracker = connectionTracker;
             this.replicaID = replicaID;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
             
