@@ -37,7 +37,7 @@ namespace RunSimulations
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
 
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id,5.0f,scheduler,baseLayer);
+            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id,5.0f,scheduler,baseLayer,false);
             
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker);
             
@@ -61,7 +61,7 @@ namespace RunSimulations
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
 
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer);
+            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer,false);
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker);
 
@@ -71,6 +71,28 @@ namespace RunSimulations
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; });
 
             CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
+
+            return (historyTrackerLayer, scheduler, new List<ExtraMetric>());
+
+        }
+        protected (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicLinkStateStack(NetworkSimulator simulator, ReplicaID id)
+        {
+            var set = simulator.GetAllKnownReplicas();
+            set.Remove(id);
+            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set);
+            IScheduler scheduler = new SimulationScheduler(simulator);
+            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
+
+            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer, false);
+
+            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker);
+            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker,trackerLayer,scheduler,0.5f);
+
+            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, heartbeat, scheduler, (_) => { i++; return i; });
+            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id,ackLayer);
+            int i = 0;
+            
+            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, lsLayer);
 
             return (historyTrackerLayer, scheduler, new List<ExtraMetric>());
 

@@ -39,12 +39,14 @@ namespace CRDTApp.NetworkLayers
             static public T? FromJson(string json)
             {
                 return JsonConvert.DeserializeObject<T>(json);
-
             }
         
         }
         public virtual Task Run(){
-            return Task.CompletedTask;
+            if (layerBelow == null) {
+                return Task.CompletedTask;
+            }
+            return layerBelow.Run();
         }
 
         object receiveLock = new object();

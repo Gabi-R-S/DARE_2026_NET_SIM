@@ -37,7 +37,6 @@ namespace CRDTApp.NetworkLayers.Base
         
       
         public override async Task Run() {
-
             endProgramSemaphore = new SemaphoreSlim(0, 1);
             await endProgramSemaphore.WaitAsync();
         }

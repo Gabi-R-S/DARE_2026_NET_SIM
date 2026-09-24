@@ -5,9 +5,10 @@ using System.Timers;
 
 namespace CRDTApp.Schedulers
 {
+    // TODO: make sure things only execute after everything that should logically happen before actually happens before
     public class RealtimeScheduler : IScheduler
     {
-
+            
         public void ExecuteAfter(float time, Action action) {
             System.Timers.Timer timer = new System.Timers.Timer(time);
             timer.AutoReset = false;

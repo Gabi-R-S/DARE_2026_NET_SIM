@@ -88,6 +88,9 @@ namespace RunSimulations
             // Distance Vector case
             results.Add(RunIndividualSimulation("ack + distance vector", CreateBasicDistanceVectorStack, CreateDiscreteSim));
 
+            // Distance Vector case
+            results.Add(RunIndividualSimulation("ack + link state", CreateBasicLinkStateStack, CreateDiscreteSim));
+            
             return results;
         }
     }

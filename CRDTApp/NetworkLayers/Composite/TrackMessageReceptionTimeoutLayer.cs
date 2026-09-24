@@ -13,12 +13,13 @@ namespace CRDTApp.NetworkLayers.Composite
         ReplicaID replicaID;
         float timeoutTime;
         Dictionary<ReplicaID, DateTime> lastCommunication = new();
-        public TrackMessageReceptionTimeoutLayer(ReplicaID replicaID, float timeoutTime, IScheduler scheduler,NetworkLayer layerBelow) : base(layerBelow, false, true, true)
+        bool trackSends = false;
+        public TrackMessageReceptionTimeoutLayer(ReplicaID replicaID, float timeoutTime, IScheduler scheduler,NetworkLayer layerBelow, bool trackSends) : base(layerBelow, false, true, true)
         {
             this.scheduler = scheduler;
             this.replicaID = replicaID;
             this.timeoutTime = timeoutTime;
-
+            this.trackSends = trackSends;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLevelMessageReceived);
         }
 
@@ -59,7 +60,7 @@ namespace CRDTApp.NetworkLayers.Composite
         {
             var res = await layerBelow.SendMessage(recipient, message);
 
-            if (res) {
+            if (res&&trackSends) {
                 SetTime(recipient);
             }
 

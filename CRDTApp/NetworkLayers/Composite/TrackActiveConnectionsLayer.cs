@@ -10,12 +10,14 @@ namespace CRDTApp.NetworkLayers.Composite
     {
 
         ActiveConnectionTracker tracker;
-        public TrackActiveConnectionsLayer(NetworkLayer layerBelow, ActiveConnectionTracker tracker) : base(layerBelow)
+        bool trackSends;
+        public TrackActiveConnectionsLayer(NetworkLayer layerBelow, ActiveConnectionTracker tracker, bool trackSends=false) : base(layerBelow)
         {
             this.tracker = tracker;
             layerBelow.AddOnConnectionInterruptedHandler(OnInterruption);
             layerBelow.AddOnConnectionRegainedHandler(OnConnectionRegained);
             layerBelow.AddOnMessageReceivedHandler(OnLowerLevelMessageReceived);
+            this.trackSends = trackSends;
         }
 
         void OnInterruption(ReplicaID replica) {
@@ -38,16 +40,22 @@ namespace CRDTApp.NetworkLayers.Composite
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
             var res = await layerBelow.SendMessage(recipient, message);
-            if (res)
+
+            if (trackSends)
             {
-                if (tracker.SetActive(recipient)) {
-                    CallConnectionRegained(recipient);
+                if (res)
+                {
+                    if (tracker.SetActive(recipient))
+                    {
+                        CallConnectionRegained(recipient);
+                    }
                 }
-            }
-            else
-            {
-                if (tracker.SetInnactive(recipient)) {
-                    CallConnectionRegained(recipient);
+                else
+                {
+                    if (tracker.SetInnactive(recipient))
+                    {
+                        CallConnectionRegained(recipient);
+                    }
                 }
             }
             return res;
