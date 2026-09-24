@@ -87,10 +87,11 @@ namespace RunSimulations
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker);
             HeartbeatLayer heartbeat = new HeartbeatLayer(tracker,trackerLayer,scheduler,0.5f);
-
-            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, heartbeat, scheduler, (_) => { i++; return i; });
-            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id,ackLayer);
+            
             int i = 0;
+            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, heartbeat, scheduler, (_) => { i++; return i; });
+            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id,ackLayer,tracker);
+        
             
             CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, lsLayer);
 

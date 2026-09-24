@@ -1,5 +1,6 @@
 ﻿using CRDTApp.Messages;
 using Shared;
+using Simulator;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,176 +32,99 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         }
 
 
-        class HelloContent : NetworkLayerMessage<HelloContent>
+
+
+        public class LSA : NetworkLayerMessage<LSA>
         {
+            public ReplicaID Replica { get; set; }
+            public int Number { get; set; }
+
             public List<ReplicaID> Neighbours { get; set; }
-            public HelloContent( List<ReplicaID> neighbours)
+            public LSA(ReplicaID replica, int number, List<ReplicaID> neighbours)
             {
+                Replica = replica;
+                Number = number;
                 Neighbours = neighbours;
             }
         }
-        class DatabaseDescriptionContent:NetworkLayerMessage<DatabaseDescriptionContent>
+
+
+        Dictionary<ReplicaID, LSA> mostRecentLSAs = new();
+
+        object lsaHelperLock = new object();
+
+        int num = 0;
+        bool AddLSA(LSA lsa)
         {
-            public List<string> KnownLSAs { get; set; }
-            public DatabaseDescriptionContent(List<string> knownLSAs)
+            if (mostRecentLSAs.ContainsKey(lsa.Replica))
             {
-                KnownLSAs = knownLSAs;
-            }
-        }
-        class LinkStateRequestContent : NetworkLayerMessage<LinkStateRequestContent>
-        {
-            public List<string> MissingLSAs { get; set; }
-            public LinkStateRequestContent(List<string> missingLSAs)
-            {
-                MissingLSAs = missingLSAs;
-            }
-        }
-        class LinkStateUpdateContent :NetworkLayerMessage<LinkStateUpdateContent>
-        {
-            public List<LSA> LSAs { get; set; }
-            public bool Flood { get; set; }
-            public LinkStateUpdateContent(List<LSA> lsas,bool flood=false) {
-                LSAs = lsas;
-                Flood = Flood;
+                var mostRecentBefore = mostRecentLSAs[lsa.Replica];
 
-            }
-        }
-    
-        class LinkStateProtocolMessage : NetworkLayerMessage<LinkStateProtocolMessage>
-        {
-            public string Type { get; set; }
-
-            public string Content { get; set; }
-
-            public LinkStateProtocolMessage(string type, string content)
-            {
-                Type = type;
-                Content = content;
-            }
-        }
-
-        class LSA
-        {
-            public string Tag { get; set; }
-
-        }
-
-        class LinkStateDB
-        {
-
-            public enum State
-            {
-                UNKNOWN,
-                INIT,
-                TWOWAY,
-                EXCHANGE,
-                LOADING,
-                FULL
-            }
-
-            Dictionary<ReplicaID, List<(ReplicaID, float)>> edges = new();
-            Dictionary<ReplicaID, State> directNeighbours = new();
-
-            public bool IsStable() {
-                foreach (var state in directNeighbours.Values) {
-                    if (state != State.FULL) {
-                        return false;
-                    }
+                if (lsa.Number > mostRecentBefore.Number)
+                {
+                    mostRecentLSAs[lsa.Replica] = lsa;
+                    return true;
                 }
+
+                return false;
+            }
+            else
+            {
+                mostRecentLSAs[lsa.Replica] = lsa;
                 return true;
             }
-            public void AddLSA(LSA lsa)
-            {
-                updates.Add(lsa.Tag, lsa);
-            }
-
-            public List<string> KnownLSATags() {
-                return new(updates.Keys);
-            }
-            public LSA GetLSA(string tag) {
-                return updates[tag];
-            }
-            Dictionary<string, LSA> updates = new();
-            public void SetNeighbourState(ReplicaID replica, State state)
-            {
-                if (state == State.UNKNOWN)
-                {
-                    directNeighbours.Remove(replica);
-                }
-                else
-                {
-                    directNeighbours[replica] = state;
-                }
-
-            }
-            public State GetStateOf(ReplicaID neighbour)
-            {
-                return directNeighbours.GetValueOrDefault(neighbour, State.UNKNOWN);
-            }
-            public List<ReplicaID> GetAllOurKnownNeighbours()
-            {
-                return new(directNeighbours.Keys);
-            }
-
-            public List<ReplicaID> GetNeighboursOf(ReplicaID replica)
-            {
-
-                List<ReplicaID> neighbours = new();
-                if (edges.ContainsKey(replica))
-                {
-                    foreach (var (neighbour, cost) in edges[replica])
-                    {
-                        neighbours.Add(neighbour);
-                    }
-                }
-                return neighbours;
-            }
-
-            public LSA CreateNextLSA()
-            {
-                throw new NotImplementedException("Aaaaaaaaaaaaaaaa");
-            }
         }
-
-
-
-
-        LinkStateDB database;
-
-        void TryToRecalculateRoutingTable()
+        LSA CreateNextLSA()
         {
-            if (database.IsStable()) {
-                throw new NotImplementedException("dikstra or whatever...");
+            lock (lsaHelperLock)
+            {
+                var lsa = new LSA(replicaID, num, connectionTracker.ActiveConnections);
+                num++;
+                return lsa;
             }
         }
 
-        async Task HandleConnectionTo(ReplicaID replica) {
-            throw new NotImplementedException();
-        
-        }
 
 
-        public override Task Run()
+
+
+
+        void RecalculateRoutingTable()
         {
-            var t = base.Run();
 
-            foreach (var replica in connectionTracker.AllConnections) {
-                HandleConnectionTo(replica);
-            }
-
-            return t;
         }
+
+
+
 
         ReplicaID replicaID;
         ActiveConnectionTracker connectionTracker;
-        public LinkStateRoutingLayer(ReplicaID replicaID, NetworkLayer layerBelow,ActiveConnectionTracker connectionTracker) : base(layerBelow, false, true, true)
+        public LinkStateRoutingLayer(ReplicaID replicaID, NetworkLayer layerBelow, ActiveConnectionTracker connectionTracker) : base(layerBelow)
         {
             this.replicaID = replicaID;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLevelMessageReceived);
-            database = new LinkStateDB();
+            layerBelow.AddOnConnectionInterruptedHandler(OnConnect);
+            layerBelow.AddOnConnectionRegainedHandler(OnDisconnect);
             this.connectionTracker = connectionTracker;
         }
 
+        public void OnConnect(ReplicaID replica)
+        {
+            var lsa = CreateNextLSA();
+            foreach (var oldLSA in mostRecentLSAs.Values)
+            {
+                SendLSA(replica, oldLSA);
+            }
+            FloodLSA(lsa);
+
+            CallConnectionRegained(replica);
+        }
+        public void OnDisconnect(ReplicaID replica)
+        {
+            var lsa = CreateNextLSA();
+            FloodLSA(lsa);
+            CallConnectionInterrupted(replica);
+        }
 
         Dictionary<ReplicaID, ReplicaID> nextNodeGivenTarget = new();
 
@@ -214,61 +138,27 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             return target;
         }
 
-        void SendHelloTo(ReplicaID target)
+
+
+
+        void SendLSA(ReplicaID target, LSA lsa)
         {
             layerBelow.SendMessage(target,
                 new Message(
-                    new LinkStateMessage(target, replicaID,
-                    new Message(
-                    new LinkStateProtocolMessage("hello",
-                    new HelloContent(database.GetAllOurKnownNeighbours())
-                    .ToJson())
-                    .ToJson()), true)
-                    .ToJson()));
+                    new LinkStateMessage(replicaID, target,
+                        new Message(lsa.ToJson())
+                        , true).ToJson()
+                    )
+                );
         }
 
-        void SendDatabaseDescription(ReplicaID target)
+        void FloodLSA(LSA lsa)
         {
-            layerBelow.SendMessage(target,
-                   new Message(
-                       new LinkStateMessage(target, replicaID,
-                       new Message(
-                       new LinkStateProtocolMessage("dbd",
-                       new DatabaseDescriptionContent(database.KnownLSATags())
-                       .ToJson())
-                       .ToJson()), true)
-                       .ToJson()));
+            foreach (var replica in connectionTracker.ActiveConnections)
+            {
+                SendLSA(replica, lsa);
+            }
         }
-
-        void SendLinkStateRequest(ReplicaID target, List<string> missingLSAs) {
-
-            layerBelow.SendMessage(target,
-                   new Message(
-                       new LinkStateMessage(target, replicaID,
-                       new Message(
-                       new LinkStateProtocolMessage("lsr",
-                       new LinkStateRequestContent(missingLSAs)
-                       .ToJson())
-                       .ToJson()), true)
-                       .ToJson()));
-        }
-
-        void SendLinkStateUpdate(ReplicaID target, List<LSA> LSAs) {
-            layerBelow.SendMessage(target,
-                     new Message(
-                         new LinkStateMessage(target, replicaID,
-                         new Message(
-                         new LinkStateProtocolMessage("lsr",
-                         new LinkStateUpdateContent(LSAs)
-                         .ToJson())
-                         .ToJson()), true)
-                         .ToJson()));
-        }
-
-
-
-        Dictionary<ReplicaID, Queue<LinkStateProtocolMessage>> protocolMessages;
-        Dictionary<ReplicaID, Queue<LSA>> lsasToForward;
 
         public void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
@@ -281,92 +171,19 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
             if (linkMessage.IsProtocolMessage)
             {
-                var protocolMessage = LinkStateProtocolMessage.FromJson(linkMessage.Message.Payload);
+                var lsa = LSA.FromJson(linkMessage.Message.Payload);
 
-                if (protocolMessage == null)
+                if (lsa == null)
                 {
-                    throw new Exception("incorrect message format in link state protocol message!");
+                    throw new Exception("incorrect lsa format in link state protocol message!");
                 }
 
-                switch (protocolMessage.Type)
+                if (AddLSA(lsa))
                 {
-                    case "hello":
-                        var helloMessage = HelloContent.FromJson(protocolMessage.Content);
-                        if (helloMessage.Neighbours.Contains(replicaID))
-                        {
-                            if (database.GetStateOf(replica) == LinkStateDB.State.INIT)
-                            {
-                                database.SetNeighbourState(replica, LinkStateDB.State.TWOWAY);
-                                SendHelloTo(replica);
-                            } else if (database.GetStateOf(replica) == LinkStateDB.State.TWOWAY) {
-
-                                database.SetNeighbourState(replica, LinkStateDB.State.EXCHANGE);
-                                SendDatabaseDescription(replica);
-                            }
-                            else
-                            {
-                                Console.WriteLine("IDK, help me");
-                            }
-                        }
-                        else
-                        {
-                            database.SetNeighbourState(replica, LinkStateDB.State.INIT);
-                            SendHelloTo(replica);
-                        }
-                        break;
-                    case "dbd":
-                        var dbdMessage = DatabaseDescriptionContent.FromJson(protocolMessage.Content);
-                        if (database.GetStateOf(replica) != LinkStateDB.State.UNKNOWN) {
-                            database.SetNeighbourState(replica, LinkStateDB.State.LOADING);
-                            List<string> missingTags = new();
-
-                            var knownTags = database.KnownLSATags();
-                            foreach (var tag in dbdMessage.KnownLSAs) {
-                                if (!knownTags.Contains(tag)) {
-                                    missingTags.Add(tag);
-                                }
-                            }
-                            if (missingTags.Count == 0) {
-                                database.SetNeighbourState(replica,LinkStateDB.State.FULL);
-                                TryToRecalculateRoutingTable();
-                            }
-                            else {
-                                SendLinkStateRequest(replica, missingTags);
-                            } 
-                        }
-                        break;
-                    case "lsr":
-                        var lsrMessage = LinkStateRequestContent.FromJson(protocolMessage.Content);
-                        if (database.GetStateOf(replica)!=LinkStateDB.State.UNKNOWN)
-                        {
-                            List<LSA> LSAs = new();
-
-                            foreach (var tag in lsrMessage.MissingLSAs) {
-                                LSAs.Add(database.GetLSA(tag));
-                            }
-
-                            SendLinkStateUpdate(replica,LSAs);
-                        }
-
-                        break;
-                    case "lsu":
-                        var lsuMessage = LinkStateUpdateContent.FromJson(protocolMessage.Content);
-                        foreach (var lsa in lsuMessage.LSAs) {
-                            var hasLSA = database.KnownLSATags().Contains(lsa.Tag);
-                            database.AddLSA(lsa);
-                            //If flood==true and is a new lsa,forward it to all! 
-                            if (lsuMessage.Flood&&) {
-                                foreach(var rep in )
-                                lsasToForward[] 
-                            }
-                        }
-
-                        break;
-                    default:
-                        throw new Exception("unknown link state protocol message type");
+                    FloodLSA(lsa);
+                    RecalculateRoutingTable();
                 }
 
-                throw new NotImplementedException();
             }
             else
             {
