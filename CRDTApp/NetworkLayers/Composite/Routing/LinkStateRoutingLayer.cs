@@ -84,14 +84,14 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             }
         }
 
-
+        
 
 
 
 
         void RecalculateRoutingTable()
         {
-
+            //Console.WriteLine("TODO");
         }
 
 

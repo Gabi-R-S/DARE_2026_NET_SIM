@@ -1,2 +1,4 @@
 - Make sure everything is thread-safe/there isn't any kind of weird parallelism behaviour.
 - Make sure all semaphore logic is correct
+- duplicate supression in flooding?
+- implement routing table calculation in link state protocol
