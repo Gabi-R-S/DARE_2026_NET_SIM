@@ -27,7 +27,7 @@ namespace RunSimulations
 
 
 
-        ExperimentResults RunIndividualSimulation(string name, Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> networkCreator, Func<ConnectionMap, NetworkSimulator> simulatorCreator)
+        ExperimentResults RunIndividualSimulation(string name, Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> networkCreator, Func<ConnectionMap, NetworkSimulator> simulatorCreator,Func<NetworkSimulator, List<App>,List<ExtraMetric>>? generalMetricsCreator=null)
         {
             (ConnectionMap map, List<ReplicaID> replicas) = CreateFullyConectedNetwork(5, delay);
 
@@ -37,7 +37,7 @@ namespace RunSimulations
 
 
             List<ExtraMetric> metrics = new List<ExtraMetric>();
-            List<Task> tasks = new List<Task>();
+            List<App> apps = new List<App>();
             int i = 0;
             foreach (var replica in replicas)
             {
@@ -48,8 +48,20 @@ namespace RunSimulations
                 var app = new App();
                 var otherReplicas = new List<ReplicaID>(replicas);
                 otherReplicas.Remove(replica);
-                tasks.Add(app.Run(new InsertBehaviour(app, networkManager, replica, otherReplicas.ToArray(), opsPerReplica * i, opsPerReplica * (i + 1) - 1, opsPerReplica * replicas.Count)));
+
+
+                var launchTask = () => { return app.Run(new InsertBehaviour(app, networkManager, replica, otherReplicas.ToArray(), opsPerReplica * i, opsPerReplica * (i + 1) - 1, opsPerReplica * replicas.Count)); };
+                simulator.AddRunEvent(launchTask);
                 i++;
+            }
+
+            if (generalMetricsCreator != null)
+            {
+                var generalMetrics = generalMetricsCreator(simulator,apps);
+                if (generalMetrics != null)
+                {
+                    metrics.AddRange(generalMetrics);
+                }
             }
 
             Console.WriteLine("starting simulation!");

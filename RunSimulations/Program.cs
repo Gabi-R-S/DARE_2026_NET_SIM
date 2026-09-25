@@ -15,7 +15,7 @@ namespace RunSimulations
         static void Main(string[] args)
         {
             
-            List<Experiment> experiments = new List<Experiment>() { new FullyConnectedExperiment(100.0f,0.1f)};
+            List<Experiment> experiments = new List<Experiment>() { new FullyConnectedExperiment(100.0f,0.1f,1)};
 
             
 

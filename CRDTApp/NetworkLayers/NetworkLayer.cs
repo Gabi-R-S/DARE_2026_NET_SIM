@@ -10,9 +10,9 @@ namespace CRDTApp.NetworkLayers
 {
     public abstract class NetworkLayer
     {
-        protected NetworkLayer? layerBelow;
+        public NetworkLayer? LayerBelow { get; private set; }
         public NetworkLayer(NetworkLayer? layerBelow = null, bool connectMessageReceived=false, bool connectConnectionInterrupted = false, bool connectConnectionRegained = false) {
-            this.layerBelow = layerBelow;
+            this.LayerBelow = layerBelow;
 
             if (layerBelow != null) {
                 if (connectMessageReceived) {
@@ -43,10 +43,10 @@ namespace CRDTApp.NetworkLayers
         
         }
         public virtual Task Run(){
-            if (layerBelow == null) {
+            if (LayerBelow == null) {
                 return Task.CompletedTask;
             }
-            return layerBelow.Run();
+            return LayerBelow.Run();
         }
 
         object receiveLock = new object();

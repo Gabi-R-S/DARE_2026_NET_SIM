@@ -13,6 +13,9 @@ namespace Simulator
         public override async Task<(bool, float)> Run(float simulationTimeLimit)
         {
 
+            foreach (var runEvent in RunEvents) {
+                runEvent();
+            }
             await Task.Run(() => { env.Run(); });
 
 

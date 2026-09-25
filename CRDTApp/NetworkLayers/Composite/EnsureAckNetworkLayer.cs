@@ -73,7 +73,7 @@ namespace CRDTApp.NetworkLayers.Composite
             else
             {
                 var ack = new EnsureAckMessage( pendingAckMessage.Tag, pendingAckMessage.Message,true);
-                layerBelow.SendMessage(senderID, new Message(ack.ToJson()));
+                LayerBelow.SendMessage(senderID, new Message(ack.ToJson()));
                 
                 CallMessageReceived(senderID,pendingAckMessage.Message);
             }
@@ -99,7 +99,7 @@ namespace CRDTApp.NetworkLayers.Composite
                 var semaphore = new SemaphoreSlim(0);
                 pendingAcks[(newTag, recipient)] = semaphore;
 
-                if (!await layerBelow.SendMessage(recipient, networkMessage))
+                if (!await LayerBelow.SendMessage(recipient, networkMessage))
                 {
                     CallConnectionInterrupted(recipient);
                     return false;

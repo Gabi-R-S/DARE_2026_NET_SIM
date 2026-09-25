@@ -126,7 +126,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
             var networkMessage = new Message(trackerMessage.ToJson());
 
-            return await layerBelow.SendMessage(recipient, networkMessage);
+            return await LayerBelow.SendMessage(recipient, networkMessage);
         }
 
 

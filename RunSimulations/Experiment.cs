@@ -89,11 +89,11 @@ namespace RunSimulations
             HeartbeatLayer heartbeat = new HeartbeatLayer(tracker,trackerLayer,scheduler,0.5f);
             
             int i = 0;
-            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, heartbeat, scheduler, (_) => { i++; return i; });
-            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id,ackLayer,tracker);
-        
+            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id,heartbeat,tracker);
             
-            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, lsLayer);
+            EnsureAckNetworkLayer<int> ack2Layer = new EnsureAckNetworkLayer<int>(id, lsLayer, scheduler, (_) => { i++; return i; }); // 
+
+            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ack2Layer);
 
             return (historyTrackerLayer, scheduler, new List<ExtraMetric>());
 

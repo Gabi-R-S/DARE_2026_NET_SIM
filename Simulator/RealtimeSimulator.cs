@@ -9,14 +9,13 @@ namespace Simulator
 {
     public class RealtimeSimulator : NetworkSimulator
     {
-        List<Func<Task>> runEvents;
 
         public override async Task<(bool, float)> Run(float simulationTimeLimit)
         {
             var start = DateTime.Now;
 
             List<Task> tasks = new List<Task>();
-            foreach (var ev in runEvents)
+            foreach (var ev in RunEvents)
             {
                 tasks.Add(ev());
             }
@@ -32,10 +31,8 @@ namespace Simulator
 
         }
 
-        public RealtimeSimulator(List<Func<Task>> runEvents, ConnectionMap connectionMap) : base(connectionMap)
-        {
-            this.runEvents = runEvents;
-        }
+        public RealtimeSimulator(ConnectionMap connectionMap) : base(connectionMap)
+        { }
 
 
 

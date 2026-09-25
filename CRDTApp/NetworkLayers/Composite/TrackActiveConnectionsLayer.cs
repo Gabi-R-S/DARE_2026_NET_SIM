@@ -39,7 +39,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-            var res = await layerBelow.SendMessage(recipient, message);
+            var res = await LayerBelow.SendMessage(recipient, message);
 
             if (trackSends)
             {

@@ -7,6 +7,7 @@ using System.Text;
 
 namespace CRDTApp.NetworkLayers.Composite.Routing
 {
+    //TODO: dynamically adjust distances/link cost based on latency
     public class LinkStateRoutingLayer : NetworkLayer
     {
         public class LinkStateMessage : NetworkLayerMessage<LinkStateMessage>
@@ -92,7 +93,88 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         void RecalculateRoutingTable()
         {
             //Console.WriteLine("TODO");
+            Dictionary<ReplicaID,float> distancesTo = new();
+            Dictionary<ReplicaID, ReplicaID> previous = new();
+
+            distancesTo[replicaID] = 0;
+            
+            List<ReplicaID> processed = new List<ReplicaID>();
+
+            var getClosestReplica = () =>
+            {
+                ReplicaID rep= new ReplicaID(int.MaxValue);
+                float distance=float.PositiveInfinity;
+
+
+                foreach (var repl in connectionTracker.AllConnections) {
+                    var dist = distancesTo.GetValueOrDefault(repl, float.PositiveInfinity);
+
+                    if ((dist < distance||float.IsPositiveInfinity(distance))&& !processed.Contains(repl)) {
+                        rep = repl;
+                        distance = dist;
+                    }
+                }
+
+                return (rep,distance);
+
+            };
+
+            while (processed.Count<connectionTracker.AllConnections.Count) {
+                (ReplicaID closest, float distance) = getClosestReplica();
+                processed.Add(closest);
+
+                if (mostRecentLSAs.ContainsKey(closest))
+                {
+                    var neighbours = mostRecentLSAs[closest].Neighbours;
+
+                    foreach (var neighbour in neighbours)
+                    {
+                        var distanceToNeighbour = distance + 1;
+                        if (distanceToNeighbour < distancesTo.GetValueOrDefault(neighbour,float.PositiveInfinity)||!distancesTo.ContainsKey(neighbour))
+                        {
+                            distancesTo[neighbour] = distanceToNeighbour;
+                            previous[neighbour] = closest;
+                        }
+                    }
+                }
+
+            }
+
+
+             
+            foreach (var dest in distancesTo.Keys) {
+                var current = dest;
+                var path = new List<ReplicaID>();
+                bool success = false;
+                
+                while (previous.ContainsKey(current)) {
+                    path.Insert(0,current);
+                    if (current == replicaID) {
+                        success = true;
+                        break;
+                    }
+                    current = previous[current];
+                }
+
+                if (success)
+                {
+                    nextNodeGivenTarget[dest] = path[Math.Min(1, path.Count)];
+                }
+                else {
+                    nextNodeGivenTarget[dest] = dest;
+                }
+
+            }
+
+
+
+
         }
+
+
+
+
+
 
 
 
@@ -103,13 +185,14 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             this.replicaID = replicaID;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLevelMessageReceived);
-            layerBelow.AddOnConnectionInterruptedHandler(OnConnect);
-            layerBelow.AddOnConnectionRegainedHandler(OnDisconnect);
+            layerBelow.AddOnConnectionInterruptedHandler(OnDisconnect);
+            layerBelow.AddOnConnectionRegainedHandler(OnConnect);
             this.connectionTracker = connectionTracker;
         }
 
         public void OnConnect(ReplicaID replica)
         {
+            Console.WriteLine(replicaID.ToString() +" connected to" + replica.ToString());
             var lsa = CreateNextLSA();
             foreach (var oldLSA in mostRecentLSAs.Values)
             {
@@ -121,6 +204,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         }
         public void OnDisconnect(ReplicaID replica)
         {
+            Console.WriteLine(replicaID.ToString() + " disconnected from" + replica.ToString());
             var lsa = CreateNextLSA();
             FloodLSA(lsa);
             CallConnectionInterrupted(replica);
@@ -143,7 +227,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void SendLSA(ReplicaID target, LSA lsa)
         {
-            layerBelow.SendMessage(target,
+            LayerBelow.SendMessage(target,
                 new Message(
                     new LinkStateMessage(replicaID, target,
                         new Message(lsa.ToJson())
@@ -193,7 +277,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 }
                 else
                 {
-                    layerBelow?.SendMessage(GetNextNodeInPathTo(linkMessage.IntendedTarget), message);
+                    LayerBelow?.SendMessage(GetNextNodeInPathTo(linkMessage.IntendedTarget), message);
                 }
             }
 
@@ -203,7 +287,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             var newMessage = new Message(new LinkStateMessage(recipient, replicaID, message).ToJson());
 
-            return layerBelow.SendMessage(GetNextNodeInPathTo(recipient), newMessage);
+            return LayerBelow.SendMessage(GetNextNodeInPathTo(recipient), newMessage);
         }
     }
 }

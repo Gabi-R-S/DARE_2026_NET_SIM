@@ -76,7 +76,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     {
                         if (connection != senderID)
                         {
-                            layerBelow.SendMessage(connection, newMessage);
+                            LayerBelow.SendMessage(connection, newMessage);
                         }
                     }
                 }
@@ -100,7 +100,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             {
 
                 var newMessage = new Message(new FloodMessage(recipient, replicaID, message, numHops).ToJson());
-                tasks[(layerBelow.SendMessage(connection, newMessage))] = connection;
+                tasks[(LayerBelow.SendMessage(connection, newMessage))] = connection;
             }
 
 

@@ -8,6 +8,13 @@ namespace Simulator
 {
     public abstract class NetworkSimulator
     {
+
+        protected List<Func<Task>> RunEvents { get; private set; } = new List<Func<Task>>();
+
+        public void AddRunEvent(Func<Task> task) {
+            RunEvents.Add(task);
+        }
+
         public abstract Task<(bool,float)> Run(float simulationTimeLimit);
 
 

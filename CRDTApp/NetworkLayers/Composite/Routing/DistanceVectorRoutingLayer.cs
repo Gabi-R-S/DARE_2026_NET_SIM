@@ -171,7 +171,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 else
                 {
                     var target = table.GetNextInPathTo(message.IntendedTarget);
-                    layerBelow.SendMessage(target, lowerLayerMessage);
+                    LayerBelow.SendMessage(target, lowerLayerMessage);
                 }
 
             }
@@ -188,7 +188,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             var target = table.GetNextInPathTo(recipient);
 
 
-            return layerBelow?.SendMessage(target, newMessage);
+            return LayerBelow?.SendMessage(target, newMessage);
 
         }
 
@@ -200,7 +200,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             DistanceTableUpdateMessage message = table.GetUpdate(scheduler);
             Message messg = new Message(message.ToJson());
 
-            layerBelow.SendMessage(replica, messg);
+            LayerBelow.SendMessage(replica, messg);
             scheduler.ExecuteAfter(heartbeatTime, () => { Hearbeat(replica).Wait(); });
         }
 
