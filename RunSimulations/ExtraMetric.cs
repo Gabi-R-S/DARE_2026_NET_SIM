@@ -6,6 +6,6 @@ namespace RunSimulations
 {
     internal abstract class ExtraMetric
     {
-        public string Tag { get; }
+        public string Tag { get; set; } = "none";
     }
 }

@@ -247,7 +247,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
             var linkMessage = LinkStateMessage.FromJson(message.Payload);
-
+            Console.WriteLine("Received message: "+message.Payload+" from replica "+replica.ToString()+" at replica "+replicaID.ToString());
             if (linkMessage == null)
             {
                 throw new Exception("Incorrect message format error in link state layer!");
