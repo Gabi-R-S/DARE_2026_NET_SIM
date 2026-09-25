@@ -83,7 +83,7 @@ namespace CRDTApp.NetworkLayers.Composite
             }
 
             var comp = trackerMessage.CausalityTracker.Compare(Latest);
-            if (comp != VersionVector.Comparison.ThisHappenedAfterOther && comp != VersionVector.Comparison.Equal)
+            if (comp != VersionVector.Comparison.ThisHappenedBeforeOther && comp != VersionVector.Comparison.Equal)
             {
                 pendingReceivedMessages.Add((senderID, trackerMessage));
             }

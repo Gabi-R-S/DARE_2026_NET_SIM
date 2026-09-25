@@ -1,4 +1,4 @@
-﻿using CRDTApp.Messages;
+using CRDTApp.Messages;
 using Shared;
 using Simulator;
 using System;
@@ -105,22 +105,22 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 ReplicaID rep= new ReplicaID(int.MaxValue);
                 float distance=float.PositiveInfinity;
 
+                foreach (var repl in distancesTo.Keys) {
+                    var dist = distancesTo[repl];
 
-                foreach (var repl in connectionTracker.AllConnections) {
-                    var dist = distancesTo.GetValueOrDefault(repl, float.PositiveInfinity);
-
-                    if ((dist < distance||float.IsPositiveInfinity(distance))&& !processed.Contains(repl)) {
+                    if (dist < distance && !processed.Contains(repl)) {
                         rep = repl;
                         distance = dist;
                     }
                 }
 
                 return (rep,distance);
-
             };
 
-            while (processed.Count<connectionTracker.AllConnections.Count) {
+            while (processed.Count < distancesTo.Count) {
                 (ReplicaID closest, float distance) = getClosestReplica();
+                if (float.IsPositiveInfinity(distance)) break;
+
                 processed.Add(closest);
 
                 if (mostRecentLSAs.ContainsKey(closest))
@@ -130,14 +130,13 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     foreach (var neighbour in neighbours)
                     {
                         var distanceToNeighbour = distance + 1;
-                        if (distanceToNeighbour < distancesTo.GetValueOrDefault(neighbour,float.PositiveInfinity)||!distancesTo.ContainsKey(neighbour))
+                        if (distanceToNeighbour < distancesTo.GetValueOrDefault(neighbour,float.PositiveInfinity))
                         {
                             distancesTo[neighbour] = distanceToNeighbour;
                             previous[neighbour] = closest;
                         }
                     }
                 }
-
             }
 
 
@@ -145,25 +144,23 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             foreach (var dest in distancesTo.Keys) {
                 var current = dest;
                 var path = new List<ReplicaID>();
-                bool success = false;
                 
-                while (previous.ContainsKey(current)) {
-                    path.Insert(0,current);
-                    if (current == replicaID) {
-                        success = true;
-                        break;
-                    }
+                while (current != replicaID && previous.ContainsKey(current)) {
+                    path.Insert(0, current);
                     current = previous[current];
                 }
 
-                if (success)
+                if (current == replicaID)
                 {
-                    nextNodeGivenTarget[dest] = path[Math.Min(1, path.Count)];
+                    if (path.Count > 0) {
+                        nextNodeGivenTarget[dest] = path[0];
+                    } else {
+                        nextNodeGivenTarget[dest] = replicaID;
+                    }
                 }
                 else {
                     nextNodeGivenTarget[dest] = dest;
                 }
-
             }
 
 

@@ -1,4 +1,4 @@
-﻿using CRDTApp.Messages;
+using CRDTApp.Messages;
 using CRDTApp.NetworkLayers.Composite;
 using Shared;
 using System;
@@ -16,11 +16,13 @@ namespace Tests_1
         public void MessageReception()
         {
             MockNetworkManager manager1 = new MockNetworkManager();
-            ReplicaID id1 = new ReplicaID();
-            CausalHistoryTrackerLayer tracker1 = new CausalHistoryTrackerLayer(id1, manager1);
+            ReplicaID id1 = new ReplicaID(1);
+            var initialVv = new VersionVector();
+            initialVv.Increment(id1);
+            CausalHistoryTrackerLayer tracker1 = new CausalHistoryTrackerLayer(id1, manager1, initialVv);
 
             MockNetworkManager manager2 = new MockNetworkManager();
-            ReplicaID id2 = new ReplicaID();
+            ReplicaID id2 = new ReplicaID(2);
             CausalHistoryTrackerLayer tracker2 = new CausalHistoryTrackerLayer(id2, manager2);
 
             bool something = false;

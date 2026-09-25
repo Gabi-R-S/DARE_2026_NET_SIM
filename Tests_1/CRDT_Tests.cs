@@ -1,4 +1,4 @@
-﻿using CRDTs;
+using CRDTs;
 using CRDTs.Basic;
 using Shared;
 
@@ -93,5 +93,8 @@ namespace Tests_1
             Assert.AreEqual(15, register1.Value);
             Assert.AreEqual(15, register2.Value);
         }
+
+        
     }
 }
+
