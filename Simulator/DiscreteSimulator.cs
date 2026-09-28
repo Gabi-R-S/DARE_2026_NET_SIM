@@ -51,13 +51,25 @@ namespace Simulator
                 var connection = ConnectionMap.GetConnection(message.Source, message.Recipient);
                 if (connection != null)
                 {
-                    Event ev = new Event(env);
-                    ev.AddCallback((env) =>
+                    if (!connectionsToMessageEvents.ContainsKey(connection)) {
+                        connectionsToMessageEvents[connection] = new List<MessageEvent>();
+                    }
+
+                    MessageEvent ev= new MessageEvent();
+                    connectionsToMessageEvents[connection].Add(ev);
+                    ev.Active = true;
+                    ev.LaunchTime = GetCurrentTime();
+                    ev.Ev = new Event(env);
+                    ev.Message = message;
+                    ev.Ev.AddCallback((env) =>
                     {
-                        DeliverMessage(message);
+                        if (ev.Active) {
+                            DeliverMessage(message);
+                        }
+                        connectionsToMessageEvents[connection].Remove(ev);
                     });
 
-                    env.ScheduleD(connection.TransmissionTime, ev);
+                    env.ScheduleD(connection.TransmissionTime, ev.Ev);
                     CallMessageSendScheduled(message);
                     return true;
                 }
@@ -79,5 +91,69 @@ namespace Simulator
         public override DateTime GetCurrentTime() {
             return env.Now;
         }
+
+        class MessageEvent {
+            public bool Active { get; set; } = true;
+            public Event Ev { get; set; }
+            public NetworkMessage Message { get; set; }
+            public DateTime LaunchTime { get; set;}
+
+        }
+
+        Dictionary<NetworkConnection, List<MessageEvent>> connectionsToMessageEvents = new(); 
+
+        protected override void DropCommunicationsBetween(ReplicaID rep1, ReplicaID rep2) {
+            var con = ConnectionMap.GetConnection(rep1, rep2);
+            if (con != null) {
+                if (connectionsToMessageEvents.ContainsKey(con)) {
+                    foreach (var ev in connectionsToMessageEvents[con]) {
+                        ev.Active = false;
+                    }
+                }
+                else {
+                    connectionsToMessageEvents[con] = new ();
+                }
+            }
+        }
+        protected override void ChangeTimeOfCommunicationsBetween(ReplicaID rep1, ReplicaID rep2, float oldTime, float newTime) {
+            var con = ConnectionMap.GetConnection(rep1, rep2);
+            if (con != null)
+            {
+                if (connectionsToMessageEvents.ContainsKey(con))
+                {
+                    var currTime = GetCurrentTime();
+                    foreach (var ev in connectionsToMessageEvents[con])
+                    {
+                        ev.Active = false;
+                        float timeRunning = (float)(currTime - ev.LaunchTime).TotalSeconds;
+                        float timePercentage = oldTime==0?1: timeRunning / oldTime;
+
+                        float missingTime = (1 - timePercentage) * newTime;
+
+                        MessageEvent newEv = new MessageEvent();
+                        connectionsToMessageEvents[con].Add(newEv);
+                        newEv.Active = true;
+                        newEv.LaunchTime = GetCurrentTime();
+                        newEv.Ev = new Event(env);
+                        newEv.Message = ev.Message;
+                        newEv.Ev.AddCallback((env) =>
+                        {
+                            if (newEv.Active)
+                            {
+                                DeliverMessage(newEv.Message);
+                            }
+                            connectionsToMessageEvents[con].Remove(newEv);
+                        });
+
+                        env.ScheduleD(missingTime, newEv.Ev);
+                    }
+                }
+                else
+                {
+                    connectionsToMessageEvents[con] = new();
+                }
+            }
+        }
+
     }
 }
