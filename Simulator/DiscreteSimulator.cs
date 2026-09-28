@@ -9,7 +9,7 @@ namespace Simulator
     public class DiscreteSimulator : NetworkSimulator
     {
 
-        const float MAX_SIM_TIME = 3600.0f;
+        const float MAX_SIM_TIME = 1.0f;
         public override async Task<(bool, float)> Run(float simulationTimeLimit)
         {
 
@@ -17,7 +17,8 @@ namespace Simulator
                 runEvent();
             }
             var t= Task.Run(() => { env.Run(); });
-            var t2 = await Task.WhenAny(t, Task.Delay(TimeSpan.FromSeconds(MAX_SIM_TIME)));
+            var delay = Task.Delay(TimeSpan.FromSeconds(MAX_SIM_TIME));
+            var t2 = await Task.WhenAny(t, delay);
 
 
             if (t2 == t)
@@ -30,6 +31,7 @@ namespace Simulator
                 return (duration <= simulationTimeLimit, duration);
             }
             else {
+                env.Step();
                 return (false, -1);//timeout
             }
 

@@ -12,8 +12,6 @@ namespace Simulator
 
        
 
-        List<(float, NetworkMessage)> messageQueue = new ();
-
         public NetworkConnection(float transmissionTime = 0.0f, bool active=true) {
             TransmissionTime = transmissionTime;
             Active = active;

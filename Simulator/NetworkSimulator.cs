@@ -118,6 +118,7 @@ namespace Simulator
 
         protected void DeliverMessage(NetworkMessage message)
         {
+            Console.WriteLine("sending " +message.Payload +" from "+message.Source.ToString()+" to " + message.Recipient.ToString());
             if (messageDeliveredHandlers.TryGetValue(message.Recipient, out var handlers))
             {
                 foreach (var handler in handlers)

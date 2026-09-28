@@ -154,7 +154,7 @@ namespace RunSimulations
 
             for (int i = 0; i < replicaIDs.Count; i++)
             {
-                map.SetConnection(replicaIDs[i], replicaIDs[new ReplicaID((ulong)((i+1)%replicaIDs.Count))], new NetworkConnection(delay));
+                map.SetConnection(replicaIDs[i], replicaIDs[(i+1)%replicaIDs.Count], new NetworkConnection(delay));
             }
 
 

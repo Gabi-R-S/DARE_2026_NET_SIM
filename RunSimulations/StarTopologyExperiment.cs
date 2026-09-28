@@ -13,13 +13,14 @@ namespace RunSimulations
 {
     internal class StarTopologyExperiment : Experiment // assumes no broken connections, and no lost messages
     {
-        public StarTopologyExperiment(float maxExperimentDuration = 100.0f, float delay = 0.0f, int opsPerReplica = 1000, int numReplicas = 10)
+        public StarTopologyExperiment(float maxExperimentDuration = 100.0f, float delay = 0.0f, int opsPerReplica = 1000, int numReplicas = 10, bool runHopelessCases=false)
         {
 
             this.delay = delay;
             this.maxExperimentDuration = maxExperimentDuration;
             this.opsPerReplica = opsPerReplica;
             this.numReplicas = numReplicas;
+            this.runHopelessCases = runHopelessCases;
         }
 
         int opsPerReplica;
@@ -27,6 +28,7 @@ namespace RunSimulations
         float delay;
 
         int numReplicas;
+        bool runHopelessCases = false;
         public override List<ExperimentResults> Run()
         {
             List<ExperimentResults> results = new();
@@ -40,13 +42,16 @@ namespace RunSimulations
 
 
             var CreateMap = () => { return CreateStarNetwork(this.numReplicas,0,delay); };
-            // Control case: no network stack.
-            results.Add(RunIndividualFillArraySimulation("No network stack", CreateMap, CreateOnlyBaseLayer, CreateDiscreteSim, maxExperimentDuration, opsPerReplica));
+
+            if (runHopelessCases)
+            {
+                // Control case: no network stack.
+                results.Add(RunIndividualFillArraySimulation("No network stack", CreateMap, CreateOnlyBaseLayer, CreateDiscreteSim, maxExperimentDuration, opsPerReplica));
 
 
-            // Simple Case: full stack, no routing
-            results.Add(RunIndividualFillArraySimulation("ack layer + no routing", CreateMap, CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica));
-
+                // Simple Case: full stack, no routing
+                results.Add(RunIndividualFillArraySimulation("ack layer + no routing", CreateMap, CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica));
+            }
 
             // Flood routing case
             results.Add(RunIndividualFillArraySimulation("ack layer + flood routing with max hop count", CreateMap, CreateBasicFloodRoutingStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica));
