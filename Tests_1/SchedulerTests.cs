@@ -34,7 +34,6 @@ namespace Tests_1
         }
 
         [TestMethod]
-        [Ignore("Bug in RealtimeScheduler: res == t compares Task<Task> with Task without await")]
         public async Task RealtimeScheduler_ExecuteTaskOrTimeout_Timeout()
         {
             var scheduler = new RealtimeScheduler();

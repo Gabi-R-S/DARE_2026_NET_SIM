@@ -135,6 +135,38 @@ namespace Simulator
         public abstract void ExecuteAfter(float time, Action action);
 
 
+
+        protected abstract void DropCommunicationsBetween(ReplicaID rep1, ReplicaID rep2);
+        protected abstract void ChangeTimeOfCommunicationsBetween(ReplicaID rep1, ReplicaID rep2,float oldTime,float newTime);
+
+        public void SetConnectionLatency(ReplicaID rep1, ReplicaID rep2, float time) {
+
+
+            var con = ConnectionMap.GetConnection(rep1, rep2);
+            if (con != null)
+            {
+                var latenctBefore = con.TransmissionTime;
+                con.TransmissionTime=time;
+                ChangeTimeOfCommunicationsBetween(rep1,rep2,latenctBefore,time);
+ 
+            }
+        
+        }
+        public void TurnOffConnection(ReplicaID rep1, ReplicaID rep2) {
+            var con = ConnectionMap.GetConnection(rep1, rep2);
+            if (con != null)
+            {
+                con.Active = false;
+                DropCommunicationsBetween(rep1,rep2);
+            }
+        }
+        public void TurnOnConnection(ReplicaID rep1, ReplicaID rep2) {
+            var con=ConnectionMap.GetConnection(rep1, rep2);
+            if (con != null) {
+                con.Active = true;
+            }
+        }
+
         public HashSet<ReplicaID> GetAllKnownReplicas() {
             return ConnectionMap.GetAllKnownReplicas();
         }

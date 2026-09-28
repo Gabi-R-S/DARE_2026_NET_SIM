@@ -13,66 +13,20 @@ namespace RunSimulations
 {
     internal class FullyConnectedExperiment : Experiment // assumes no broken connections, and no lost messages
     {
-        public FullyConnectedExperiment(float maxExperimentDuration = 100.0f, float delay = 0.0f, int opsPerReplica = 1000)
+        public FullyConnectedExperiment(float maxExperimentDuration = 100.0f, float delay = 0.0f, int opsPerReplica = 1000, int numReplicas=10)
         {
 
             this.delay = delay;
             this.maxExperimentDuration = maxExperimentDuration;
             this.opsPerReplica = opsPerReplica;
+            this.numReplicas = numReplicas;
         }
 
         int opsPerReplica;
         float maxExperimentDuration;
         float delay;
 
-
-
-        ExperimentResults RunIndividualSimulation(string name, Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> networkCreator, Func<ConnectionMap, NetworkSimulator> simulatorCreator,Func<NetworkSimulator, List<App>,List<ExtraMetric>>? generalMetricsCreator=null)
-        {
-            (ConnectionMap map, List<ReplicaID> replicas) = CreateFullyConectedNetwork(5, delay);
-
-            int messagesSend = 0;
-            NetworkSimulator simulator = simulatorCreator(map);
-            simulator.AddMessageSendScheduledHandler((_) => { messagesSend++; });
-
-
-            List<ExtraMetric> metrics = new List<ExtraMetric>();
-            List<App> apps = new List<App>();
-            int i = 0;
-            foreach (var replica in replicas)
-            {
-                (NetworkLayer networkManager, IScheduler scheduler, List<ExtraMetric> extraMetrics) = networkCreator(simulator, replica);
-
-                metrics.AddRange(extraMetrics);
-
-                var app = new App();
-                var otherReplicas = new List<ReplicaID>(replicas);
-                otherReplicas.Remove(replica);
-
-
-                var launchTask = () => { return app.Run(new InsertBehaviour(app, networkManager, replica, otherReplicas.ToArray(), opsPerReplica * i, opsPerReplica * (i + 1) - 1, opsPerReplica * replicas.Count)); };
-                simulator.AddRunEvent(launchTask);
-                i++;
-            }
-
-            if (generalMetricsCreator != null)
-            {
-                var generalMetrics = generalMetricsCreator(simulator,apps);
-                if (generalMetrics != null)
-                {
-                    metrics.AddRange(generalMetrics);
-                }
-            }
-
-            Console.WriteLine("starting simulation!");
-            var sim = simulator.Run(maxExperimentDuration);
-            sim.Wait();
-            Console.WriteLine("simulation ended!");
-
-
-
-            return new ExperimentResults(name, sim.Result.Item1, messagesSend, sim.Result.Item2, metrics);
-        }
+        int numReplicas = 10;
 
         public override List<ExperimentResults> Run()
         {
@@ -86,22 +40,23 @@ namespace RunSimulations
             };
 
 
+            var CreateMap = () => { return CreateFullyConectedNetwork(numReplicas, delay); };
             // Control case: no network stack.
-            results.Add(RunIndividualSimulation("No network stack", CreateOnlyBaseLayer, CreateDiscreteSim));
+            results.Add(RunIndividualFillArraySimulation("No network stack", CreateMap,CreateOnlyBaseLayer, CreateDiscreteSim,maxExperimentDuration,opsPerReplica));
 
 
             // Simple Case: full stack, no routing
-            results.Add(RunIndividualSimulation("ack layer + no routing", CreateBasicNoRouteStack, CreateDiscreteSim));
+            results.Add(RunIndividualFillArraySimulation("ack layer + no routing", CreateMap, CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica));
 
 
             // Flood routing case
-            results.Add(RunIndividualSimulation("ack layer + flood routing with max hop count", CreateBasicFloodRoutingStack, CreateDiscreteSim));
+            results.Add(RunIndividualFillArraySimulation("ack layer + flood routing with max hop count", CreateMap, CreateBasicFloodRoutingStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica));
 
             // Distance Vector case
-            results.Add(RunIndividualSimulation("ack + distance vector", CreateBasicDistanceVectorStack, CreateDiscreteSim));
+            results.Add(RunIndividualFillArraySimulation("ack + distance vector", CreateMap, CreateBasicDistanceVectorStack, CreateDiscreteSim,  maxExperimentDuration, opsPerReplica));
 
             // Distance Vector case
-            results.Add(RunIndividualSimulation("ack + link state", CreateBasicLinkStateStack, CreateDiscreteSim));
+            results.Add(RunIndividualFillArraySimulation("ack + link state", CreateMap, CreateBasicLinkStateStack, CreateDiscreteSim,  maxExperimentDuration, opsPerReplica));
             
             return results;
         }

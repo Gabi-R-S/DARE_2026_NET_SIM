@@ -65,7 +65,6 @@ namespace Tests_1
         }
 
         [TestMethod]
-        [Ignore("Bug in CausalHistoryTrackerLayer: drops messages where ThisHappenedAfterOther")]
         public void CausalHistoryTrackerLayer_ReceiveMessage_InOrder_DeliversImmediately()
         {
             var mockLayer = new MockNetworkManager();
@@ -87,7 +86,6 @@ namespace Tests_1
         }
 
         [TestMethod]
-        [Ignore("Bug in CausalHistoryTrackerLayer: drops messages where ThisHappenedAfterOther")]
         public void CausalHistoryTrackerLayer_ReceiveMessage_OutOfOrder_DelaysDelivery()
         {
             var mockLayer = new MockNetworkManager();

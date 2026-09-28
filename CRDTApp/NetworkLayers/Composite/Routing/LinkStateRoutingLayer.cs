@@ -92,7 +92,6 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void RecalculateRoutingTable()
         {
-            //Console.WriteLine("TODO");
             Dictionary<ReplicaID,float> distancesTo = new();
             Dictionary<ReplicaID, ReplicaID> previous = new();
 
@@ -189,7 +188,6 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnConnect(ReplicaID replica)
         {
-            Console.WriteLine(replicaID.ToString() +" connected to" + replica.ToString());
             var lsa = CreateNextLSA();
             foreach (var oldLSA in mostRecentLSAs.Values)
             {
@@ -201,7 +199,6 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         }
         public void OnDisconnect(ReplicaID replica)
         {
-            Console.WriteLine(replicaID.ToString() + " disconnected from" + replica.ToString());
             var lsa = CreateNextLSA();
             FloodLSA(lsa);
             CallConnectionInterrupted(replica);
@@ -244,7 +241,6 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
             var linkMessage = LinkStateMessage.FromJson(message.Payload);
-            Console.WriteLine("Received message: "+message.Payload+" from replica "+replica.ToString()+" at replica "+replicaID.ToString());
             if (linkMessage == null)
             {
                 throw new Exception("Incorrect message format error in link state layer!");

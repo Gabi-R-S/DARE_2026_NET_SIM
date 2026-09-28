@@ -1,4 +1,6 @@
-﻿using CRDTApp.Messages;
+﻿using CRDTApp;
+using CRDTApp.Behaviours;
+using CRDTApp.Messages;
 using CRDTApp.NetworkLayers;
 using CRDTApp.NetworkLayers.Base;
 using CRDTApp.NetworkLayers.Composite;
@@ -119,7 +121,7 @@ namespace RunSimulations
             
             return (map,replicaIDs);
         }
-        protected static (ConnectionMap, List<ReplicaID>) CreateStarNetwork(int numReplicas, int centerNode)
+        protected static (ConnectionMap, List<ReplicaID>) CreateStarNetwork(int numReplicas, int centerNode,float delay)
         {
             ConnectionMap map = new ConnectionMap();
             List<ReplicaID> replicaIDs = new List<ReplicaID>();
@@ -132,12 +134,81 @@ namespace RunSimulations
 
             for (int i = 0; i < replicaIDs.Count; i++)
             {
-                map.SetConnection(replicaIDs[i], replicaIDs[centerNode], new NetworkConnection());
+                map.SetConnection(replicaIDs[i], replicaIDs[centerNode], new NetworkConnection(delay));
             }
 
 
             return (map, replicaIDs);
         }
+
+        protected static (ConnectionMap, List<ReplicaID>) CreateRingNetwork(int numReplicas, float delay)
+        {
+            ConnectionMap map = new ConnectionMap();
+            List<ReplicaID> replicaIDs = new List<ReplicaID>();
+
+            for (int i = 0; i < numReplicas; i++)
+            {
+                replicaIDs.Add(new ReplicaID((ulong)i));
+            }
+
+
+            for (int i = 0; i < replicaIDs.Count; i++)
+            {
+                map.SetConnection(replicaIDs[i], replicaIDs[new ReplicaID((ulong)((i+1)%replicaIDs.Count))], new NetworkConnection(delay));
+            }
+
+
+            return (map, replicaIDs);
+        }
+
+
+        protected ExperimentResults RunIndividualFillArraySimulation(string name,Func<(ConnectionMap map, List<ReplicaID> replicas)> createNetwork , Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> networkStackCreator, Func<ConnectionMap, NetworkSimulator> simulatorCreator, float maxExperimentDuration, int opsPerReplica, Func<NetworkSimulator, List<App>, List<ExtraMetric>>? generalMetricsCreator = null)
+        {
+            (ConnectionMap map, List<ReplicaID> replicas) = createNetwork();
+
+            int messagesSend = 0;
+            NetworkSimulator simulator = simulatorCreator(map);
+            simulator.AddMessageSendScheduledHandler((_) => { messagesSend++; });
+
+
+            List<ExtraMetric> metrics = new List<ExtraMetric>();
+            List<App> apps = new List<App>();
+            int i = 0;
+            foreach (var replica in replicas)
+            {
+                (NetworkLayer networkManager, IScheduler scheduler, List<ExtraMetric> extraMetrics) = networkStackCreator(simulator, replica);
+
+                metrics.AddRange(extraMetrics);
+
+                var app = new App();
+                var otherReplicas = new List<ReplicaID>(replicas);
+                otherReplicas.Remove(replica);
+
+
+                var launchTask = () => { return app.Run(new InsertBehaviour(app, networkManager, replica, otherReplicas.ToArray(), opsPerReplica * i, opsPerReplica * (i + 1) - 1, opsPerReplica * replicas.Count)); };
+                simulator.AddRunEvent(launchTask);
+                i++;
+            }
+
+            if (generalMetricsCreator != null)
+            {
+                var generalMetrics = generalMetricsCreator(simulator, apps);
+                if (generalMetrics != null)
+                {
+                    metrics.AddRange(generalMetrics);
+                }
+            }
+
+            Console.WriteLine("starting simulation "+name);
+            var sim = simulator.Run(maxExperimentDuration);
+            sim.Wait();
+            Console.WriteLine("simulation ended!");
+
+
+
+            return new ExperimentResults(name, sim.Result.Item1, messagesSend, sim.Result.Item2, metrics);
+        }
+
 
         public abstract List<ExperimentResults> Run();
     }
