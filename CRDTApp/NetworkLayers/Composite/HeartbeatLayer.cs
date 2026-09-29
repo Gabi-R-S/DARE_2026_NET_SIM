@@ -80,6 +80,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public override Task Run()
         {
+            Running = true;
             var t = LayerBelow.Run();
             foreach (var replica in connectionTracker.AllConnections)
             {

@@ -100,7 +100,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
             var networkMessage = new Message(trackerMessage.ToJson());
 
-            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT &&Running; i++)
+            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT && Running; i++)
             {
                 var semaphore = new SemaphoreSlim(0);
                 pendingAcks[(newTag, recipient)] = semaphore;
@@ -113,6 +113,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
                 if (await scheduler.ExecuteTaskOrTimeout(semaphore.WaitAsync(), waitTime))
                 {
+                    Console.WriteLine("ACK succeed");
                     return true;
                 }
 

@@ -69,7 +69,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             }
             else
             {
-                if (floodMessage.NumberOfHops > 0 && Running)
+                if (floodMessage.NumberOfHops > 0 && Running&&floodMessage.OriginalSender!=replicaID)
                 {
                     floodMessage.NumberOfHops -= 1;
                     var newMessage = new Message(floodMessage.ToJson());

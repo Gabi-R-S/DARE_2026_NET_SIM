@@ -60,6 +60,12 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
             public void ResetConnection(ReplicaID replica)
             {
+
+                foreach (var (k,(v1,v2)) in distances) {
+                    if (v2==replica) {
+                        distances.Remove(k);
+                    }
+                }
                 distances.Remove(replica);
             }
 
@@ -128,8 +134,8 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 Dictionary<int, float> messgDistances = new();
                 var timestamp = scheduler.GetCurrentTime();
 
-                foreach ((float k,ReplicaID v) in distances.Values) {
-                    messgDistances[(int)v.ID]=k;
+                foreach ((var dest,(float k,ReplicaID v)) in distances) {
+                    messgDistances[(int)dest.ID]=k;
                 }
 
 
