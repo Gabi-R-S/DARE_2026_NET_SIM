@@ -173,7 +173,7 @@ namespace RunSimulations
 
 
             BooleanMetric endedSuccessfully = new BooleanMetric("ended_successfully", false);
-
+            
             int count = 0;
             foreach (var app in apps)
             {
@@ -182,6 +182,7 @@ namespace RunSimulations
                     count++;
                     if (count == apps.Count)
                     {
+                        Console.WriteLine("Task ended!");
                         endedSuccessfully.Value = true;
                         app.Close();
                     }
@@ -217,6 +218,8 @@ namespace RunSimulations
 
 
                 var app = new App(new InsertBehaviour(networkManager, scheduler, replica, otherReplicas.ToArray(), opsPerReplica * i, opsPerReplica * (i + 1) - 1, opsPerReplica * replicas.Count,delayBetweenSends,delayBetweenOps), scheduler, networkManager);
+
+                apps.Add(app);
 
                 var launchTask = () => { return app.Run(); };
                 simulator.AddRunEvent(launchTask);

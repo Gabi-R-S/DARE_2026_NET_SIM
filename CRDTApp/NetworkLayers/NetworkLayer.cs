@@ -11,8 +11,10 @@ namespace CRDTApp.NetworkLayers
     public abstract class NetworkLayer
     {
         public virtual void Stop() {
+            Running = false;
             LayerBelow?.Stop();
         }
+        public bool Running { get; protected set; }
         public NetworkLayer? LayerBelow { get; private set; }
         public NetworkLayer(NetworkLayer? layerBelow = null, bool connectMessageReceived=false, bool connectConnectionInterrupted = false, bool connectConnectionRegained = false) {
             this.LayerBelow = layerBelow;
@@ -46,6 +48,7 @@ namespace CRDTApp.NetworkLayers
         
         }
         public virtual Task Run(){
+            Running = true;
             if (LayerBelow == null) {
                 return Task.CompletedTask;
             }

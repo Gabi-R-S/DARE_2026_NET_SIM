@@ -28,18 +28,6 @@ namespace CRDTApp.NetworkLayers.Base
             CallMessageReceived(message.Source, new Message(message.Payload));
         }
 
-        
-        SemaphoreSlim? endProgramSemaphore;
-        public void Stop()
-        {
-            endProgramSemaphore?.Release();
-        }
-        
-      
-        public override async Task Run() {
-            endProgramSemaphore = new SemaphoreSlim(0, 1);
-            await endProgramSemaphore.WaitAsync();
-        }
 
         
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
@@ -47,8 +35,6 @@ namespace CRDTApp.NetworkLayers.Base
             return networkSimulator.ScheduleMessageDelivery(new NetworkMessage(this.replicaID, recipient, message.Payload));
         }
 
-
-        
 
     }
 }

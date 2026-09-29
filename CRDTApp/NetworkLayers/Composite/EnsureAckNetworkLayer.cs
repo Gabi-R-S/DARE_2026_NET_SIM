@@ -33,8 +33,7 @@ namespace CRDTApp.NetworkLayers.Composite
         ReplicaID replicaID;
         Func<ReplicaID,T> GenerateNextTag;
         Dictionary<(T, ReplicaID), SemaphoreSlim> pendingAcks = new();
-        bool running = true;
-
+        
 
         public EnsureAckNetworkLayer(ReplicaID replicaID, NetworkLayer lowerLayerNetworkManager,IScheduler scheduler, Func<ReplicaID, T> generateNextTag,float waitTime=0.5f):base(lowerLayerNetworkManager,false,true,true)
         {
@@ -101,7 +100,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
             var networkMessage = new Message(trackerMessage.ToJson());
 
-            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT &&running; i++)
+            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT &&Running; i++)
             {
                 var semaphore = new SemaphoreSlim(0);
                 pendingAcks[(newTag, recipient)] = semaphore;
@@ -119,19 +118,13 @@ namespace CRDTApp.NetworkLayers.Composite
 
             }
 
-            if (running)
+            if (Running)
             {
                 CallConnectionInterrupted(recipient);
             }
             return false;
         }
 
-        public override void Stop()
-        {
-            running = false;
-
-            LayerBelow?.Stop();
-        }
 
     }
 }

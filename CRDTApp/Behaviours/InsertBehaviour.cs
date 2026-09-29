@@ -16,7 +16,7 @@ namespace CRDTApp.Behaviours
         int minNumber,maxNumber,expectedCount;
         float delayBetweenSends,delayBetweenOps;
         ReplicaID replicaID;
-        bool shouldContinue = true;
+        bool running = false;
         IScheduler scheduler;
         public InsertBehaviour(NetworkLayer network, IScheduler scheduler, ReplicaID ourID, ReplicaID[] otherIDs,int minNumber,int maxNumberInclusive, int expectedCount, float delayBetweenSends,float delayBetweenOps) {
             
@@ -46,10 +46,10 @@ namespace CRDTApp.Behaviours
         {
             bool succeeded;
             succeeded = await network.SendMessage(replica, message);
-            if (!succeeded&&shouldContinue)
+            if (!succeeded&&running)
             {
                 scheduler.ExecuteAfter(delayBetweenSends, () => {
-                    if (shouldContinue)
+                    if (running)
                     {
                         SendUntilSuccess(replica, message);
                     }
@@ -60,7 +60,7 @@ namespace CRDTApp.Behaviours
 
 
         async Task SendUpdateUntil(int currentNumber, int maxNumber) {
-            if (currentNumber > maxNumber || !shouldContinue) {
+            if (currentNumber > maxNumber || !running) {
                 return;
             }
 
@@ -80,16 +80,18 @@ namespace CRDTApp.Behaviours
                SendUntilSuccess(replica, message);
             }
 
+            scheduler.ExecuteAfter(delayBetweenOps,()=> { SendUpdateUntil(currentNumber++,maxNumber); });
+
         }
 
 
         public override async Task Run() {
-
+            running = true;
             SendUpdateUntil(minNumber,maxNumber);
         }
 
         public override void Stop() {
-            shouldContinue = false;
+            running = false;
         }
 
     }

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CRDTApp.NetworkLayers.Composite
 {
-    public class HeartbeatLayer:NetworkLayer
+    public class HeartbeatLayer : NetworkLayer
     {
         public class HeartbeatMessage : NetworkLayerMessage<HeartbeatMessage>
         {
@@ -31,9 +31,10 @@ namespace CRDTApp.NetworkLayers.Composite
         float heartbeatTime = 0.5f;
         IScheduler scheduler;
         ActiveConnectionTracker connectionTracker;
-        bool running = true;
 
-        public HeartbeatLayer(ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow,IScheduler scheduler, float heartbeatTime) : base(layerBelow,false,true,true) {
+
+        public HeartbeatLayer(ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, float heartbeatTime) : base(layerBelow, false, true, true)
+        {
             this.connectionTracker = connectionTracker;
             this.scheduler = scheduler;
             this.heartbeatTime = heartbeatTime;
@@ -42,37 +43,47 @@ namespace CRDTApp.NetworkLayers.Composite
         }
 
 
-        void OnLowerLevelMessageReceived(ReplicaID replica, Message message){
+        void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
+        {
             var heartbeatMessage = HeartbeatMessage.FromJson(message.Payload);
-            if (heartbeatMessage == null) {
+            if (heartbeatMessage == null)
+            {
                 throw new Exception("Unexpected message format in heartbeat layer");
-            
+
             }
 
-            if (!heartbeatMessage.HeartBeat) {
+            if (!heartbeatMessage.HeartBeat)
+            {
                 CallMessageReceived(replica, heartbeatMessage.Message);
             }
         }
 
-         
+
         async Task Hearbeat(ReplicaID replica)
         {
-            if (running)
+            if (Running)
             {
                 HeartbeatMessage message = new HeartbeatMessage(null, true);
                 Message messg = new Message(message.ToJson());
 
                 LayerBelow.SendMessage(replica, messg);
 
-                scheduler.ExecuteAfter(heartbeatTime, () => { Hearbeat(replica).Wait(); });
-            }     
+                scheduler.ExecuteAfter(heartbeatTime, () =>
+                {
+                    if (Running)
+                    {
+                        Hearbeat(replica);
+                    }
+                });
+            }
         }
 
         public override Task Run()
         {
             var t = LayerBelow.Run();
-            foreach (var replica in connectionTracker.AllConnections) {
-                Hearbeat(replica).Wait(); 
+            foreach (var replica in connectionTracker.AllConnections)
+            {
+                Hearbeat(replica).Wait();
             }
             return t;
         }
@@ -80,16 +91,10 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-            return LayerBelow.SendMessage(recipient,new Message(new HeartbeatMessage(message).ToJson()));
+            return LayerBelow.SendMessage(recipient, new Message(new HeartbeatMessage(message).ToJson()));
         }
 
 
-        public override void Stop()
-        {
-            running = false;
-            
-            LayerBelow?.Stop();
-        }
 
     }
 }

@@ -50,7 +50,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             
         }
 
-       
+  
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
@@ -69,7 +69,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             }
             else
             {
-                if (floodMessage.NumberOfHops > 0)
+                if (floodMessage.NumberOfHops > 0 && Running)
                 {
                     floodMessage.NumberOfHops -= 1;
                     var newMessage = new Message(floodMessage.ToJson());
