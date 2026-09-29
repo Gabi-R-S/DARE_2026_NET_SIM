@@ -107,19 +107,16 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             if ((activeConnections.Count>0&& !activeConnections.Contains(replicaID))|| (activeConnections.Count > 1 && activeConnections.Contains(replicaID)))
             {
 
-                Console.WriteLine("Should send!");
                 foreach (var connection in connectionTracker.ActiveConnections)
                 {
                     if (connection != replicaID)
                     {
-                        Console.WriteLine("Sent!");
                         tasks[(LayerBelow.SendMessage(connection, newMessage))] = connection;
                     }
                 }
             }
             else
             {
-                Console.WriteLine("Sent!");
                 tasks[(LayerBelow.SendMessage(recipient, newMessage))] = recipient;
 
             }

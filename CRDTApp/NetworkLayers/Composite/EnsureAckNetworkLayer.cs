@@ -79,7 +79,7 @@ namespace CRDTApp.NetworkLayers.Composite
             }
             else
             {
-                var ack = new EnsureAckMessage( pendingAckMessage.Tag, pendingAckMessage.Message,true);
+                var ack = new EnsureAckMessage( pendingAckMessage.Tag, new Message(""),true);
                 LayerBelow.SendMessage(senderID, new Message(ack.ToJson()));
                 
                 CallMessageReceived(senderID,pendingAckMessage.Message);
