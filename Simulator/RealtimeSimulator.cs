@@ -10,7 +10,7 @@ namespace Simulator
     public class RealtimeSimulator : NetworkSimulator
     {
 
-        public override async Task<(bool, float)> Run(float simulationTimeLimit)
+        public override async Task Run(float simulationTimeLimit)
         {
             var start = DateTime.Now;
 
@@ -21,13 +21,10 @@ namespace Simulator
             }
             var delay = Task.Delay(TimeSpan.FromSeconds(simulationTimeLimit));
             var t = await Task.WhenAny(Task.WhenAll(tasks), delay);
-
-            var end = DateTime.Now;
-            var timespan = (end - start);
-            float duration = (float)(timespan.TotalSeconds);
-
-            return (t == delay, duration);
-
+            
+            foreach (var ev in CloseEvents) {
+                ev();
+            }
 
         }
 

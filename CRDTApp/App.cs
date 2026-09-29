@@ -11,26 +11,33 @@ namespace CRDTApp
     {
         SemaphoreSlim closeSem = new SemaphoreSlim(0);
 
+        public IScheduler Scheduler { get; private set; }
+        public Behaviour Behaviour { get; private set; }
+        public NetworkLayer NetworkComponent { get; private set; }
         public void Close() {
+            Behaviour.Stop();
+            NetworkComponent.Stop();
             closeSem.Release();
         }
-        public App()
+        public App(Behaviour behaviour, IScheduler scheduler, NetworkLayer networkComponent)
         {
+            this.Scheduler = scheduler;
+            this.Behaviour = behaviour;
+            this.NetworkComponent = networkComponent;
         }
 
-        public async Task Run(IBehaviour behaviour,  IScheduler? scheduler = null, NetworkLayer network = null, float executionTime =-1)
+        public async Task Run(float executionTime =-1)
         {
-            var t1 = behaviour.Run();
-            var t2 =network?.Run();
+            var t1 = Behaviour.Run();
+            var t2 =NetworkComponent.Run();
 
-            var wait = Task.WhenAny(t1, closeSem.WaitAsync());
             
-            if (scheduler != null && executionTime > 0) {
-                scheduler.ExecuteAfter(executionTime, Close);
-                await scheduler.ExecuteTaskOrTimeout(wait, executionTime);
+            if (Scheduler != null && executionTime > 0) {
+                Scheduler.ExecuteAfter(executionTime, Close);
+                await Scheduler.ExecuteTaskOrTimeout(closeSem.WaitAsync(), executionTime);
             }
             else {
-                await wait;
+                await closeSem.WaitAsync();
             }
         }
     }

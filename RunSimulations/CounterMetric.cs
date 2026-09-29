@@ -4,10 +4,11 @@ using System.Text;
 
 namespace RunSimulations
 {
-    internal class CounterMetric:ExtraMetric
+    internal class CounterMetric : ExtraMetric
     {
-        int Counter{ get; set; }
-        public CounterMetric(string name, int counter) {
+        public int Counter { get; set; }
+        public CounterMetric(string name, int counter)
+        {
             Tag = name;
             Counter = counter;
         }

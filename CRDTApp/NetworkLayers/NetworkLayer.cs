@@ -10,6 +10,9 @@ namespace CRDTApp.NetworkLayers
 {
     public abstract class NetworkLayer
     {
+        public virtual void Stop() {
+            LayerBelow?.Stop();
+        }
         public NetworkLayer? LayerBelow { get; private set; }
         public NetworkLayer(NetworkLayer? layerBelow = null, bool connectMessageReceived=false, bool connectConnectionInterrupted = false, bool connectConnectionRegained = false) {
             this.LayerBelow = layerBelow;

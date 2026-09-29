@@ -9,13 +9,18 @@ namespace Simulator
     public abstract class NetworkSimulator
     {
 
-        protected List<Func<Task>> RunEvents { get; private set; } = new List<Func<Task>>();
+        protected List<Func<Task>> RunEvents { get; private set; } = new List<Func<Task>>(); //close events!
+        protected List<Func<Task>> CloseEvents { get; private set; } = new List<Func<Task>>(); //close events!
 
         public void AddRunEvent(Func<Task> task) {
             RunEvents.Add(task);
         }
+        public void AddCloseEvent(Func<Task> task)
+        {
+            CloseEvents.Add(task);
+        }
 
-        public abstract Task<(bool,float)> Run(float simulationTimeLimit);
+        public abstract Task Run(float simulationTimeLimit);
 
 
         protected event Action<NetworkMessage>? MessageSendAttempted;
@@ -118,7 +123,7 @@ namespace Simulator
 
         protected void DeliverMessage(NetworkMessage message)
         {
-            Console.WriteLine("sending " +message.Payload +" from "+message.Source.ToString()+" to " + message.Recipient.ToString());
+           // Console.WriteLine("sending " +message.Payload +" from "+message.Source.ToString()+" to " + message.Recipient.ToString());
             if (messageDeliveredHandlers.TryGetValue(message.Recipient, out var handlers))
             {
                 foreach (var handler in handlers)

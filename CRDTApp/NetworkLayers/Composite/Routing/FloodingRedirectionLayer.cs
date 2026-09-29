@@ -54,6 +54,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
+            
             var floodMessage = FloodMessage.FromJson(lowerLayerMessage.Payload);
 
             if (floodMessage == null)
@@ -74,7 +75,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     var newMessage = new Message(floodMessage.ToJson());
                     foreach (var connection in connectionTracker.ActiveConnections)
                     {
-                        if (connection != senderID)
+                        if (connection != senderID&&connection!=replicaID)
                         {
                             LayerBelow.SendMessage(connection, newMessage);
                         }
@@ -90,17 +91,37 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+            var newMessage = new Message(new FloodMessage(recipient, replicaID, message, numHops).ToJson());
 
+            if (recipient == replicaID) {
+
+
+
+                return await LayerBelow.SendMessage(recipient,newMessage);
+            }
 
             
 
             Dictionary<Task<bool>, ReplicaID> tasks = new();
-
-            foreach (var connection in connectionTracker.ActiveConnections)
+            var activeConnections = connectionTracker.ActiveConnections;
+            if ((activeConnections.Count>0&& !activeConnections.Contains(replicaID))|| (activeConnections.Count > 1 && activeConnections.Contains(replicaID)))
             {
 
-                var newMessage = new Message(new FloodMessage(recipient, replicaID, message, numHops).ToJson());
-                tasks[(LayerBelow.SendMessage(connection, newMessage))] = connection;
+                Console.WriteLine("Should send!");
+                foreach (var connection in connectionTracker.ActiveConnections)
+                {
+                    if (connection != replicaID)
+                    {
+                        Console.WriteLine("Sent!");
+                        tasks[(LayerBelow.SendMessage(connection, newMessage))] = connection;
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Sent!");
+                tasks[(LayerBelow.SendMessage(recipient, newMessage))] = recipient;
+
             }
 
 

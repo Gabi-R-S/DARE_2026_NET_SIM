@@ -31,6 +31,7 @@ namespace CRDTApp.NetworkLayers.Composite
         float heartbeatTime = 0.5f;
         IScheduler scheduler;
         ActiveConnectionTracker connectionTracker;
+        bool running = true;
 
         public HeartbeatLayer(ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow,IScheduler scheduler, float heartbeatTime) : base(layerBelow,false,true,true) {
             this.connectionTracker = connectionTracker;
@@ -56,12 +57,15 @@ namespace CRDTApp.NetworkLayers.Composite
          
         async Task Hearbeat(ReplicaID replica)
         {
-            HeartbeatMessage message = new HeartbeatMessage(null, true);
-            Message messg = new Message(message.ToJson());
+            if (running)
+            {
+                HeartbeatMessage message = new HeartbeatMessage(null, true);
+                Message messg = new Message(message.ToJson());
 
-            LayerBelow.SendMessage(replica, messg);
-            
-            scheduler.ExecuteAfter(heartbeatTime, () => { Hearbeat(replica).Wait(); });
+                LayerBelow.SendMessage(replica, messg);
+
+                scheduler.ExecuteAfter(heartbeatTime, () => { Hearbeat(replica).Wait(); });
+            }     
         }
 
         public override Task Run()
@@ -77,6 +81,14 @@ namespace CRDTApp.NetworkLayers.Composite
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
             return LayerBelow.SendMessage(recipient,new Message(new HeartbeatMessage(message).ToJson()));
+        }
+
+
+        public override void Stop()
+        {
+            running = false;
+            
+            LayerBelow?.Stop();
         }
 
     }

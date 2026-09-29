@@ -3,61 +3,93 @@ using System.Collections.Generic;
 using System.Text;
 using CRDTApp.Messages;
 using CRDTApp.NetworkLayers;
+using CRDTApp.Schedulers;
 using CRDTs.Basic;
 using Shared;
 namespace CRDTApp.Behaviours
 {
-    public  class InsertBehaviour:IBehaviour
+    public  class InsertBehaviour:Behaviour
     {
         ORSet<int> ints = new ();
-        App app;
         NetworkLayer network;
         ReplicaID[] otherReplicas;
         int minNumber,maxNumber,expectedCount;
+        float delayBetweenSends,delayBetweenOps;
         ReplicaID replicaID;
-        public InsertBehaviour(App app,NetworkLayer network, ReplicaID ourID, ReplicaID[] otherIDs,int minNumber,int maxNumberInclusive, int expectedCount) {
-            this.app = app;
+        bool shouldContinue = true;
+        IScheduler scheduler;
+        public InsertBehaviour(NetworkLayer network, IScheduler scheduler, ReplicaID ourID, ReplicaID[] otherIDs,int minNumber,int maxNumberInclusive, int expectedCount, float delayBetweenSends,float delayBetweenOps) {
+            
             this.replicaID = ourID;
             this.otherReplicas = otherIDs;
             this.network = network;
             this.minNumber = minNumber;
             this.maxNumber = maxNumberInclusive;
             this.expectedCount = expectedCount;
+            this.delayBetweenOps = delayBetweenOps;
+            this.delayBetweenSends = delayBetweenSends;
+            this.scheduler = scheduler;
             network.AddOnMessageReceivedHandler(OnMessageReceived);
         }
 
         void OnMessageReceived(ReplicaID replica, Message message) { //TODO: retrieve CRDT and merge it
             var op = ORSet<int>.FromJSON(message.Payload, (str) => { return int.Parse(str); });
             ints.Merge(op);
+
+            if (ints.GetValues().Count == expectedCount) {
+                CallBehaviourEnded();
+            }
         }
 
 
-        async Task SendUntilSuccess(ReplicaID replica, Message message) {
+        async Task SendUntilSuccess(ReplicaID replica, Message message)
+        {
             bool succeeded;
-            do {
-                succeeded = await network.SendMessage(replica,message); 
-            }while (!succeeded);
+            succeeded = await network.SendMessage(replica, message);
+            if (!succeeded&&shouldContinue)
+            {
+                scheduler.ExecuteAfter(delayBetweenSends, () => {
+                    if (shouldContinue)
+                    {
+                        SendUntilSuccess(replica, message);
+                    }
+                });
+            }
         }
 
-        public async Task Run() {
 
-            List<Task> tasks = new List<Task>();
-            for (int i =minNumber;i<=maxNumber;i++) {
-                var addOp = ints.CreateAddOperation(replicaID,i);
-                ints.Merge(addOp);
-                Message message = new Message(addOp.ToJson((i) => { return i.ToString();})); 
-                foreach (ReplicaID replica in otherReplicas) {
-                    tasks.Add(SendUntilSuccess(replica,message));
-                }
+
+        async Task SendUpdateUntil(int currentNumber, int maxNumber) {
+            if (currentNumber > maxNumber || !shouldContinue) {
+                return;
+            }
+
+            var addOp = ints.CreateAddOperation(replicaID, currentNumber);
+            
+            ints.Merge(addOp);
+            
+            if (ints.GetValues().Count == expectedCount)
+            {
+                CallBehaviourEnded();
             }
             
-            await Task.WhenAll(tasks);
-
-            while (ints.GetValues().Count<expectedCount) {
-                await Task.Yield();
+            Message message = new Message(addOp.ToJson((i) => { return i.ToString(); }));
+            
+            foreach (ReplicaID replica in otherReplicas)
+            {
+               SendUntilSuccess(replica, message);
             }
 
-            app.Close();
+        }
+
+
+        public override async Task Run() {
+
+            SendUpdateUntil(minNumber,maxNumber);
+        }
+
+        public override void Stop() {
+            shouldContinue = false;
         }
 
     }

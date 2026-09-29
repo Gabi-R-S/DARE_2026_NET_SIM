@@ -129,6 +129,8 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         IScheduler scheduler;
         DistanceTable table;
 
+        bool running = true;
+
         public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler) : base(layerBelow, false, true, true)
         {
             this.connectionTracker = connectionTracker;
@@ -197,11 +199,14 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         async Task Hearbeat(ReplicaID replica)
         {
-            DistanceTableUpdateMessage message = table.GetUpdate(scheduler);
-            Message messg = new Message(message.ToJson());
+            if (running)
+            {
+                DistanceTableUpdateMessage message = table.GetUpdate(scheduler);
+                Message messg = new Message(message.ToJson());
 
-            LayerBelow.SendMessage(replica, messg);
-            scheduler.ExecuteAfter(heartbeatTime, () => { Hearbeat(replica).Wait(); });
+                LayerBelow.SendMessage(replica, messg);
+                scheduler.ExecuteAfter(heartbeatTime, () => { Hearbeat(replica).Wait(); });
+            }
         }
 
         public override Task Run()
@@ -212,6 +217,13 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 Hearbeat(replica);
             }
             return t;
+        }
+        
+        public override void Stop()
+        {
+            running = false;
+
+            LayerBelow?.Stop();
         }
 
 

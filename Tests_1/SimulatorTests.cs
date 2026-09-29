@@ -88,41 +88,7 @@ namespace Tests_1
             Assert.IsTrue(messageDelivered);
         }
 
-        [TestMethod]
-        public async Task RealtimeSimulator_Run()
-        {
-            var map = new ConnectionMap();
-            var sim = new RealtimeSimulator(map);
-
-            bool eventRun = false;
-            sim.AddRunEvent(() => {
-                eventRun = true;
-                return Task.CompletedTask;
-            });
-
-            var (success, duration) = await sim.Run(1.0f);
-            Assert.IsFalse(success);
-            Assert.IsTrue(eventRun);
-            Assert.IsTrue(duration >= 0.0f);
-        }
-
-        [TestMethod]
-        public async Task DiscreteSimulator_Run()
-        {
-            var map = new ConnectionMap();
-            var env = new Simulation();
-            var sim = new DiscreteSimulator(env, map);
-
-            bool eventRun = false;
-            sim.AddRunEvent(() => {
-                eventRun = true;
-                return Task.CompletedTask;
-            });
-
-            var (success, duration) = await sim.Run(1.0f);
-            Assert.IsTrue(success);
-            Assert.IsTrue(eventRun);
-        }
+        
 
         [TestMethod]
         public void DiscreteSimulator_ScheduleMessageDelivery()

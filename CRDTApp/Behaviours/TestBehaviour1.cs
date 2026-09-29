@@ -8,44 +8,60 @@ using System.Text;
 
 namespace CRDTApp.Behaviours
 {
-    public class TestBehaviour1 :IBehaviour
+    public class TestBehaviour1 : Behaviour
     {
         IScheduler scheduler;
         NetworkLayer manager;
 
         ReplicaID otherReplica;
-        public TestBehaviour1(IScheduler scheduler, NetworkLayer manager, ReplicaID otherReplica) { 
+        bool keepSending = true;
+        public TestBehaviour1(IScheduler scheduler, NetworkLayer manager, ReplicaID otherReplica)
+        {
             this.scheduler = scheduler;
             this.manager = manager;
             this.otherReplica = otherReplica;
-            
+
             manager.AddOnMessageReceivedHandler(ReceiveMessage);
         }
 
         void ReceiveMessage(ReplicaID id, Message message)
         {
-                if (message != null)
-                {
-                    Console.WriteLine(message);
-                }
-             
+            if (message != null)
+            {
+                Console.WriteLine(message);
+            }
+
         }
 
-        void Send() {
-            scheduler.ExecuteAfter(1, () => {
-                var t = manager.SendMessage(otherReplica, new Message("HI"));
-                t.Wait();
-                if (!t.Result)
+        void Send()
+        {
+            if (keepSending == true)
+            {
+                scheduler.ExecuteAfter(1, () =>
                 {
-                    Console.WriteLine("Couldn't send message!");
-                    Send();
-                }
-            });
+                    if (keepSending)
+                    {
+                        var t = manager.SendMessage(otherReplica, new Message("HI"));
+                        t.Wait();
+
+                        if (!t.Result)
+                        {
+                            Console.WriteLine("Couldn't send message!");
+                            Send();
+                        }
+                    }
+                });
+            }
         }
-        public async Task Run()
+        public override async Task Run()
         {
             Send();
-            
+
+        }
+
+        public override void Stop()
+        {
+            keepSending = false;
         }
     }
 }
