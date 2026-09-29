@@ -221,7 +221,6 @@ namespace Tests_1
                 new HashSet<ReplicaID> { r3 });
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f);
-            hbLayer.SetRunning(true);
             await hbLayer.Run();
 
             Assert.AreEqual(2, mockLower.SentMessages.Count);
@@ -246,7 +245,6 @@ namespace Tests_1
                 new HashSet<ReplicaID>());
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f);
-            hbLayer.SetRunning(true);
             await hbLayer.Run();
             Assert.AreEqual(1, mockLower.SentMessages.Count);
 
@@ -367,7 +365,6 @@ namespace Tests_1
                 return Task.FromResult(true);
             };
 
-            remoteHbLayer.SetRunning(true);
             await remoteHbLayer.Run();
 
             // Run for 3 seconds of simulation time: heartbeats fire every 0.3s, so timeout of 1.0s never fires!
