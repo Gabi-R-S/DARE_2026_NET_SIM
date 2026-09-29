@@ -38,6 +38,21 @@ namespace Simulator
         public override bool ScheduleMessageDelivery(NetworkMessage message)
         {
             CallMessageSendAttempted(message);
+
+            if (message.Source==message.Recipient)
+            {
+                var ev = new Event(env);
+                
+                ev.AddCallback((env) =>
+                {
+                        DeliverMessage(message);
+                });
+
+                env.ScheduleD(0, ev);
+                CallMessageSendScheduled(message);
+                return true;
+            }
+
             if (ConnectionMap.IsConnectionAvailable(message.Source, message.Recipient))
             {
                 var connection = ConnectionMap.GetConnection(message.Source, message.Recipient);
@@ -118,6 +133,7 @@ namespace Simulator
         }
         protected override void ChangeTimeOfCommunicationsBetween(ReplicaID rep1, ReplicaID rep2, float oldTime, float newTime)
         {
+
             var con = ConnectionMap.GetConnection(rep1, rep2);
             if (con != null)
             {

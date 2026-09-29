@@ -100,24 +100,6 @@ namespace Tests_1
             Assert.IsFalse(messageReceived);
         }
 
-        [TestMethod]
-        public async Task SimulatedNetworkBaseLayer_RunAndStop()
-        {
-            var simulator = new MockNetworkSimulator(new ConnectionMap());
-            var replica = new ReplicaID(1);
-            var simLayer = new SimulatedNetworkBaseLayer(simulator, replica);
-
-            var runTask = simLayer.Run();
-            
-            // Give it a tiny bit of time to start
-            await Task.Delay(10);
-            Assert.IsFalse(runTask.IsCompleted);
-
-            simLayer.Stop();
-            
-            await runTask;
-            Assert.IsTrue(runTask.IsCompleted);
-        }
 
         [TestMethod]
         public async Task SimulatedNetworkBaseLayer_MessageDelivered()

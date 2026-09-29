@@ -198,9 +198,13 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-
             var newMessage = new Message(new DistanceVectorMessage(recipient, replicaID, message, false).ToJson());
+            
+            if (recipient == replicaID) {
+                LayerBelow?.SendMessage(recipient,newMessage);
+            }
 
+            
             var target = table.GetNextInPathTo(recipient);
 
 

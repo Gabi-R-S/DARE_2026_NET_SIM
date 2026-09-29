@@ -103,7 +103,7 @@ namespace CRDTApp.NetworkLayers.Composite
                         CallMessageReceived(atPos.Item1, atPos.Item2.Message);
                         lock (messageIssuedLock)
                         {
-                            MessageIssued?.Invoke(atPos.Item1, atPos.Item2.Message, pendingReceivedMessages[i].Item2.CausalityTracker);
+                            MessageIssued?.Invoke(atPos.Item1, atPos.Item2.Message, atPos.Item2.CausalityTracker);
                         }
                         shouldContinue = true;
                         break;

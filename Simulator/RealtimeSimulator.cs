@@ -36,6 +36,16 @@ namespace Simulator
         public override bool ScheduleMessageDelivery(NetworkMessage message)
         {
             CallMessageSendAttempted(message);
+
+
+            if (message.Source == message.Recipient)
+            {
+                ExecuteAfter(0, () => { DeliverMessage(message);});
+                CallMessageSendScheduled(message);
+
+                return true;
+            }
+
             if (ConnectionMap.IsConnectionAvailable(message.Source, message.Recipient))
             {
                 var connection = ConnectionMap.GetConnection(message.Source, message.Recipient);
