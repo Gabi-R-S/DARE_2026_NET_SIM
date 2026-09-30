@@ -48,13 +48,13 @@ namespace Tests_1
             var mockLayer = new MockNetworkLayer();
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
             var replica1 = new ReplicaID(1);
-            var floodLayer = new FloodingRedirectionLayer(replica1, tracker, mockLayer, 3);
+            var floodLayer = new FloodingRedirectionLayer(replica1, new MockTestScheduler(), tracker, mockLayer, 3, 60.0f);
 
             bool delivered = false;
             floodLayer.AddOnMessageReceivedHandler((sender, msg) => { delivered = true; });
 
             var payload = new Message("test payload");
-            var floodMessage = new FloodMessage(replica1, new ReplicaID(2), payload, 3);
+            var floodMessage = new FloodMessage(replica1, new ReplicaID(2), 0u, payload, 3);
             
             floodLayer.OnLowerLayerMessageReceived(new ReplicaID(2), new Message(floodMessage.ToJson()));
 
@@ -70,7 +70,7 @@ namespace Tests_1
             var r3 = new ReplicaID(3);
             
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID> { r2, r3 }, new HashSet<ReplicaID>());
-            var floodLayer = new FloodingRedirectionLayer(r1, tracker, mockLayer, 3);
+            var floodLayer = new FloodingRedirectionLayer(r1, new MockTestScheduler(), tracker, mockLayer, 3, 60.0f);
 
             bool deliveredLocal = false;
             floodLayer.AddOnMessageReceivedHandler((sender, msg) => { deliveredLocal = true; });
@@ -80,7 +80,7 @@ namespace Tests_1
             
             var payload = new Message("test payload");
             var target = new ReplicaID(99);
-            var floodMessage = new FloodMessage(target, new ReplicaID(2), payload, 3);
+            var floodMessage = new FloodMessage(target, new ReplicaID(2), 0u, payload, 3);
             
             floodLayer.OnLowerLayerMessageReceived(new ReplicaID(2), new Message(floodMessage.ToJson()));
 

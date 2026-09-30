@@ -11,6 +11,7 @@ namespace CRDTApp.Messages.LayerMessages
         public ReplicaID OriginalSender { get; set; }
         public ReplicaID IntendedTarget { get; set; }
         public uint NumberOfHops { get; set; }
+        public uint Tag { get; set; }
         public Message? Message { get; set; }
 
         public FloodMessage()
@@ -18,10 +19,11 @@ namespace CRDTApp.Messages.LayerMessages
 
         }
 
-        public FloodMessage(ReplicaID intendedTarget, ReplicaID originalSender, Message? message, uint numberOfHops)
+        public FloodMessage(ReplicaID intendedTarget, ReplicaID originalSender, uint tag, Message? message, uint numberOfHops)
         {
             OriginalSender = originalSender;
             IntendedTarget = intendedTarget;
+            Tag = tag;
             Message = message;
             NumberOfHops = numberOfHops;
 

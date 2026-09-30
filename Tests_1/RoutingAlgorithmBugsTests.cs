@@ -354,13 +354,13 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rPath1, rPath2 },
                 new HashSet<ReplicaID>());
 
-            var floodLayer = new FloodingRedirectionLayer(rSelf, tracker, mockLower, numHops: 5);
+            var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
 
             int deliveryCount = 0;
             floodLayer.AddOnMessageReceivedHandler((_, _) => deliveryCount++);
 
             var originalMsg = new Message("payload123");
-            var floodMsg = new FloodMessage(rSelf, rSender, originalMsg, numberOfHops: 3);
+            var floodMsg = new FloodMessage(rSelf, rSender, 0u, originalMsg, numberOfHops: 3);
 
             // Message arrives via Path 1
             floodLayer.OnLowerLayerMessageReceived(rPath1, new Message(floodMsg.ToJson()));
@@ -396,11 +396,11 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rNeighbourB, rNeighbourC },
                 new HashSet<ReplicaID>());
 
-            var floodLayer = new FloodingRedirectionLayer(rSelf, tracker, mockLower, numHops: 5);
+            var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             floodLayer.SetRunning(true);
 
             // Packet originated by rSelf circles back from neighbor B
-            var loopedPacket = new FloodMessage(rTarget, rSelf, new Message("loop"), numberOfHops: 3);
+            var loopedPacket = new FloodMessage(rTarget, rSelf, 0u, new Message("loop"), numberOfHops: 3);
             floodLayer.OnLowerLayerMessageReceived(rNeighbourB, new Message(loopedPacket.ToJson()));
 
             // Assert CORRECT behavior: Must drop packet originated by self

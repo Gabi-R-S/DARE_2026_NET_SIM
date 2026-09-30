@@ -31,11 +31,11 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rSender, rNeighbour1, rNeighbour2 },
                 new HashSet<ReplicaID>());
 
-            var floodLayer = new FloodingRedirectionLayer(rSelf, tracker, mockLower, numHops: 5);
+            var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
 
             var transitPayload = new Message("payload");
-            var inboundFlood = new FloodMessage(rTarget, rSender, transitPayload, numberOfHops: 3);
+            var inboundFlood = new FloodMessage(rTarget, rSender, 0u, transitPayload, numberOfHops: 3);
             
             floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.ToJson()));
 
@@ -68,10 +68,10 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rSender, rNeighbour },
                 new HashSet<ReplicaID>());
 
-            var floodLayer = new FloodingRedirectionLayer(rSelf, tracker, mockLower, numHops: 5);
+            var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
 
-            var inboundFlood = new FloodMessage(rTarget, rSender, new Message("data"), numberOfHops: 0);
+            var inboundFlood = new FloodMessage(rTarget, rSender, 0u, new Message("data"), numberOfHops: 0);
 
             floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.ToJson()));
 
@@ -92,10 +92,10 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rSender, rActive },
                 new HashSet<ReplicaID> { rInactive });
 
-            var floodLayer = new FloodingRedirectionLayer(rSelf, tracker, mockLower, numHops: 5);
+            var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
 
-            var inboundFlood = new FloodMessage(rTarget, rSender, new Message("data"), numberOfHops: 2);
+            var inboundFlood = new FloodMessage(rTarget, rSender, 0u, new Message("data"), numberOfHops: 2);
             floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.ToJson()));
 
             Assert.AreEqual(1, mockLower.SentMessages.Count);
@@ -114,10 +114,10 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rNeighbour },
                 new HashSet<ReplicaID>());
 
-            var floodLayer = new FloodingRedirectionLayer(rSelf, tracker, mockLower, numHops: 5);
+            var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             // Notice: floodLayer.Run() is NOT called, so Running == false
 
-            var inboundFlood = new FloodMessage(new ReplicaID(99), rSender, new Message("data"), numberOfHops: 2);
+            var inboundFlood = new FloodMessage(new ReplicaID(99), rSender, 0u, new Message("data"), numberOfHops: 2);
             floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.ToJson()));
 
             Assert.AreEqual(0, mockLower.SentMessages.Count, "When layer is not running, transit messages must not be forwarded");
@@ -130,7 +130,7 @@ namespace Tests_1
             var rSelf = new ReplicaID(1);
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
 
-            var floodLayer = new FloodingRedirectionLayer(rSelf, tracker, mockLower, numHops: 5);
+            var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
 
             var result = await floodLayer.SendMessage(rSelf, new Message("self msg"));

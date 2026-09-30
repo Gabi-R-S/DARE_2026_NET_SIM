@@ -47,7 +47,7 @@ namespace RunSimulations
 
             HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, timeoutLayer, scheduler, 0.1f);
 
-            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(id, tracker, heartbeat, 5);
+            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(id,scheduler, tracker, heartbeat, 5,60.0f);
 
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, flood, scheduler, (_) => { i++; return i; });

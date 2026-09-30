@@ -19,15 +19,35 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         
         uint numHops = 10;
 
-        public FloodingRedirectionLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, uint numHops) : base(layerBelow,false,true,true)
+
+        uint tag= 0;
+
+        uint GetNextTag() {
+            var t = tag;
+            tag++;
+            return t;
+        }
+
+        IScheduler scheduler;
+        HashSet<(uint, ReplicaID)> rememberedMessages = new();
+        float forgettingTime = 60.0f;
+
+        public FloodingRedirectionLayer(ReplicaID replicaID,IScheduler scheduler, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, uint numHops, float forgettingTime) : base(layerBelow,false,true,true)
         {
+            this.scheduler = scheduler;
             this.connectionTracker = connectionTracker;
             this.replicaID = replicaID;
             this.numHops = numHops;
+            this.forgettingTime = forgettingTime;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
             
         }
 
+
+        void Remember(ReplicaID senderID,uint tag) {
+            rememberedMessages.Add((tag,senderID));
+            scheduler.ExecuteAfter(forgettingTime, () => { rememberedMessages.Remove((tag, senderID)); });
+        }
   
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
@@ -43,12 +63,14 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
             if (floodMessage.IntendedTarget == replicaID)
             {
+                Remember(floodMessage.OriginalSender,floodMessage.Tag); 
                 CallMessageReceived(floodMessage.OriginalSender, floodMessage.Message);
             }
             else
             {
-                if (floodMessage.NumberOfHops > 0 && Running&&floodMessage.OriginalSender!=replicaID)
+                if (floodMessage.NumberOfHops > 0 && Running&&floodMessage.OriginalSender!=replicaID && !rememberedMessages.Contains((floodMessage.Tag,floodMessage.OriginalSender)))
                 {
+                    Remember(floodMessage.OriginalSender, floodMessage.Tag);
                     floodMessage.NumberOfHops -= 1;
                     var newMessage = new Message(floodMessage.ToJson());
                     foreach (var connection in connectionTracker.ActiveConnections)
@@ -60,6 +82,9 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     }
                 }
             }
+
+
+
         }
 
 
@@ -69,7 +94,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-            var newMessage = new Message(new FloodMessage(recipient, replicaID, message, numHops).ToJson());
+            var newMessage = new Message(new FloodMessage(recipient, replicaID,GetNextTag() ,message, numHops).ToJson());
 
             if (recipient == replicaID) {
 
