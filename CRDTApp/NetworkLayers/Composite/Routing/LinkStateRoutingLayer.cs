@@ -44,7 +44,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             lock (lsaHelperLock)
             {
                 var lsa = new LSA(replicaID, num, connectionTracker.ActiveConnections);
-                mostRecentLSAs[replicaID] = lsa;
+                AddLSA(lsa);
                 num++;
                 return lsa;
             }
@@ -189,7 +189,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             LayerBelow.SendMessage(target,
                 new Message(
-                    new LinkStateMessage(replicaID, target,
+                    new LinkStateMessage(target,replicaID,
                         new Message(lsa.ToJson())
                         , true).ToJson()
                     )
@@ -244,7 +244,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-            var newMessage = new Message(new LinkStateMessage(recipient, replicaID, message).ToJson());
+            var newMessage = new LinkStateMessage(recipient, replicaID, message).AsMessage();
 
             return LayerBelow.SendMessage(GetNextNodeInPathTo(recipient), newMessage);
         }
