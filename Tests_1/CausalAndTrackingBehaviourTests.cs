@@ -170,7 +170,7 @@ namespace Tests_1
                 new HashSet<ReplicaID>(),
                 new HashSet<ReplicaID> { peer });
 
-            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, trackSends: false);
+            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: false);
 
             Assert.IsFalse(tracker.IsActive(peer));
 
@@ -189,7 +189,7 @@ namespace Tests_1
                 new HashSet<ReplicaID> { peer },
                 new HashSet<ReplicaID>());
 
-            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, trackSends: false);
+            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: false);
 
             int interruptedCount = 0;
             trackLayer.AddOnConnectionInterruptedHandler(_ => interruptedCount++);
@@ -214,7 +214,7 @@ namespace Tests_1
                 new HashSet<ReplicaID>(),
                 new HashSet<ReplicaID> { peer });
 
-            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, trackSends: false);
+            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: false);
 
             int regainedCount = 0;
             trackLayer.AddOnConnectionRegainedHandler(_ => regainedCount++);
@@ -239,7 +239,7 @@ namespace Tests_1
                 new HashSet<ReplicaID>(),
                 new HashSet<ReplicaID> { peer });
 
-            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, trackSends: true);
+            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: true);
 
             int regainedCount = 0;
             trackLayer.AddOnConnectionRegainedHandler(_ => regainedCount++);
@@ -263,7 +263,7 @@ namespace Tests_1
                 new HashSet<ReplicaID>(),
                 new HashSet<ReplicaID> { peer });
 
-            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, trackSends: false);
+            var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: false);
 
             await trackLayer.SendMessage(peer, new Message("outbound"));
 

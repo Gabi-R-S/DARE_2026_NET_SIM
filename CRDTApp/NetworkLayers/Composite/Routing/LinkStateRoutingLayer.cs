@@ -44,6 +44,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             lock (lsaHelperLock)
             {
                 var lsa = new LSA(replicaID, num, connectionTracker.ActiveConnections);
+                mostRecentLSAs[replicaID] = lsa;
                 num++;
                 return lsa;
             }
@@ -158,13 +159,14 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 SendLSA(replica, oldLSA);
             }
             FloodLSA(lsa);
-
+            RecalculateRoutingTable();
             CallConnectionRegained(replica);
         }
         public void OnDisconnect(ReplicaID replica)
         {
             var lsa = CreateNextLSA();
             FloodLSA(lsa);
+            RecalculateRoutingTable();
             CallConnectionInterrupted(replica);
         }
 

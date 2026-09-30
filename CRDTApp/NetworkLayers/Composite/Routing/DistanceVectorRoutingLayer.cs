@@ -1,5 +1,6 @@
 ﻿using CRDTApp.Messages;
 using CRDTApp.Messages.LayerMessages;
+using CRDTApp.NetworkLayers.Composite.Routing.Helper;
 using CRDTApp.Schedulers;
 using Shared;
 using System;
@@ -10,124 +11,42 @@ using static CRDTApp.NetworkLayers.NetworkLayer;
 
 namespace CRDTApp.NetworkLayers.Composite.Routing
 {
-    // THIS DOES THE WHOLE 2-in-1 thing with managing connection tracking and managing 
+
     public class DistanceVectorRoutingLayer : NetworkLayer
     {
      
 
 
-        class DistanceTable
-        {
-            Dictionary<ReplicaID, (float, ReplicaID)> distances; // target -> (distance, next in sequence)
 
-            public DistanceTable(ReplicaID id)
-            {
-                distances = new Dictionary<ReplicaID, (float, ReplicaID)>();
-                distances[id] = (0,id);
-            }
-
-            public void ResetConnection(ReplicaID replica)
-            {
-
-                foreach (var (k,(v1,v2)) in distances) {
-                    if (v2==replica) {
-                        distances.Remove(k);
-                    }
-                }
-                distances.Remove(replica);
-            }
-
-
-             Dictionary<ReplicaID, T> ConvertIntsToReplicaIDs<T>(Dictionary<int, T> rep)
-            {
-                Dictionary<ReplicaID, T> reps = new Dictionary<ReplicaID, T>();
-
-                foreach (var (k,v) in rep) {
-                    reps[new ReplicaID((ulong)k)] = v;
-                }
-
-                return reps;
-            }
-
-            public void Update(ReplicaID us, ReplicaID sender, DistanceTableUpdateMessage update, IScheduler scheduler)
-            {
-                var timeNow = scheduler.GetCurrentTime();
-                var timeDifference = (float)(timeNow - update.Timestamp).TotalSeconds;
-                var updateDistances = ConvertIntsToReplicaIDs(update.Distances);
-                foreach (var other in updateDistances)
-                {
-                    var distance = other.Value + timeDifference;
-                    if (!distances.ContainsKey(other.Key))
-                    {
-                        distances[other.Key] = (distance, sender);
-                    }
-                    else
-                    {
-
-                        if (sender == distances[other.Key].Item2)
-                        {
-                            distances[other.Key] = (other.Value, other.Key);
-                        }
-                        else
-                        {
-                            var currentValue = distances[other.Key].Item1;
-                            if (distance < currentValue)
-                            {
-                                distances[other.Key] = (distance, sender);
-
-                            }
-                            else if (distance == currentValue)
-                            {
-                                if (distances[other.Key].Item2 != other.Key) {
-                                    distances[other.Key] = (distance, sender);
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-
-            public ReplicaID GetNextInPathTo(ReplicaID target)
-            {
-                if (distances.ContainsKey(target))
-                {
-                    return distances[target].Item2;
-                }
-                return target;
-            }
-
-            public DistanceTableUpdateMessage GetUpdate(IScheduler scheduler)
-            {
-                Dictionary<int, float> messgDistances = new();
-                var timestamp = scheduler.GetCurrentTime();
-
-                foreach ((var dest,(float k,ReplicaID v)) in distances) {
-                    messgDistances[(int)dest.ID]=k;
-                }
-
-
-                return new DistanceTableUpdateMessage(messgDistances,timestamp);
-            }
-        }
 
         ReplicaID replicaID;
         ActiveConnectionTracker connectionTracker;
         IScheduler scheduler;
         DistanceTable table;
 
+        uint maxTTLHops;
+        HashSet<ReplicaID> sendingTo;
 
-        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler) : base(layerBelow, false, true, true)
+        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler,uint maxTTLHops) : base(layerBelow, false, true, true)
         {
             this.connectionTracker = connectionTracker;
             this.replicaID = replicaID;
             this.scheduler = scheduler;
             table = new DistanceTable(replicaID);
+            this.maxTTLHops = maxTTLHops;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
             AddOnConnectionInterruptedHandler(table.ResetConnection);
+            AddOnConnectionRegainedHandler(OnConnectionGained);
         }
 
-
+        void OnConnectionGained(ReplicaID replica)
+        {
+            if (replica != replicaID && !sendingTo.Contains(replica) && Running)
+            {
+                sendingTo.Add(replica);
+                Hearbeat(replica);
+            }
+        }
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
@@ -149,7 +68,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     throw new Exception("WRONG MESSAGE FORMAT IN DISTANCE VECTOR ROUTING UPDATE MESSAGE");
 
                 }
-                table.Update(replicaID, message.OriginalSender, distanceTableUpdate, scheduler);
+                table.Update(replicaID, senderID, distanceTableUpdate, scheduler);
             }
             else
             {
@@ -161,7 +80,8 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 else
                 {
                     var target = table.GetNextInPathTo(message.IntendedTarget);
-                    LayerBelow?.SendMessage(target, lowerLayerMessage);
+                    message.TTLhops--;
+                    LayerBelow?.SendMessage(target, message.AsMessage());
                 }
 
             }
@@ -172,10 +92,10 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-            var newMessage = new Message(new DistanceVectorMessage(recipient, replicaID, message, false).ToJson());
+            var newMessage = new DistanceVectorMessage(recipient, replicaID, message, false,maxTTLHops).AsMessage();
             
             if (recipient == replicaID) {
-                LayerBelow?.SendMessage(recipient,newMessage);
+                return LayerBelow?.SendMessage(recipient,newMessage);
             }
             
             
@@ -193,10 +113,10 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             if (Running)
             {
-                DistanceTableUpdateMessage message = table.GetUpdate(scheduler);
+                DistanceTableUpdateMessage message = table.GetUpdate(scheduler,replica);
                 Message messg = new Message(message.ToJson());
 
-                DistanceVectorMessage mes = new DistanceVectorMessage(replica,replicaID,messg,true);
+                DistanceVectorMessage mes = new DistanceVectorMessage(replica,replicaID,messg,true,1);
 
                 LayerBelow.SendMessage(replica, new Message(mes.ToJson()));
 
@@ -213,10 +133,12 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             Running = true;
             var t = base.Run();
+            sendingTo = new HashSet<ReplicaID>();
             foreach (var replica in connectionTracker.AllConnections)
             {
                 if (replica != replicaID)
                 {
+                    sendingTo.Add(replica);
                     Hearbeat(replica);
                 }
             }

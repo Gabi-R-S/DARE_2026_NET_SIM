@@ -162,7 +162,7 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rNeighborB },
                 new HashSet<ReplicaID>());
 
-            var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler);
+            var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler, 10);
 
             // Neighbor B sends an update claiming distance 2.0 to destination C
             var updatePayload = JsonConvert.SerializeObject(new
@@ -175,7 +175,7 @@ namespace Tests_1
                 rSelf,
                 rNeighborB,
                 new Message(updatePayload),
-                isProtocolMessage: true);
+                isProtocolMessage: true, 10);
 
             dvLayer.OnLowerLayerMessageReceived(rNeighborB, new Message(dvm.ToJson()));
 
@@ -208,7 +208,7 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rNeighborB, rOriginA },
                 new HashSet<ReplicaID>());
 
-            var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler);
+            var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler, 10);
 
             // B advertises path to C
             var updatePayload = JsonConvert.SerializeObject(new
@@ -216,11 +216,11 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)rDestinationC.ID, 1.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            var protoMsg = new DistanceVectorMessage(rSelf, rNeighborB, new Message(updatePayload), true);
+            var protoMsg = new DistanceVectorMessage(rSelf, rNeighborB, new Message(updatePayload), true, 5);
             dvLayer.OnLowerLayerMessageReceived(rNeighborB, new Message(protoMsg.ToJson()));
 
             // Now a data message from Origin A addressed to Destination C arrives at Self
-            var dataMsg = new DistanceVectorMessage(rDestinationC, rOriginA, new Message("transit payload"), false);
+            var dataMsg = new DistanceVectorMessage(rDestinationC, rOriginA, new Message("transit payload"), false, 10);
             var networkMsg = new Message(dataMsg.ToJson());
 
             dvLayer.OnLowerLayerMessageReceived(rOriginA, networkMsg);
@@ -242,7 +242,7 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rSender },
                 new HashSet<ReplicaID>());
 
-            var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler);
+            var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler, 10);
 
             Message? delivered = null;
             ReplicaID? sender = null;
@@ -252,7 +252,7 @@ namespace Tests_1
                 delivered = m;
             });
 
-            var dataMsg = new DistanceVectorMessage(rSelf, rSender, new Message("for you"), false);
+            var dataMsg = new DistanceVectorMessage(rSelf, rSender, new Message("for you"), false, 10);
             dvLayer.OnLowerLayerMessageReceived(rSender, new Message(dataMsg.ToJson()));
 
             Assert.IsNotNull(delivered);
@@ -274,7 +274,7 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rNeighborB },
                 new HashSet<ReplicaID>());
 
-            var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler);
+            var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler, 10);
 
             // B advertises route to C
             var updatePayload = JsonConvert.SerializeObject(new
@@ -282,7 +282,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)rDestinationC.ID, 1.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            var protoMsg = new DistanceVectorMessage(rSelf, rNeighborB, new Message(updatePayload), true);
+            var protoMsg = new DistanceVectorMessage(rSelf, rNeighborB, new Message(updatePayload), true, 10);
             dvLayer.OnLowerLayerMessageReceived(rNeighborB, new Message(protoMsg.ToJson()));
 
             // Neighbor B connection breaks

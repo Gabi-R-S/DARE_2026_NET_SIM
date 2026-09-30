@@ -72,7 +72,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 {
                     Remember(floodMessage.OriginalSender, floodMessage.Tag);
                     floodMessage.NumberOfHops -= 1;
-                    var newMessage = new Message(floodMessage.ToJson());
+                    var newMessage = floodMessage.AsMessage();
                     foreach (var connection in connectionTracker.ActiveConnections)
                     {
                         if (connection != senderID&&connection!=replicaID)

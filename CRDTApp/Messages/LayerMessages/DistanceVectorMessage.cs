@@ -12,18 +12,19 @@ namespace CRDTApp.Messages.LayerMessages
         public ReplicaID IntendedTarget { get; set; }
         public bool IsProtocolMessage { get; set; }
         public Message? Message { get; set; }
-
+        public uint TTLhops { get; set; }
         public DistanceVectorMessage()
         {
 
         }
 
-        public DistanceVectorMessage(ReplicaID intendedTarget, ReplicaID originalSender, Message? message, bool isProtocolMessage)
+        public DistanceVectorMessage(ReplicaID intendedTarget, ReplicaID originalSender, Message? message, bool isProtocolMessage, uint ttlHops)
         {
             OriginalSender = originalSender;
             IntendedTarget = intendedTarget;
             Message = message;
             IsProtocolMessage = isProtocolMessage;
+            TTLhops = ttlHops;
 
         }
     }

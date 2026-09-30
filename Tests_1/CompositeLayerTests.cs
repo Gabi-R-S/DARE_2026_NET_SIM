@@ -177,7 +177,7 @@ namespace Tests_1
             var mockLayer = new MockNetworkManager();
             var sender = new ReplicaID(2);
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>() { sender });
-            var layer = new TrackActiveConnectionsLayer(mockLayer, tracker, true);
+            var layer = new TrackActiveConnectionsLayer(mockLayer, tracker,new ReplicaID(1), true);
             mockLayer.ReceiveMessage(sender, new Message("test"));
 
             Assert.IsTrue(tracker.IsActive(sender));

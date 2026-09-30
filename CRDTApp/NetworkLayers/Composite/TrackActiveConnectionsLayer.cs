@@ -9,11 +9,13 @@ namespace CRDTApp.NetworkLayers.Composite
     public class TrackActiveConnectionsLayer:NetworkLayer
     {
 
+        ReplicaID replicaID;
         ActiveConnectionTracker tracker;
         bool trackSends;
-        public TrackActiveConnectionsLayer(NetworkLayer layerBelow, ActiveConnectionTracker tracker, bool trackSends=false) : base(layerBelow)
+        public TrackActiveConnectionsLayer(NetworkLayer layerBelow, ActiveConnectionTracker tracker, ReplicaID replicaID,bool trackSends=false) : base(layerBelow)
         {
             this.tracker = tracker;
+            this.replicaID = replicaID;
             layerBelow.AddOnConnectionInterruptedHandler(OnInterruption);
             layerBelow.AddOnConnectionRegainedHandler(OnConnectionRegained);
             layerBelow.AddOnMessageReceivedHandler(OnLowerLevelMessageReceived);
@@ -21,13 +23,13 @@ namespace CRDTApp.NetworkLayers.Composite
         }
 
         void OnInterruption(ReplicaID replica) {
-            if (tracker.SetInnactive(replica)) {
+            if (tracker.SetInnactive(replica) && replica != replicaID) {
                 CallConnectionInterrupted(replica);
             }
         }
 
         void OnConnectionRegained(ReplicaID replica) {
-            if (tracker.SetActive(replica)) {
+            if (tracker.SetActive(replica)&&replica!=replicaID) {
                 CallConnectionRegained(replica);
             }
         }

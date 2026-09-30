@@ -15,6 +15,8 @@ namespace CRDTApp.NetworkLayers.Composite
         IScheduler scheduler;
         ActiveConnectionTracker connectionTracker;
 
+        HashSet<ReplicaID> sendingTo = new HashSet<ReplicaID>();
+        ReplicaID replicaID;
 
         public HeartbeatLayer(ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, float heartbeatTime) : base(layerBelow, false, true, true)
         {
@@ -23,8 +25,16 @@ namespace CRDTApp.NetworkLayers.Composite
             this.heartbeatTime = heartbeatTime;
 
             layerBelow.AddOnMessageReceivedHandler(OnLowerLevelMessageReceived);
+            AddOnConnectionRegainedHandler(OnConnectionGained);
         }
 
+        void OnConnectionGained(ReplicaID replica) {
+            if (replica != replicaID && !sendingTo.Contains(replica) && Running)
+            {
+                sendingTo.Add(replica);
+                Hearbeat(replica);
+            }
+        }
 
         void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
@@ -65,9 +75,14 @@ namespace CRDTApp.NetworkLayers.Composite
         {
             Running = true;
             var t = LayerBelow.Run();
+            sendingTo = new HashSet<ReplicaID>();
             foreach (var replica in connectionTracker.AllConnections)
             {
-                Hearbeat(replica).Wait();
+                if (replica != replicaID)
+                {
+                    sendingTo.Add(replica);
+                    Hearbeat(replica);
+                }
             }
             return t;
         }

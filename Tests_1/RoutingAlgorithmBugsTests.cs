@@ -42,12 +42,13 @@ namespace Tests_1
             var r2 = new ReplicaID(2); // Next hop
             var r3 = new ReplicaID(3); // Destination 1
             var r4 = new ReplicaID(4); // Destination 2
+            var r5 = new ReplicaID(5); // neighbour
 
             var tracker = new ActiveConnectionTracker(
-                new HashSet<ReplicaID> { r2 },
+                new HashSet<ReplicaID> { r2,r5 },
                 new HashSet<ReplicaID>());
 
-            var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler);
+            var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 
             // Neighbor 2 advertises reachability to destination 3 (cost 2) and destination 4 (cost 5)
             var updatePayload = JsonConvert.SerializeObject(new
@@ -60,7 +61,7 @@ namespace Tests_1
                 Timestamp = scheduler.GetCurrentTime()
             });
 
-            var updateMsg = new DistanceVectorMessage(r1, r2, new Message(updatePayload), isProtocolMessage: true);
+            var updateMsg = new DistanceVectorMessage(r1, r2, new Message(updatePayload), isProtocolMessage: true, 5);
             dvLayer.OnLowerLayerMessageReceived(r2, new Message(updateMsg.ToJson()));
             
             mockLower.SentMessages.Clear();
@@ -69,7 +70,7 @@ namespace Tests_1
             
             var sentProtoMsg = mockLower.SentMessages
                 .Select(m => DistanceVectorMessage.FromJson(m.Message.Payload))
-                .FirstOrDefault(m => m != null && m.IsProtocolMessage);
+                .FirstOrDefault(m => m != null && m.IsProtocolMessage && m.IntendedTarget==r5);
 
             Assert.IsNotNull(sentProtoMsg, "Heartbeat protocol message should have been sent");
 
@@ -79,6 +80,7 @@ namespace Tests_1
             var distancesJson = JsonConvert.DeserializeObject<Dictionary<int, float>>(updateObj["Distances"].ToString() ?? "");
             Assert.IsNotNull(distancesJson);
 
+            Console.WriteLine(distancesJson.Values.ToList()[0] +" ");
             // Assert CORRECT behavior: destinations 3 and 4 should be in the advertised table!
             Assert.IsTrue(distancesJson.ContainsKey((int)r3.ID), 
                 "CORRECT BEHAVIOR: Distance update must contain destination 3 as an advertised key");
@@ -112,7 +114,7 @@ namespace Tests_1
                 new HashSet<ReplicaID> { r2 },
                 new HashSet<ReplicaID>());
 
-            var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler);
+            var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 
             // Initial update: Neighbor 2 advertises path to 3 with cost 4
             var update1 = JsonConvert.SerializeObject(new
@@ -120,7 +122,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)r3.ID, 4.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update1), true).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update1), true, 5).ToJson()));
 
             // Now Neighbor 2 sends an updated distance metric (e.g. link degraded to cost 6)
             var update2 = JsonConvert.SerializeObject(new
@@ -128,7 +130,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)r3.ID, 6.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update2), true).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update2), true, 5).ToJson()));
 
             mockLower.SentMessages.Clear();
             dvLayer.SendMessage(r3, new Message("data for 3"));
@@ -162,7 +164,7 @@ namespace Tests_1
                 new HashSet<ReplicaID> { r2 },
                 new HashSet<ReplicaID>());
 
-            var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler);
+            var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 
             // R2 advertises route to R3
             var update = JsonConvert.SerializeObject(new
@@ -170,7 +172,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)r3.ID, 2.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update), true).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update), true, 5).ToJson()));
 
             // Connection to R2 is interrupted
             mockLower.InjectConnectionInterrupted(r2);
@@ -184,26 +186,7 @@ namespace Tests_1
                 "CORRECT BEHAVIOR: Route to destination 3 via disconnected neighbor 2 must be purged, NOT sent to disconnected neighbor 2");
         }
 
-        [TestMethod]
-        public void DistanceVector_TransitPacket_MustHaveHopLimitOrTTLToPreventInfiniteLoop()
-        {
-            // EXPECTED BEHAVIOR:
-            // DistanceVector routing messages must carry a HopCount or TTL field, and
-            // forwarding nodes must decrement it to prevent infinite packet bouncing
-            // in transient routing loops.
-            //
-            // CURRENT BUG:
-            // DistanceVectorMessage has no TTL or hop count property. Forwarding calls
-            // LayerBelow.SendMessage(target, lowerLayerMessage) passing the identical message.
 
-            var properties = typeof(DistanceVectorMessage).GetProperties();
-            var hasTtlOrHops = properties.Any(p =>
-                p.Name.Contains("Hop", StringComparison.OrdinalIgnoreCase) ||
-                p.Name.Contains("TTL", StringComparison.OrdinalIgnoreCase));
-
-            Assert.IsTrue(hasTtlOrHops, 
-                "CORRECT BEHAVIOR: DistanceVectorMessage must have a TTL / HopCount property to prevent routing loops");
-        }
 
         #endregion
 

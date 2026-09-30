@@ -43,7 +43,7 @@ namespace RunSimulations
 
             TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer, false);
 
-            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker);
+            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker,id);
 
             HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, timeoutLayer, scheduler, 0.1f);
 
@@ -67,10 +67,10 @@ namespace RunSimulations
 
             TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer, false);
 
-            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker);
+            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker,id);
 
 
-            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, trackerLayer, scheduler);
+            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, trackerLayer, scheduler,(uint)simulator.ConnectionMap.GetAllKnownReplicas().Count);
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; });
 
@@ -89,7 +89,7 @@ namespace RunSimulations
 
             TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer, false);
 
-            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker);
+            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker,id);
             HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, 0.5f);
 
             int i = 0;

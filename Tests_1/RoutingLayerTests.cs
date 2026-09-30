@@ -96,7 +96,7 @@ namespace Tests_1
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID> { r2 }, new HashSet<ReplicaID>());
             var scheduler = new MockTestScheduler();
             
-            var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLayer, scheduler);
+            var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLayer, scheduler, 10);
 
             // Construct update message
             var distances = new Dictionary<ReplicaID, float>();
