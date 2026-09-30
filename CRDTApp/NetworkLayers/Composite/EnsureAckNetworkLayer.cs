@@ -1,4 +1,5 @@
 ﻿using CRDTApp.Messages;
+using CRDTApp.Messages.LayerMessages;
 using CRDTApp.Schedulers;
 using Newtonsoft.Json;
 using Shared;
@@ -11,24 +12,6 @@ namespace CRDTApp.NetworkLayers.Composite
     // Goal: ensure at-least-once delivery (or return false if impossible)
     public class EnsureAckNetworkLayer<T>: NetworkLayer
     {
-        public class EnsureAckMessage : NetworkLayerMessage<EnsureAckMessage>
-        {
-            public T Tag { get; set; }
-            public Message? Message { get; set; }
-            public bool IsAck { get; set; }
-
-            public EnsureAckMessage() { 
-            
-            }
-            
-            public EnsureAckMessage(T tag,Message message, bool isAck=false) {
-                Tag = tag;
-                Message = message;
-                IsAck = isAck;
-            }
-
-        }
-
         IScheduler scheduler;
         ReplicaID replicaID;
         Func<ReplicaID,T> GenerateNextTag;
@@ -65,7 +48,7 @@ namespace CRDTApp.NetworkLayers.Composite
             }
             //Console.WriteLine(lowerLayerMessage.Payload);
 
-            var pendingAckMessage = EnsureAckMessage.FromJson(lowerLayerMessage.Payload);
+            var pendingAckMessage = EnsureAckMessage<T>.FromJson(lowerLayerMessage.Payload);
 
             if (pendingAckMessage == null)
             {
@@ -78,7 +61,7 @@ namespace CRDTApp.NetworkLayers.Composite
             }
             else
             {
-                var ack = new EnsureAckMessage( pendingAckMessage.Tag, new Message(""),true);
+                var ack = new EnsureAckMessage<T>( pendingAckMessage.Tag, new Message(""),true);
                 LayerBelow.SendMessage(senderID, new Message(ack.ToJson()));
                 
                 CallMessageReceived(senderID,pendingAckMessage.Message);
@@ -96,7 +79,7 @@ namespace CRDTApp.NetworkLayers.Composite
         {
             var newTag = GenerateNextTag(replicaID);
 
-            var trackerMessage = new EnsureAckMessage(newTag,message);
+            var trackerMessage = new EnsureAckMessage<T>(newTag,message);
 
             var networkMessage = new Message(trackerMessage.ToJson());
 
@@ -113,7 +96,6 @@ namespace CRDTApp.NetworkLayers.Composite
 
                 if (await scheduler.ExecuteTaskOrTimeout(semaphore.WaitAsync(), waitTime))
                 {
-                    Console.WriteLine("ACK succeed");
                     return true;
                 }
 

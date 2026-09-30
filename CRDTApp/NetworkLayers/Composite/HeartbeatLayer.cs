@@ -1,4 +1,5 @@
 ﻿using CRDTApp.Messages;
+using CRDTApp.Messages.LayerMessages;
 using CRDTApp.Schedulers;
 using Newtonsoft.Json;
 using Shared;
@@ -10,24 +11,6 @@ namespace CRDTApp.NetworkLayers.Composite
 {
     public class HeartbeatLayer : NetworkLayer
     {
-        public class HeartbeatMessage : NetworkLayerMessage<HeartbeatMessage>
-        {
-            public bool HeartBeat { get; set; }
-            public Message? Message { get; set; }
-
-            public HeartbeatMessage()
-            {
-
-            }
-
-            public HeartbeatMessage(Message? message, bool heartbeat = false)
-            {
-                Message = message;
-
-                HeartBeat = heartbeat;
-            }
-
-        }
         float heartbeatTime = 0.5f;
         IScheduler scheduler;
         ActiveConnectionTracker connectionTracker;

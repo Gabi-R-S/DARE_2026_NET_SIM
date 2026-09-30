@@ -4,6 +4,7 @@ using System.Text;
 using CRDTApp.Messages;
 using CRDTApp.NetworkLayers;
 using CRDTApp.Schedulers;
+using CRDTs;
 using CRDTs.Basic;
 using Shared;
 namespace CRDTApp.Behaviours
@@ -18,8 +19,11 @@ namespace CRDTApp.Behaviours
         ReplicaID replicaID;
         bool running = false;
         IScheduler scheduler;
+
+        CausalHistoryTracker historyTracker;
+
         public InsertBehaviour(NetworkLayer network, IScheduler scheduler, ReplicaID ourID, ReplicaID[] otherIDs,int minNumber,int maxNumberInclusive, int expectedCount, float delayBetweenSends,float delayBetweenOps) {
-            
+            historyTracker = new CausalHistoryTracker(ourID);
             this.replicaID = ourID;
             this.otherReplicas = otherIDs;
             this.network = network;
@@ -29,10 +33,11 @@ namespace CRDTApp.Behaviours
             this.delayBetweenOps = delayBetweenOps;
             this.delayBetweenSends = delayBetweenSends;
             this.scheduler = scheduler;
-            network.AddOnMessageReceivedHandler(OnMessageReceived);
+            network.AddOnMessageReceivedHandler(historyTracker.OnMessageReceived);
+            historyTracker.AddMessageIssuedHandler(OnMessageReceivedInSequence);
         }
 
-        void OnMessageReceived(ReplicaID replica, Message message) { //TODO: retrieve CRDT and merge it
+        void OnMessageReceivedInSequence(ReplicaID replica, Message? message,VersionVector vector) { //TODO: retrieve CRDT and merge it
             var op = ORSet<int>.FromJSON(message.Payload, (str) => { return int.Parse(str); });
             ints.Merge(op);
 
@@ -73,7 +78,7 @@ namespace CRDTApp.Behaviours
                 CallBehaviourEnded();
             }
             
-            Message message = new Message(addOp.ToJson((i) => { return i.ToString(); }));
+            Message message =historyTracker.TagMessage( new Message(addOp.ToJson((i) => { return i.ToString(); }))).AsMessage();
             
             foreach (ReplicaID replica in otherReplicas)
             {

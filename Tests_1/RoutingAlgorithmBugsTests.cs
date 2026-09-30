@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CRDTApp.Messages;
+using CRDTApp.Messages.LayerMessages;
 using CRDTApp.NetworkLayers.Composite.Routing;
+using CRDTApp.Messages.LayerMessages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Shared;
@@ -58,15 +60,15 @@ namespace Tests_1
                 Timestamp = scheduler.GetCurrentTime()
             });
 
-            var updateMsg = new DistanceVectorRoutingLayer.DistanceVectorMessage(r1, r2, new Message(updatePayload), isProtocolMessage: true);
+            var updateMsg = new DistanceVectorMessage(r1, r2, new Message(updatePayload), isProtocolMessage: true);
             dvLayer.OnLowerLayerMessageReceived(r2, new Message(updateMsg.ToJson()));
-
+            
             mockLower.SentMessages.Clear();
             await dvLayer.Run();
             scheduler.AdvanceSeconds(1.1f);
-
+            
             var sentProtoMsg = mockLower.SentMessages
-                .Select(m => DistanceVectorRoutingLayer.DistanceVectorMessage.FromJson(m.Message.Payload))
+                .Select(m => DistanceVectorMessage.FromJson(m.Message.Payload))
                 .FirstOrDefault(m => m != null && m.IsProtocolMessage);
 
             Assert.IsNotNull(sentProtoMsg, "Heartbeat protocol message should have been sent");
@@ -118,7 +120,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)r3.ID, 4.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorRoutingLayer.DistanceVectorMessage(r1, r2, new Message(update1), true).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update1), true).ToJson()));
 
             // Now Neighbor 2 sends an updated distance metric (e.g. link degraded to cost 6)
             var update2 = JsonConvert.SerializeObject(new
@@ -126,7 +128,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)r3.ID, 6.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorRoutingLayer.DistanceVectorMessage(r1, r2, new Message(update2), true).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update2), true).ToJson()));
 
             mockLower.SentMessages.Clear();
             dvLayer.SendMessage(r3, new Message("data for 3"));
@@ -168,7 +170,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)r3.ID, 2.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorRoutingLayer.DistanceVectorMessage(r1, r2, new Message(update), true).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update), true).ToJson()));
 
             // Connection to R2 is interrupted
             mockLower.InjectConnectionInterrupted(r2);
@@ -194,7 +196,7 @@ namespace Tests_1
             // DistanceVectorMessage has no TTL or hop count property. Forwarding calls
             // LayerBelow.SendMessage(target, lowerLayerMessage) passing the identical message.
 
-            var properties = typeof(DistanceVectorRoutingLayer.DistanceVectorMessage).GetProperties();
+            var properties = typeof(DistanceVectorMessage).GetProperties();
             var hasTtlOrHops = properties.Any(p =>
                 p.Name.Contains("Hop", StringComparison.OrdinalIgnoreCase) ||
                 p.Name.Contains("TTL", StringComparison.OrdinalIgnoreCase));
@@ -231,16 +233,16 @@ namespace Tests_1
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
             // Feed self LSA
-            var lsaA = new LinkStateRoutingLayer.LSA(rA, 0, new List<ReplicaID> { rB });
-            lsLayer.OnLowerLevelMessageReceived(rA, new Message(new LinkStateRoutingLayer.LinkStateMessage(rA, rA, new Message(lsaA.ToJson()), true).ToJson()));
+            var lsaA = new LSA(rA, 0, new List<ReplicaID> { rB });
+            lsLayer.OnLowerLevelMessageReceived(rA, new Message(new LinkStateMessage(rA, rA, new Message(lsaA.ToJson()), true).ToJson()));
 
             // LSA #1: B connects to A and C
-            var lsaB1 = new LinkStateRoutingLayer.LSA(rB, 1, new List<ReplicaID> { rA, rC });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateRoutingLayer.LinkStateMessage(rA, rB, new Message(lsaB1.ToJson()), true).ToJson()));
+            var lsaB1 = new LSA(rB, 1, new List<ReplicaID> { rA, rC });
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB1.ToJson()), true).ToJson()));
 
             // Now C disconnects! B sends LSA #2 stating it is only connected to A
-            var lsaB2 = new LinkStateRoutingLayer.LSA(rB, 2, new List<ReplicaID> { rA });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateRoutingLayer.LinkStateMessage(rA, rB, new Message(lsaB2.ToJson()), true).ToJson()));
+            var lsaB2 = new LSA(rB, 2, new List<ReplicaID> { rA });
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB2.ToJson()), true).ToJson()));
 
             mockLower.SentMessages.Clear();
             lsLayer.SendMessage(rC, new Message("msg to disconnected C"));
@@ -276,8 +278,8 @@ namespace Tests_1
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
             // B advertises connection to A and C
-            var lsaB = new LinkStateRoutingLayer.LSA(rB, 1, new List<ReplicaID> { rA, rC });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateRoutingLayer.LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
+            var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rC });
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
 
             // Without manually injecting self LSA over the wire, LinkState should be able to route to C via B
             mockLower.SentMessages.Clear();
@@ -317,7 +319,7 @@ namespace Tests_1
 
             Assert.IsTrue(mockLower.SentMessages.Count > 0);
             var lsaNetworkMsg = mockLower.SentMessages[0].Message;
-            var parsed = LinkStateRoutingLayer.LinkStateMessage.FromJson(lsaNetworkMsg.Payload);
+            var parsed = LinkStateMessage.FromJson(lsaNetworkMsg.Payload);
 
             Assert.IsNotNull(parsed);
             // Assert CORRECT behavior:
@@ -358,7 +360,7 @@ namespace Tests_1
             floodLayer.AddOnMessageReceivedHandler((_, _) => deliveryCount++);
 
             var originalMsg = new Message("payload123");
-            var floodMsg = new FloodingRedirectionLayer.FloodMessage(rSelf, rSender, originalMsg, numberOfHops: 3);
+            var floodMsg = new FloodMessage(rSelf, rSender, originalMsg, numberOfHops: 3);
 
             // Message arrives via Path 1
             floodLayer.OnLowerLayerMessageReceived(rPath1, new Message(floodMsg.ToJson()));
@@ -398,7 +400,7 @@ namespace Tests_1
             floodLayer.SetRunning(true);
 
             // Packet originated by rSelf circles back from neighbor B
-            var loopedPacket = new FloodingRedirectionLayer.FloodMessage(rTarget, rSelf, new Message("loop"), numberOfHops: 3);
+            var loopedPacket = new FloodMessage(rTarget, rSelf, new Message("loop"), numberOfHops: 3);
             floodLayer.OnLowerLayerMessageReceived(rNeighbourB, new Message(loopedPacket.ToJson()));
 
             // Assert CORRECT behavior: Must drop packet originated by self

@@ -1,4 +1,5 @@
 using CRDTApp.Messages;
+using CRDTApp.Messages.LayerMessages;
 using Shared;
 using Simulator;
 using System;
@@ -10,45 +11,8 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
     //TODO: dynamically adjust distances/link cost based on latency
     public class LinkStateRoutingLayer : NetworkLayer
     {
-        public class LinkStateMessage : NetworkLayerMessage<LinkStateMessage>
-        {
-            public ReplicaID OriginalSender { get; set; }
-            public ReplicaID IntendedTarget { get; set; }
-            public bool IsProtocolMessage { get; set; }
-            public Message? Message { get; set; }
-
-            public LinkStateMessage()
-            {
-
-            }
-
-            public LinkStateMessage(ReplicaID intendedTarget, ReplicaID originalSender, Message? message, bool isProtocolMessage = false)
-            {
-                OriginalSender = originalSender;
-                IntendedTarget = intendedTarget;
-                Message = message;
-                IsProtocolMessage = isProtocolMessage;
-
-            }
-        }
-
-
-
-
-        public class LSA : NetworkLayerMessage<LSA>
-        {
-            public ReplicaID Replica { get; set; }
-            public int Number { get; set; }
-
-            public List<ReplicaID> Neighbours { get; set; }
-            public LSA(ReplicaID replica, int number, List<ReplicaID> neighbours)
-            {
-                Replica = replica;
-                Number = number;
-                Neighbours = neighbours;
-            }
-        }
-
+        
+        
 
         Dictionary<ReplicaID, LSA> mostRecentLSAs = new();
 

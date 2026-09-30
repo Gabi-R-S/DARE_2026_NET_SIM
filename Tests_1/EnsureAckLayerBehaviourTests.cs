@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CRDTApp.Messages;
+using CRDTApp.Messages.LayerMessages;
 using CRDTApp.NetworkLayers.Composite;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shared;
@@ -31,10 +32,10 @@ namespace Tests_1
 
             mockLower.OnSendAsync = (recipient, msg) =>
             {
-                var ackMsg = EnsureAckNetworkLayer<int>.EnsureAckMessage.FromJson(msg.Payload);
+                var ackMsg = EnsureAckMessage<int>.FromJson(msg.Payload);
                 if (ackMsg != null && !ackMsg.IsAck)
                 {
-                    var responseAck = new EnsureAckNetworkLayer<int>.EnsureAckMessage(ackMsg.Tag, new Message(""), true);
+                    var responseAck = new EnsureAckMessage<int>(ackMsg.Tag, new Message(""), true);
                     ackLayer.OnLowerLayerMessageReceived(recipient, new Message(responseAck.ToJson()));
                 }
                 return Task.FromResult(true);
@@ -47,7 +48,7 @@ namespace Tests_1
             var (target, sent) = mockLower.SentMessages[0];
             Assert.AreEqual(remoteId, target);
 
-            var parsed = EnsureAckNetworkLayer<int>.EnsureAckMessage.FromJson(sent.Payload);
+            var parsed = EnsureAckMessage<int>.FromJson(sent.Payload);
             Assert.IsNotNull(parsed);
             Assert.IsFalse(parsed.IsAck);
             Assert.AreEqual("hello world", parsed.Message?.Payload);
@@ -89,7 +90,7 @@ namespace Tests_1
                 if (attemptCount == 2)
                 {
                     // Deliver ACK on 2nd attempt
-                    var ack = new EnsureAckNetworkLayer<int>.EnsureAckMessage(42, new Message(""), true);
+                    var ack = new EnsureAckMessage<int>(42, new Message(""), true);
                     ackLayer.OnLowerLayerMessageReceived(recipient, new Message(ack.ToJson()));
                 }
                 return Task.FromResult(true);
@@ -134,7 +135,7 @@ namespace Tests_1
                 attemptCount++;
                 if (attemptCount == 3)
                 {
-                    var ack = new EnsureAckNetworkLayer<int>.EnsureAckMessage(999, new Message(""), true);
+                    var ack = new EnsureAckMessage<int>(999, new Message(""), true);
                     ackLayer.OnLowerLayerMessageReceived(recipient, new Message(ack.ToJson()));
                 }
                 return Task.FromResult(true);
@@ -272,7 +273,7 @@ namespace Tests_1
             });
 
             var originalMsg = new Message("important data");
-            var inboundWrap = new EnsureAckNetworkLayer<int>.EnsureAckMessage(555, originalMsg, isAck: false);
+            var inboundWrap = new EnsureAckMessage<int>(555, originalMsg, isAck: false);
 
             mockLower.InjectReceivedMessage(remoteId, new Message(inboundWrap.ToJson()));
 
@@ -285,7 +286,7 @@ namespace Tests_1
             var (ackTarget, ackNetworkMsg) = mockLower.SentMessages[0];
             Assert.AreEqual(remoteId, ackTarget);
 
-            var sentAck = EnsureAckNetworkLayer<int>.EnsureAckMessage.FromJson(ackNetworkMsg.Payload);
+            var sentAck = EnsureAckMessage<int>.FromJson(ackNetworkMsg.Payload);
             Assert.IsNotNull(sentAck);
             Assert.IsTrue(sentAck.IsAck);
             Assert.AreEqual(555, sentAck.Tag);
@@ -304,7 +305,7 @@ namespace Tests_1
                 scheduler,
                 _ => 1);
 
-            var ghostAck = new EnsureAckNetworkLayer<int>.EnsureAckMessage(99999, new Message(""), isAck: true);
+            var ghostAck = new EnsureAckMessage<int>(99999, new Message(""), isAck: true);
             
             // Should not throw
             mockLower.InjectReceivedMessage(new ReplicaID(99), new Message(ghostAck.ToJson()));
@@ -332,10 +333,10 @@ namespace Tests_1
 
             mockLower.OnSendAsync = (recipient, msg) =>
             {
-                var ackMsg = EnsureAckNetworkLayer<int>.EnsureAckMessage.FromJson(msg.Payload);
+                var ackMsg = EnsureAckMessage<int>.FromJson(msg.Payload);
                 if (ackMsg != null && !ackMsg.IsAck)
                 {
-                    var responseAck = new EnsureAckNetworkLayer<int>.EnsureAckMessage(ackMsg.Tag, new Message(""), true);
+                    var responseAck = new EnsureAckMessage<int>(ackMsg.Tag, new Message(""), true);
                     ackLayer.OnLowerLayerMessageReceived(recipient, new Message(responseAck.ToJson()));
                 }
                 return Task.FromResult(true);

@@ -12,6 +12,8 @@ using System.Threading.Channels;
 namespace CRDTApp.NetworkLayers.Composite
 {
     // Goal: ensuring causal delivery
+
+    /*
     public class CausalHistoryTrackerLayer : NetworkLayer
     {
         public class TrackerMessage :NetworkLayerMessage<TrackerMessage>
@@ -130,5 +132,5 @@ namespace CRDTApp.NetworkLayers.Composite
         }
 
 
-    }
+    }*/
 }

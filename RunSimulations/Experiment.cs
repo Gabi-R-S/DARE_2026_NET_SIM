@@ -29,8 +29,8 @@ namespace RunSimulations
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, baseLayer, scheduler, (_) => { i++; return i; });
-            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
-            return (historyTrackerLayer, scheduler, new List<ExtraMetric>());
+           // CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
+            return (ackLayer, scheduler, new List<ExtraMetric>());
         }
 
         protected (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicFloodRoutingStack(NetworkSimulator simulator, ReplicaID id)
@@ -52,9 +52,9 @@ namespace RunSimulations
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, flood, scheduler, (_) => { i++; return i; });
 
-            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
+        //    CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
 
-            return (historyTrackerLayer, scheduler, new List<ExtraMetric>());
+            return (ackLayer, scheduler, new List<ExtraMetric>());
 
         }
         protected (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicDistanceVectorStack(NetworkSimulator simulator, ReplicaID id)
@@ -74,9 +74,9 @@ namespace RunSimulations
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; });
 
-            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
-
-            return (historyTrackerLayer, scheduler, new List<ExtraMetric>());
+            //CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
+            
+            return (ackLayer, scheduler, new List<ExtraMetric>());
 
         }
         protected (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicLinkStateStack(NetworkSimulator simulator, ReplicaID id)
@@ -97,9 +97,9 @@ namespace RunSimulations
 
             EnsureAckNetworkLayer<int> ack2Layer = new EnsureAckNetworkLayer<int>(id, lsLayer, scheduler, (_) => { i++; return i; }); // 
 
-            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ack2Layer);
+//            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ack2Layer);
 
-            return (historyTrackerLayer, scheduler, new List<ExtraMetric>());
+            return (ack2Layer, scheduler, new List<ExtraMetric>());
 
         }
 

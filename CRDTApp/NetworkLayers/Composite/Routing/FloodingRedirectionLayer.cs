@@ -1,4 +1,5 @@
 ﻿using CRDTApp.Messages;
+using CRDTApp.Messages.LayerMessages;
 using CRDTApp.Schedulers;
 using Newtonsoft.Json;
 using Shared;
@@ -12,29 +13,6 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
     //TODO: make thread-safe
     public class FloodingRedirectionLayer : NetworkLayer
     {
-        public class FloodMessage : NetworkLayerMessage<FloodMessage>
-        {
-            public ReplicaID OriginalSender { get; set; }
-            public ReplicaID IntendedTarget { get; set; }
-            public uint NumberOfHops { get; set; }
-            public Message? Message { get; set; }
-
-            public FloodMessage()
-            {
-
-            }
-
-            public FloodMessage(ReplicaID intendedTarget, ReplicaID originalSender, Message? message, uint numberOfHops)
-            {
-                OriginalSender = originalSender;
-                IntendedTarget = intendedTarget;
-                Message = message;
-                NumberOfHops = numberOfHops;
-
-            }
-
-            
-        }
 
         ReplicaID replicaID;
         ActiveConnectionTracker connectionTracker;

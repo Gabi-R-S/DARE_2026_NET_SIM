@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CRDTApp.Messages;
+using CRDTApp.Messages.LayerMessages;
 using CRDTApp.NetworkLayers;
 using CRDTApp.NetworkLayers.Composite;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -226,7 +227,7 @@ namespace Tests_1
             Assert.AreEqual(2, mockLower.SentMessages.Count);
             foreach (var (_, sent) in mockLower.SentMessages)
             {
-                var hb = HeartbeatLayer.HeartbeatMessage.FromJson(sent.Payload);
+                var hb = HeartbeatMessage.FromJson(sent.Payload);
                 Assert.IsNotNull(hb);
                 Assert.IsTrue(hb.HeartBeat);
                 Assert.IsNull(hb.Message);
@@ -274,7 +275,7 @@ namespace Tests_1
             bool delivered = false;
             hbLayer.AddOnMessageReceivedHandler((_, _) => delivered = true);
 
-            var hbMsg = new HeartbeatLayer.HeartbeatMessage(null, heartbeat: true);
+            var hbMsg = new HeartbeatMessage(null, heartbeat: true);
             mockLower.InjectReceivedMessage(new ReplicaID(2), new Message(hbMsg.ToJson()));
 
             Assert.IsFalse(delivered, "Heartbeat packets must not be propagated to upper layers");
@@ -297,7 +298,7 @@ namespace Tests_1
                 delivered = m;
             });
 
-            var normalMsg = new HeartbeatLayer.HeartbeatMessage(new Message("app data"), heartbeat: false);
+            var normalMsg = new HeartbeatMessage(new Message("app data"), heartbeat: false);
             mockLower.InjectReceivedMessage(new ReplicaID(2), new Message(normalMsg.ToJson()));
 
             Assert.IsNotNull(delivered);
@@ -320,7 +321,7 @@ namespace Tests_1
             var (target, msg) = mockLower.SentMessages[0];
             Assert.AreEqual(new ReplicaID(3), target);
 
-            var parsed = HeartbeatLayer.HeartbeatMessage.FromJson(msg.Payload);
+            var parsed = HeartbeatMessage.FromJson(msg.Payload);
             Assert.IsNotNull(parsed);
             Assert.IsFalse(parsed.HeartBeat);
             Assert.AreEqual("payload", parsed.Message?.Payload);

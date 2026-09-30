@@ -7,6 +7,7 @@ using System.Text;
 
 namespace Tests_1
 {
+    /*
     [TestClass]
     public sealed class MessageHistoryTrackerTests
     {
@@ -53,5 +54,5 @@ namespace Tests_1
 
             Assert.IsTrue(something);
         }
-    }
+    }*/
 }

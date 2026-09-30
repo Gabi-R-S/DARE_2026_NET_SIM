@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using CRDTApp.Schedulers;
+using CRDTApp.Messages.LayerMessages;
 
 namespace Tests_1
 {
@@ -53,7 +54,7 @@ namespace Tests_1
             floodLayer.AddOnMessageReceivedHandler((sender, msg) => { delivered = true; });
 
             var payload = new Message("test payload");
-            var floodMessage = new FloodingRedirectionLayer.FloodMessage(replica1, new ReplicaID(2), payload, 3);
+            var floodMessage = new FloodMessage(replica1, new ReplicaID(2), payload, 3);
             
             floodLayer.OnLowerLayerMessageReceived(new ReplicaID(2), new Message(floodMessage.ToJson()));
 
@@ -79,7 +80,7 @@ namespace Tests_1
             
             var payload = new Message("test payload");
             var target = new ReplicaID(99);
-            var floodMessage = new FloodingRedirectionLayer.FloodMessage(target, new ReplicaID(2), payload, 3);
+            var floodMessage = new FloodMessage(target, new ReplicaID(2), payload, 3);
             
             floodLayer.OnLowerLayerMessageReceived(new ReplicaID(2), new Message(floodMessage.ToJson()));
 
@@ -122,8 +123,8 @@ namespace Tests_1
 
             // Mock LSAs being received.
             // A gets an LSA from B saying B is connected to A and C.
-            var lsaB = new LinkStateRoutingLayer.LSA(rB, 1, new List<ReplicaID> { rA, rC });
-            var lsMsgB = new LinkStateRoutingLayer.LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true);
+            var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rC });
+            var lsMsgB = new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true);
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(lsMsgB.ToJson()));
 
             // The routing table should be recalculated.

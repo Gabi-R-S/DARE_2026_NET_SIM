@@ -1,4 +1,5 @@
 ﻿using CRDTApp.Messages;
+using CRDTApp.Messages.LayerMessages;
 using CRDTApp.Schedulers;
 using Shared;
 using System;
@@ -12,40 +13,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
     // THIS DOES THE WHOLE 2-in-1 thing with managing connection tracking and managing 
     public class DistanceVectorRoutingLayer : NetworkLayer
     {
-        public class DistanceVectorMessage : NetworkLayerMessage<DistanceVectorMessage>
-        {
-            public ReplicaID OriginalSender { get; set; }
-            public ReplicaID IntendedTarget { get; set; }
-            public bool IsProtocolMessage { get; set; }
-            public Message? Message { get; set; }
-
-            public DistanceVectorMessage()
-            {
-
-            }
-
-            public DistanceVectorMessage(ReplicaID intendedTarget, ReplicaID originalSender, Message? message, bool isProtocolMessage)
-            {
-                OriginalSender = originalSender;
-                IntendedTarget = intendedTarget;
-                Message = message;
-                IsProtocolMessage = isProtocolMessage;
-
-            }
-        }
-
-
-        class DistanceTableUpdateMessage : NetworkLayerMessage<DistanceTableUpdateMessage>
-        {
-            public Dictionary<int, float> Distances { get; set; } = new();
-            public DateTime Timestamp { get; set; }
-
-            public DistanceTableUpdateMessage(Dictionary<int, float> distances, DateTime timestamp) {
-                Distances = distances;
-                Timestamp = timestamp;
-            }
-
-        }
+     
 
 
         class DistanceTable
@@ -209,7 +177,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             if (recipient == replicaID) {
                 LayerBelow?.SendMessage(recipient,newMessage);
             }
-
+            
             
             var target = table.GetNextInPathTo(recipient);
 

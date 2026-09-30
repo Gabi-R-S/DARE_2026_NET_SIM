@@ -35,18 +35,6 @@ namespace CRDTApp.NetworkLayers
             }
         
         }
-        public abstract class NetworkLayerMessage<T> {
-
-            public string ToJson() {
-
-                return JsonConvert.SerializeObject(this);
-            }
-            static public T? FromJson(string json)
-            {
-                return JsonConvert.DeserializeObject<T>(json);
-            }
-        
-        }
         public virtual Task Run(){
             Running = true;
             if (LayerBelow == null) {
