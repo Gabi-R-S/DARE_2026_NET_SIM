@@ -49,7 +49,7 @@ namespace RunSimulations
 
 
                 // Simple Case: full stack, no routing
-                results.Add(RunIndividualFillArraySimulation("rink-ack-no-routing", CreateMap, CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
+                results.Add(RunIndividualFillArraySimulation("ring-ack-no-routing", CreateMap, CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
 
             }
             // Flood routing case

@@ -172,7 +172,7 @@ namespace RunSimulations
 
 
 
-        protected static (ConnectionMap, List<ReplicaID>) CreateRandomFullyConnectedNetwork(int numReplicas, float minDelay,float maxDelay,int seed)
+        protected static (ConnectionMap, List<ReplicaID>) CreateRandomFullyConnectedNetwork(int numReplicas, float minDelay,float maxDelay,int seed= 42)
         {
             ConnectionMap map = new ConnectionMap();
             List<ReplicaID> replicaIDs = new List<ReplicaID>();
@@ -182,8 +182,26 @@ namespace RunSimulations
                 replicaIDs.Add(new ReplicaID((ulong)i));
             }
 
-            throw new NotImplementedException("Random network generation not implemented yet.");
+            var random = new Random(seed);
+            for (int i = 1; i < numReplicas; i++)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    map.SetConnection(replicaIDs[i], replicaIDs[j], new NetworkConnection(minDelay + (float)(random.NextDouble() * (maxDelay - minDelay))));
+                }
+            }
 
+            int extraEdges = (int)  (random.NextDouble()*(numReplicas*numReplicas-numReplicas));
+
+            for (int i = 0; i < extraEdges; i++)
+            {
+                int a = random.Next(0, numReplicas);
+                int b = random.Next(0, numReplicas);
+                if (a != b)
+                {
+                    map.SetConnection(replicaIDs[a], replicaIDs[b], new NetworkConnection(minDelay + (float)(random.NextDouble() * (maxDelay - minDelay))));
+                }
+            }
 
             return (map, replicaIDs);
         }
@@ -207,7 +225,6 @@ namespace RunSimulations
                         endedSuccessfully.Value = true;
                         foreach (var a in apps)
                         {
-                            Console.WriteLine("Closing app!");
                             a.Close();
                         }
                     }

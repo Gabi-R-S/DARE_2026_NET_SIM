@@ -15,7 +15,16 @@ namespace RunSimulations
         static void Main(string[] args)
         {
             
-            List<Experiment> experiments = new List<Experiment>() { new FullyConnectedExperiment(200.0f,0.01f,1,4),new RingTopologyExperiment(200.0f, 0.01f, 1, 4), new StarTopologyExperiment(200.0f,0.01f, 1, 4) };
+            List<Experiment> experiments = new List<Experiment>()
+            {
+                new CompleteGraphExperiment(200.0f,0.01f,1,4),
+                new CompleteGraphExperiment(2000.0f,0.01f,2,6),
+                new RingTopologyExperiment(2000.0f, 0.01f, 10,10), 
+                new StarTopologyExperiment(2000.0f,0.01f, 10,10),
+                new RandomFullyConnectedExperiment(2000.0f, 0.01f,0.2f, 10,10,false,0.4f,0.1f,42),
+                new RandomFullyConnectedExperiment(2000.0f, 0.01f,0.2f, 10,10,false,0.4f,0.1f,1),
+                new RandomFullyConnectedExperiment(2000.0f, 0.01f,0.2f, 10,10,false,0.4f,0.1f,2),
+            };
 
             
 

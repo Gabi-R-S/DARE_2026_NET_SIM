@@ -54,8 +54,6 @@ namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
                 var newDistance = Math.Max(oldDistance + timeDifference, 0);
                 if (!distances.ContainsKey(targetDest))
                 {
-                    Console.WriteLine("unknown dest " + sender + " seen at " + us);
-
                     distances[targetDest] = (newDistance, sender);
                 }
                 else
@@ -71,7 +69,6 @@ namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
                         var currentValue = distances[targetDest].Item1;
                         if (newDistance < currentValue)
                         {
-                            Console.WriteLine("overwritten!");
                             distances[targetDest] = (newDistance, sender);
 
                         }
