@@ -12,8 +12,8 @@ namespace CRDTApp.Messages.LayerMessages
         public ReplicaID Replica { get; set; }
         public int Number { get; set; }
 
-        public List<ReplicaID> Neighbours { get; set; }
-        public LSA(ReplicaID replica, int number, List<ReplicaID> neighbours)
+        public List<(ReplicaID, float)> Neighbours { get; set; }
+        public LSA(ReplicaID replica, int number, List<(ReplicaID, float)> neighbours)
         {
             Replica = replica;
             Number = number;

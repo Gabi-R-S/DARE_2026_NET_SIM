@@ -193,7 +193,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rSelf, rPeer },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, rSelf);
             await hbLayer.Run();
@@ -239,7 +240,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r0 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, r1);
             await hbLayer.Run();

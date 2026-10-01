@@ -168,7 +168,7 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID>(),
-                new HashSet<ReplicaID> { peer });
+                new HashSet<ReplicaID> { peer }, new ReplicaID(1));
 
             var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: false);
 
@@ -187,7 +187,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { peer },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                new ReplicaID(1));
 
             var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: false);
 
@@ -212,7 +213,7 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID>(),
-                new HashSet<ReplicaID> { peer });
+                new HashSet<ReplicaID> { peer }, new ReplicaID(1));
 
             var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: false);
 
@@ -237,7 +238,7 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID>(),
-                new HashSet<ReplicaID> { peer });
+                new HashSet<ReplicaID> { peer }, new ReplicaID(1));
 
             var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: true);
 
@@ -261,7 +262,7 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID>(),
-                new HashSet<ReplicaID> { peer });
+                new HashSet<ReplicaID> { peer }, new ReplicaID(1));
 
             var trackLayer = new TrackActiveConnectionsLayer(mockLower, tracker, new ReplicaID(1), trackSends: false);
 

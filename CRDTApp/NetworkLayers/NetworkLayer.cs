@@ -11,7 +11,6 @@ namespace CRDTApp.NetworkLayers
     public abstract class NetworkLayer
     {
         public virtual void Stop() {
-            Console.WriteLine($"Stopping {this.GetType().Name}");
             Running = false;
             LayerBelow?.Stop();
         }
@@ -117,7 +116,14 @@ namespace CRDTApp.NetworkLayers
                 ConnectionRegained -= handler;
             }
         }
-        public abstract Task<bool> SendMessage(ReplicaID recipient, Message message);
+        public virtual Task<bool> SendMessage(ReplicaID recipient, Message message)
+        {
+            if (LayerBelow == null)
+            {
+                return Task.FromResult(false);
+            }
+            return LayerBelow.SendMessage(recipient, message);
+        }
 
     }
 }

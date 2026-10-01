@@ -42,7 +42,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler,10);
 
@@ -108,7 +109,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 
@@ -175,7 +177,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 
@@ -220,7 +223,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID>(),
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
             await dvLayer.Run();
@@ -266,7 +270,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2, r3 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 
@@ -345,7 +350,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2, r3 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 

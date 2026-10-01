@@ -11,25 +11,78 @@ namespace CRDTApp.Messages
         HashSet<ReplicaID> activeConnections = new();
         HashSet<ReplicaID> innactiveConnections = new();
 
-        public ActiveConnectionTracker(HashSet<ReplicaID> activeConnections, HashSet<ReplicaID> innactiveConnections) {
+        Dictionary<ReplicaID, float> distances = new();
+        ReplicaID replicaID;
+        bool trackingDistances;
+
+
+        public ActiveConnectionTracker(HashSet<ReplicaID> activeConnections, HashSet<ReplicaID> innactiveConnections, ReplicaID replicaID, bool trackingDistances = false)
+        {
             this.activeConnections = activeConnections;
             this.innactiveConnections = innactiveConnections;
+            this.replicaID = replicaID;
+            this.trackingDistances = trackingDistances;
         }
 
-        public List<ReplicaID> ActiveConnections { get {
-                
+        public void SetDistance(ReplicaID replica, float distance)
+        {
+            if(trackingDistances)
+            {
+                lock (connectionLock)
+                {
+                    distances[replica] = distance;
+                }
+            }
+        }
+        public float GetDistance(ReplicaID replica)
+        {
+            if (replica == replicaID)
+            {
+                return 0.0f;
+            }
+
+            if (!trackingDistances)
+            {
+
+
+                lock (connectionLock)
+                {
+                    if (activeConnections.Contains(replica))
+                    {
+                        return 1.0f;
+                    }
+                    return float.PositiveInfinity;
+                }
+            }
+            lock (connectionLock)
+            {
+                return distances.ContainsKey(replica) ? distances[replica] : float.PositiveInfinity;
+            }
+        }
+
+
+        public List<ReplicaID> ActiveConnections
+        {
+            get
+            {
+
                 List<ReplicaID> replicas = new();
                 lock (connectionLock)
                 {
-                    foreach (var connection in activeConnections) {
+                    foreach (var connection in activeConnections)
+                    {
                         replicas.Add(connection);
                     }
                 }
                 return replicas;
-                
-            
-            } }
-        public List<ReplicaID> InnactiveConnections { get {
+
+
+            }
+        }
+        public List<ReplicaID> InnactiveConnections
+        {
+            get
+            {
                 List<ReplicaID> replicas = new();
                 lock (connectionLock)
                 {
@@ -40,9 +93,11 @@ namespace CRDTApp.Messages
                 }
                 return replicas;
 
-            } }
+            }
+        }
 
-        public List<ReplicaID> AllConnections {
+        public List<ReplicaID> AllConnections
+        {
             get
             {
                 List<ReplicaID> replicas = new();
@@ -61,7 +116,8 @@ namespace CRDTApp.Messages
 
             }
         }
-        public bool SetActive(ReplicaID replica) {
+        public bool SetActive(ReplicaID replica)
+        {
             lock (connectionLock)
             {
                 if (innactiveConnections.Contains(replica))
@@ -86,7 +142,8 @@ namespace CRDTApp.Messages
             }
             return false;
         }
-        public bool IsActive(ReplicaID replica) {
+        public bool IsActive(ReplicaID replica)
+        {
             bool b;
             lock (connectionLock)
             {

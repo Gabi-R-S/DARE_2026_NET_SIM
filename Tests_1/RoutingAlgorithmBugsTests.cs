@@ -46,7 +46,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2,r5 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 
@@ -112,7 +113,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 
@@ -162,7 +164,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
 
@@ -211,20 +214,21 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
             // Feed self LSA
-            var lsaA = new LSA(rA, 0, new List<ReplicaID> { rB });
+            var lsaA = new LSA(rA, 0, new List<(ReplicaID, float)> { (rB, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rA, new Message(new LinkStateMessage(rA, rA, new Message(lsaA.ToJson()), true).ToJson()));
 
             // LSA #1: B connects to A and C
-            var lsaB1 = new LSA(rB, 1, new List<ReplicaID> { rA, rC });
+            var lsaB1 = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rC, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB1.ToJson()), true).ToJson()));
 
             // Now C disconnects! B sends LSA #2 stating it is only connected to A
-            var lsaB2 = new LSA(rB, 2, new List<ReplicaID> { rA });
+            var lsaB2 = new LSA(rB, 2, new List<(ReplicaID, float)> { (rA, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB2.ToJson()), true).ToJson()));
 
             mockLower.SentMessages.Clear();
@@ -258,7 +262,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rPeer },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var lsLayer = new LinkStateRoutingLayer(rSelf, mockLower, tracker);
 
@@ -299,7 +304,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rPath1, rPath2 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
 
@@ -341,7 +347,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rNeighbourB, rNeighbourC },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             floodLayer.SetRunning(true);

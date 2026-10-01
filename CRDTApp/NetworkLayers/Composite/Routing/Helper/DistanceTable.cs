@@ -1,4 +1,5 @@
-﻿using CRDTApp.Messages.LayerMessages;
+﻿using CRDTApp.Messages;
+using CRDTApp.Messages.LayerMessages;
 using CRDTApp.Schedulers;
 using Shared;
 using System;
@@ -43,10 +44,9 @@ namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
             return reps;
         }
 
-        public void Update(ReplicaID us, ReplicaID sender, DistanceTableUpdateMessage update, IScheduler scheduler)
+        public void Update(ReplicaID us, ReplicaID sender, DistanceTableUpdateMessage update,ActiveConnectionTracker tracker)
         {
-            var timeNow = scheduler.GetCurrentTime();
-            var timeDifference = Math.Max((float)(timeNow - update.Timestamp).TotalSeconds,0);
+            var timeDifference = tracker.GetDistance(sender);
             var updateDistances = ConvertIntsToReplicaIDs(update.Distances);
             foreach (var (targetDest, oldDistance) in updateDistances)
             {

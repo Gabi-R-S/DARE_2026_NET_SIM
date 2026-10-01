@@ -46,7 +46,7 @@ namespace Tests_1
         public void FloodingLayer_MessageForUs_DeliversMessage()
         {
             var mockLayer = new MockNetworkLayer();
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
+            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>(), new ReplicaID(1));
             var replica1 = new ReplicaID(1);
             var floodLayer = new FloodingRedirectionLayer(replica1, new MockTestScheduler(), tracker, mockLayer, 3, 60.0f);
 
@@ -69,7 +69,7 @@ namespace Tests_1
             var r2 = new ReplicaID(2);
             var r3 = new ReplicaID(3);
             
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID> { r2, r3 }, new HashSet<ReplicaID>());
+            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID> { r2, r3 }, new HashSet<ReplicaID>(), r1);
             var floodLayer = new FloodingRedirectionLayer(r1, new MockTestScheduler(), tracker, mockLayer, 3, 60.0f);
 
             bool deliveredLocal = false;
@@ -93,7 +93,7 @@ namespace Tests_1
             var mockLayer = new MockNetworkLayer();
             var r1 = new ReplicaID(1);
             var r2 = new ReplicaID(2);
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID> { r2 }, new HashSet<ReplicaID>());
+            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID> { r2 }, new HashSet<ReplicaID>(), r1);
             var scheduler = new MockTestScheduler();
             
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLayer, scheduler, 10);
@@ -117,13 +117,13 @@ namespace Tests_1
             var rC = new ReplicaID(3);
             
             // We are connected to B. B is connected to C. We want to route to C.
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID> { rB }, new HashSet<ReplicaID>());
+            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID> { rB }, new HashSet<ReplicaID>(), rA);
             
             var lsLayer = new LinkStateRoutingLayer(rA, mockLayer, tracker);
 
             // Mock LSAs being received.
             // A gets an LSA from B saying B is connected to A and C.
-            var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rC });
+            var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rC, 1f) });
             var lsMsgB = new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true);
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(lsMsgB.ToJson()));
 

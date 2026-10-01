@@ -153,7 +153,7 @@ namespace Tests_1
         public void HeartbeatLayer_ReceiveMessage_IgnoresHeartbeat()
         {
             var mockLayer = new MockNetworkManager();
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
+            var tracker = new  ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>(), new ReplicaID(1));
             var scheduler = new MockScheduler();
             ReplicaID repA = new ReplicaID(1);
             var layer = new HeartbeatLayer(tracker, mockLayer, scheduler, 0.5f, repA);
@@ -177,7 +177,7 @@ namespace Tests_1
         {
             var mockLayer = new MockNetworkManager();
             var sender = new ReplicaID(2);
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>() { sender });
+            var tracker = new  ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>() { sender }, new ReplicaID(1));
             var layer = new TrackActiveConnectionsLayer(mockLayer, tracker,new ReplicaID(1), true);
             mockLayer.ReceiveMessage(sender, new Message("test"));
 

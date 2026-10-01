@@ -51,13 +51,14 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB, rC },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
             // Node D advertises its connectivity
             var rD = new ReplicaID(4);
-            var lsaD = new LSA(rD, 1, new List<ReplicaID> { rB });
+            var lsaD = new LSA(rD, 1, new List<(ReplicaID, float)> { (rB, 1f) });
             var msgD = new LinkStateMessage(rA, rB, new Message(lsaD.ToJson()), isProtocolMessage: true);
 
             mockLower.SentMessages.Clear();
@@ -92,12 +93,13 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB, rC },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
             // Neighbor B sends an LSA claiming Node A is connected only to B (excluding C)
-            var spoofedSelfLsa = new LSA(rA, 10, new List<ReplicaID> { rB });
+            var spoofedSelfLsa = new LSA(rA, 10, new List<(ReplicaID, float)> { (rB, 1f) });
             var msg = new LinkStateMessage(rA, rB, new Message(spoofedSelfLsa.ToJson()), isProtocolMessage: true);
 
             mockLower.SentMessages.Clear();
@@ -135,7 +137,7 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
@@ -168,13 +170,14 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB, rC },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
             // Prior to reconnection, Node A has stored an LSA from Node B and Node C
-            var oldLsaB = new LSA(rB, 1, new List<ReplicaID> { rA });
-            var oldLsaC = new LSA(rC, 1, new List<ReplicaID> { rA });
+            var oldLsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f) });
+            var oldLsaC = new LSA(rC, 1, new List<(ReplicaID, float)> { (rA, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(oldLsaB.ToJson()), true).ToJson()));
             lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rC, new Message(oldLsaC.ToJson()), true).ToJson()));
 
@@ -210,17 +213,17 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB, rC },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
             // Initial topology: A connected to B, C; B connected to A, D; D connected to B
             lsLayer.OnConnect(rB);
 
-            var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rD });
+            var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
 
-            var lsaD = new LSA(rD, 1, new List<ReplicaID> { rB });
+            var lsaD = new LSA(rD, 1, new List<(ReplicaID, float)> { (rB, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rD, new Message(lsaD.ToJson()), true).ToJson()));
 
             // Verify initial route to D is via B
@@ -266,7 +269,7 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB, rC },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
@@ -274,15 +277,15 @@ namespace Tests_1
             lsLayer.OnConnect(rB);
 
             // Node B claims: connected to A and D
-            var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rD });
+            var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
 
             // Node C claims: connected to A and D
-            var lsaC = new LSA(rC, 1, new List<ReplicaID> { rA, rD });
+            var lsaC = new LSA(rC, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rC, new Message(lsaC.ToJson()), true).ToJson()));
 
             // Node D claims: connected ONLY to C (D does NOT have a link to B!)
-            var lsaD = new LSA(rD, 1, new List<ReplicaID> { rC });
+            var lsaD = new LSA(rD, 1, new List<(ReplicaID, float)> { (rC, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rD, new Message(lsaD.ToJson()), true).ToJson()));
 
             mockLower.SentMessages.Clear();
@@ -314,15 +317,15 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(), rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
             // Topology: A connected to B, B connected to D
-            var lsaA = new LSA(rA, 0, new List<ReplicaID> { rB });
+            var lsaA = new LSA(rA, 0, new List<(ReplicaID, float)> { (rB, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rA, new Message(new LinkStateMessage(rA, rA, new Message(lsaA.ToJson()), true).ToJson()));
 
-            var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rD });
+            var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
 
             // Transit packet arrives from B intended for D (where A's route to D points back to B)

@@ -16,6 +16,8 @@ namespace RunSimulations
 {
     internal abstract class Experiment
     {
+        public static float HEARTBEAT_TIME = 0.1f;
+        public static float MESSAGE_TIMEOUT = 5.0f;
         protected (NetworkLayer, IScheduler, List<ExtraMetric>) CreateOnlyBaseLayer(NetworkSimulator simulator, ReplicaID id)
         {
             IScheduler scheduler = new SimulationScheduler(simulator);
@@ -37,15 +39,14 @@ namespace RunSimulations
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
-            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set);
+            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set, id);
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
 
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer, false);
+            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, MESSAGE_TIMEOUT, scheduler, baseLayer, false);
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker,id);
-
-            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, 0.1f, id);
+            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, HEARTBEAT_TIME, id);
 
             FloodingRedirectionLayer flood = new FloodingRedirectionLayer(id,scheduler, tracker, heartbeat, 5,60.0f);
 
@@ -61,16 +62,17 @@ namespace RunSimulations
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
-            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set);
+            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set, id);
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
 
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer, false);
+            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, MESSAGE_TIMEOUT, scheduler, baseLayer, false);
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker,id);
 
+            DistanceTrackerLayer distanceTrackerLayer = new DistanceTrackerLayer(trackerLayer, tracker, id, scheduler);
 
-            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, trackerLayer, scheduler,(uint)simulator.ConnectionMap.GetAllKnownReplicas().Count);
+            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, distanceTrackerLayer, scheduler,(uint)simulator.ConnectionMap.GetAllKnownReplicas().Count);
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; });
 
@@ -83,14 +85,15 @@ namespace RunSimulations
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
-            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set);
+            ActiveConnectionTracker tracker = new  ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set, id);
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
 
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer, false);
+            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, MESSAGE_TIMEOUT, scheduler, baseLayer, false);
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker,id);
-            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, 0.5f, id);
+            DistanceTrackerLayer distanceTrackerLayer = new DistanceTrackerLayer(trackerLayer, tracker, id, scheduler);
+            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, distanceTrackerLayer, scheduler, HEARTBEAT_TIME, id);
 
             int i = 0;
             LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id, heartbeat, tracker);
@@ -162,6 +165,24 @@ namespace RunSimulations
             {
                 map.SetConnection(replicaIDs[i], replicaIDs[(i + 1) % replicaIDs.Count], new NetworkConnection(delay));
             }
+
+
+            return (map, replicaIDs);
+        }
+
+
+
+        protected static (ConnectionMap, List<ReplicaID>) CreateRandomFullyConnectedNetwork(int numReplicas, float minDelay,float maxDelay,int seed)
+        {
+            ConnectionMap map = new ConnectionMap();
+            List<ReplicaID> replicaIDs = new List<ReplicaID>();
+
+            for (int i = 0; i < numReplicas; i++)
+            {
+                replicaIDs.Add(new ReplicaID((ulong)i));
+            }
+
+            throw new NotImplementedException("Random network generation not implemented yet.");
 
 
             return (map, replicaIDs);

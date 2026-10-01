@@ -219,7 +219,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2 },
-                new HashSet<ReplicaID> { r3 });
+                new HashSet<ReplicaID> { r3 },
+                new ReplicaID(1));
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
             await hbLayer.Run();
@@ -243,7 +244,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { r2 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                new ReplicaID(1));
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
             await hbLayer.Run();
@@ -268,7 +270,7 @@ namespace Tests_1
         {
             var mockLower = new ControllableMockLayer();
             var scheduler = new ControllableTestScheduler();
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
+            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>(), new ReplicaID(1));
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
 
@@ -286,7 +288,7 @@ namespace Tests_1
         {
             var mockLower = new ControllableMockLayer();
             var scheduler = new ControllableTestScheduler();
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
+            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>(), new ReplicaID(1));
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
 
@@ -311,7 +313,7 @@ namespace Tests_1
         {
             var mockLower = new ControllableMockLayer();
             var scheduler = new ControllableTestScheduler();
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
+            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>(), new ReplicaID(1));
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
 
@@ -337,7 +339,8 @@ namespace Tests_1
 
             var remoteTracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { localId },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                remoteId);
 
             // Remote node has HeartbeatLayer that sends heartbeats every 0.3s
             var remoteHbLayer = new HeartbeatLayer(remoteTracker, mockLower, scheduler, 0.3f, remoteId);

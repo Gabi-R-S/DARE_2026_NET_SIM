@@ -63,7 +63,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rSender, rPeerA, rPeerB },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
@@ -119,7 +120,7 @@ namespace Tests_1
             var rTarget   = new ReplicaID(99);
 
             var trackerA = new ActiveConnectionTracker(
-                new HashSet<ReplicaID> { rB, rC }, new HashSet<ReplicaID>());
+                new HashSet<ReplicaID> { rB, rC }, new HashSet<ReplicaID>(), rA);
 
             var floodA = new FloodingRedirectionLayer(rA, new ControllableTestScheduler(), trackerA, counterA, numHops: 5, forgettingTime: 60.0f);
             await floodA.Run();
@@ -176,9 +177,9 @@ namespace Tests_1
             var rC = new ReplicaID(3);
             var rTarget = new ReplicaID(99);
 
-            var trackerA = new ActiveConnectionTracker(new HashSet<ReplicaID> { rB, rC }, new HashSet<ReplicaID>());
-            var trackerB = new ActiveConnectionTracker(new HashSet<ReplicaID> { rA, rC }, new HashSet<ReplicaID>());
-            var trackerC = new ActiveConnectionTracker(new HashSet<ReplicaID> { rA, rB }, new HashSet<ReplicaID>());
+            var trackerA = new  ActiveConnectionTracker(new HashSet<ReplicaID> { rB, rC }, new HashSet<ReplicaID>(), rA);
+            var trackerB = new  ActiveConnectionTracker(new HashSet<ReplicaID> { rA, rC }, new HashSet<ReplicaID>(), rB);
+            var trackerC = new  ActiveConnectionTracker(new HashSet<ReplicaID> { rA, rB }, new HashSet<ReplicaID>(), rC);
 
             var floodA = new FloodingRedirectionLayer(rA, new ControllableTestScheduler(), trackerA, counter, numHops: 2, forgettingTime: 60.0f);
             var floodB = new FloodingRedirectionLayer(rB, new ControllableTestScheduler(), trackerB, counter, numHops: 2, forgettingTime: 60.0f);
@@ -250,9 +251,10 @@ namespace Tests_1
             var rPeer3  = new ReplicaID(4);  // another neighbour
             var rTarget = new ReplicaID(99);
 
-            var tracker = new ActiveConnectionTracker(
+            var tracker = new  ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rPeer1, rPeer2, rPeer3 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
@@ -300,9 +302,10 @@ namespace Tests_1
             var rPath2  = new ReplicaID(3); // alternative path for duplicate delivery
             var rTarget = new ReplicaID(1); // addressed to self so we can count deliveries
 
-            var tracker = new ActiveConnectionTracker(
+            var tracker = new  ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rSender, rPath2 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();

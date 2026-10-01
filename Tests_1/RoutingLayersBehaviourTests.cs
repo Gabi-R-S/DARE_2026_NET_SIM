@@ -29,7 +29,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rSender, rNeighbour1, rNeighbour2 },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
@@ -66,7 +67,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rSender, rNeighbour },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
@@ -90,7 +92,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rSender, rActive },
-                new HashSet<ReplicaID> { rInactive });
+                new HashSet<ReplicaID> { rInactive },
+                rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
@@ -112,7 +115,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rNeighbour },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             // Notice: floodLayer.Run() is NOT called, so Running == false
@@ -128,7 +132,7 @@ namespace Tests_1
         {
             var mockLower = new ControllableMockLayer();
             var rSelf = new ReplicaID(1);
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
+            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>(), rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             await floodLayer.Run();
@@ -160,7 +164,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rNeighborB },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler, 10);
 
@@ -206,7 +211,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rNeighborB, rOriginA },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler, 10);
 
@@ -240,7 +246,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rSender },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler, 10);
 
@@ -272,7 +279,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rNeighborB },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var dvLayer = new DistanceVectorRoutingLayer(rSelf, tracker, mockLower, scheduler, 10);
 
@@ -309,24 +317,25 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rNeighborB },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var lsLayer = new LinkStateRoutingLayer(rSelf, mockLower, tracker);
 
             // Inject LSA #5 from Node C
-            var lsa5 = new LSA(rNodeC, 5, new List<ReplicaID> { rNeighborB });
+            var lsa5 = new LSA(rNodeC, 5, new List<(ReplicaID, float)> { (rNeighborB, 1f) });
             var msg5 = new LinkStateMessage(rSelf, rNeighborB, new Message(lsa5.ToJson()), true);
             lsLayer.OnLowerLevelMessageReceived(rNeighborB, new Message(msg5.ToJson()));
 
             // Now inject stale LSA #3 and #5 from Node C
             mockLower.SentMessages.Clear();
-            var lsa3 = new LSA(rNodeC, 3, new List<ReplicaID> { rNeighborB });
+            var lsa3 = new LSA(rNodeC, 3, new List<(ReplicaID, float)> { (rNeighborB, 1f) });
             var msg3 = new LinkStateMessage(rSelf, rNeighborB, new Message(lsa3.ToJson()), true);
             lsLayer.OnLowerLevelMessageReceived(rNeighborB, new Message(msg3.ToJson()));
 
             Assert.AreEqual(0, mockLower.SentMessages.Count, "Stale LSA must not be flooded");
 
-            var lsa5dup = new LSA(rNodeC, 5, new List<ReplicaID> { rNeighborB });
+            var lsa5dup = new LSA(rNodeC, 5, new List<(ReplicaID, float)> { (rNeighborB, 1f) });
             var msg5dup = new LinkStateMessage(rSelf, rNeighborB, new Message(lsa5dup.ToJson()), true);
             lsLayer.OnLowerLevelMessageReceived(rNeighborB, new Message(msg5dup.ToJson()));
 
@@ -345,7 +354,8 @@ namespace Tests_1
             // A is directly connected to B and C
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB, rC },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
@@ -354,9 +364,9 @@ namespace Tests_1
             // B connected to A, D
             // C connected to A, D
             // D connected to B, C
-            var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rD });
-            var lsaC = new LSA(rC, 1, new List<ReplicaID> { rA, rD });
-            var lsaD = new LSA(rD, 1, new List<ReplicaID> { rB, rC });
+            var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
+            var lsaC = new LSA(rC, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
+            var lsaD = new LSA(rD, 1, new List<(ReplicaID, float)> { (rB, 1f), (rC, 1f) });
 
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
             lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rC, new Message(lsaC.ToJson()), true).ToJson()));
@@ -384,15 +394,16 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rB },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rA);
 
             var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
 
             // B connects to C
-            var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rC });
+            var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rC, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
 
-            var lsaC = new LSA(rC, 1, new List<ReplicaID> { rB });
+            var lsaC = new LSA(rC, 1, new List<(ReplicaID, float)> { (rB, 1f) });
             lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rC, new Message(lsaC.ToJson()), true).ToJson()));
 
             mockLower.SentMessages.Clear();
@@ -414,7 +425,8 @@ namespace Tests_1
 
             var tracker = new ActiveConnectionTracker(
                 new HashSet<ReplicaID> { rPeer },
-                new HashSet<ReplicaID>());
+                new HashSet<ReplicaID>(),
+                rSelf);
 
             var lsLayer = new LinkStateRoutingLayer(rSelf, mockLower, tracker);
 

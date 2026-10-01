@@ -41,7 +41,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             lock (lsaHelperLock)
             {
-                var lsa = new LSA(replicaID, num, connectionTracker.ActiveConnections);
+                var lsa = new LSA(replicaID, num, (connectionTracker.ActiveConnections.Select(c => (c, connectionTracker.GetDistance(c))).ToList()));
                 AddLSA(lsa);
                 num++;
                 return lsa;
@@ -95,19 +95,19 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 {
                     var neighbours = mostRecentLSAs[closest].Neighbours;
 
-                    foreach (var neighbour in neighbours)
+                    foreach (var (neighbour, distanceToNewNeighbour) in neighbours)
                     {
                         if (!mostRecentLSAs.ContainsKey(neighbour)&&!ALLOW_SINGLE_CONNETIONS)
                         {
                             continue;
                         }
 
-                        if (!mostRecentLSAs[neighbour].Neighbours.Contains(closest) && !ALLOW_SINGLE_CONNETIONS)
+                        if (!mostRecentLSAs[neighbour].Neighbours.Select(n => n.Item1).Contains(closest) && !ALLOW_SINGLE_CONNETIONS)
                         {
                             continue;
                         }
 
-                        var distanceToNeighbour = distance + 1;
+                        var distanceToNeighbour = distance + distanceToNewNeighbour;
                         if (distanceToNeighbour < distancesTo.GetValueOrDefault(neighbour, float.PositiveInfinity))
                         {
                             distancesTo[neighbour] = distanceToNeighbour;

@@ -14,7 +14,7 @@ namespace Tests_1
             var r1 = new ReplicaID(1);
             var r2 = new ReplicaID(2);
             
-            var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID> { r1 }, new HashSet<ReplicaID> { r2 });
+            var tracker = new  ActiveConnectionTracker(new HashSet<ReplicaID> { r1 }, new HashSet<ReplicaID> { r2 },r1);
             
             Assert.IsTrue(tracker.IsActive(r1));
             Assert.IsFalse(tracker.IsActive(r2));

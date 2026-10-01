@@ -68,7 +68,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     throw new Exception("WRONG MESSAGE FORMAT IN DISTANCE VECTOR ROUTING UPDATE MESSAGE");
 
                 }
-                table.Update(replicaID, senderID, distanceTableUpdate, scheduler);
+                table.Update(replicaID, senderID, distanceTableUpdate, connectionTracker);
 
             }
             else
