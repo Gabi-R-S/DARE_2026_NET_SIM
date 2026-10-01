@@ -11,6 +11,7 @@ namespace CRDTApp.NetworkLayers
     public abstract class NetworkLayer
     {
         public virtual void Stop() {
+            Console.WriteLine($"Stopping {this.GetType().Name}");
             Running = false;
             LayerBelow?.Stop();
         }

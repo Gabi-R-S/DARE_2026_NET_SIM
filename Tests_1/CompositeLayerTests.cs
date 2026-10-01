@@ -155,7 +155,8 @@ namespace Tests_1
             var mockLayer = new MockNetworkManager();
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
             var scheduler = new MockScheduler();
-            var layer = new HeartbeatLayer(tracker, mockLayer, scheduler, 0.5f);
+            ReplicaID repA = new ReplicaID(1);
+            var layer = new HeartbeatLayer(tracker, mockLayer, scheduler, 0.5f, repA);
 
             int deliveredCount = 0;
             layer.AddOnMessageReceivedHandler((r, m) => deliveredCount++);

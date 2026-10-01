@@ -18,12 +18,12 @@ namespace CRDTApp.NetworkLayers.Composite
         HashSet<ReplicaID> sendingTo = new HashSet<ReplicaID>();
         ReplicaID replicaID;
 
-        public HeartbeatLayer(ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, float heartbeatTime) : base(layerBelow, false, true, true)
+        public HeartbeatLayer(ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, float heartbeatTime,ReplicaID replicaID) : base(layerBelow, false, true, true)
         {
             this.connectionTracker = connectionTracker;
             this.scheduler = scheduler;
             this.heartbeatTime = heartbeatTime;
-
+            this.replicaID = replicaID;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLevelMessageReceived);
             AddOnConnectionRegainedHandler(OnConnectionGained);
         }

@@ -221,7 +221,7 @@ namespace Tests_1
                 new HashSet<ReplicaID> { r2 },
                 new HashSet<ReplicaID> { r3 });
 
-            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f);
+            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
             await hbLayer.Run();
 
             Assert.AreEqual(2, mockLower.SentMessages.Count);
@@ -245,7 +245,7 @@ namespace Tests_1
                 new HashSet<ReplicaID> { r2 },
                 new HashSet<ReplicaID>());
 
-            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f);
+            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
             await hbLayer.Run();
             Assert.AreEqual(1, mockLower.SentMessages.Count);
 
@@ -270,7 +270,7 @@ namespace Tests_1
             var scheduler = new ControllableTestScheduler();
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
 
-            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f);
+            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
 
             bool delivered = false;
             hbLayer.AddOnMessageReceivedHandler((_, _) => delivered = true);
@@ -288,7 +288,7 @@ namespace Tests_1
             var scheduler = new ControllableTestScheduler();
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
 
-            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f);
+            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
 
             Message? delivered = null;
             ReplicaID? sender = null;
@@ -313,7 +313,7 @@ namespace Tests_1
             var scheduler = new ControllableTestScheduler();
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>());
 
-            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f);
+            var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
 
             await hbLayer.SendMessage(new ReplicaID(3), new Message("payload"));
 
@@ -340,7 +340,7 @@ namespace Tests_1
                 new HashSet<ReplicaID>());
 
             // Remote node has HeartbeatLayer that sends heartbeats every 0.3s
-            var remoteHbLayer = new HeartbeatLayer(remoteTracker, mockLower, scheduler, 0.3f);
+            var remoteHbLayer = new HeartbeatLayer(remoteTracker, mockLower, scheduler, 0.3f, remoteId);
 
             // Local node has TrackMessageReceptionTimeoutLayer with 1.0s timeout
             var localTimeoutLayer = new TrackMessageReceptionTimeoutLayer(

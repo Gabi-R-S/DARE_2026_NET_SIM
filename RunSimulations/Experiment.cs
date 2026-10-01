@@ -45,7 +45,7 @@ namespace RunSimulations
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker,id);
 
-            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, timeoutLayer, scheduler, 0.1f);
+            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, 0.1f, id);
 
             FloodingRedirectionLayer flood = new FloodingRedirectionLayer(id,scheduler, tracker, heartbeat, 5,60.0f);
 
@@ -90,7 +90,7 @@ namespace RunSimulations
             TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, 5.0f, scheduler, baseLayer, false);
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker,id);
-            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, 0.5f);
+            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, 0.5f, id);
 
             int i = 0;
             LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id, heartbeat, tracker);
@@ -184,7 +184,11 @@ namespace RunSimulations
                     {
                         Console.WriteLine("Task ended!");
                         endedSuccessfully.Value = true;
-                        app.Close();
+                        foreach (var a in apps)
+                        {
+                            Console.WriteLine("Closing app!");
+                            a.Close();
+                        }
                     }
                 });
             }
