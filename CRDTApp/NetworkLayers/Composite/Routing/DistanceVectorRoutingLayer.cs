@@ -69,6 +69,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
                 }
                 table.Update(replicaID, senderID, distanceTableUpdate, scheduler);
+
             }
             else
             {

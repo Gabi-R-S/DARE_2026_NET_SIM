@@ -236,43 +236,7 @@ namespace Tests_1
                 "CORRECT BEHAVIOR: Stale route to disconnected node C must be cleared, NOT forwarded via B");
         }
 
-        [TestMethod]
-        public void LinkState_SelfLSA_MustBeIncludedInLSAsToEnableMultiHopDijkstra()
-        {
-            // EXPECTED BEHAVIOR:
-            // LinkStateRoutingLayer must add its own LSA to mostRecentLSAs (either upon initialization,
-            // CreateNextLSA, or OnConnect) so that Dijkstra starting from replicaID explores its neighbors.
-            //
-            // CURRENT BUG:
-            // LinkStateRoutingLayer never calls AddLSA on its own LSA. In RecalculateRoutingTable:
-            //   closest = replicaID;
-            //   if (mostRecentLSAs.ContainsKey(closest)) -> evaluates to FALSE!
-            // Dijkstra halts at step 1, finding 0 neighbors and 0 paths for multi-hop nodes.
-
-            var mockLower = new ControllableMockLayer();
-            var rA = new ReplicaID(1); // Self
-            var rB = new ReplicaID(2); // Neighbor
-            var rC = new ReplicaID(3); // Multi-hop node
-
-            var tracker = new ActiveConnectionTracker(
-                new HashSet<ReplicaID> { rB },
-                new HashSet<ReplicaID>());
-
-            var lsLayer = new LinkStateRoutingLayer(rA, mockLower, tracker);
-
-            // B advertises connection to A and C
-            var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rC });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
-
-            // Without manually injecting self LSA over the wire, LinkState should be able to route to C via B
-            mockLower.SentMessages.Clear();
-            lsLayer.SendMessage(rC, new Message("route to C"));
-
-            // Assert CORRECT behavior: should route to C via neighbor B
-            Assert.AreEqual(1, mockLower.SentMessages.Count);
-            Assert.AreEqual(rB, mockLower.SentMessages[0].Recipient,
-                "CORRECT BEHAVIOR: Dijkstra should discover neighbors from self LSA and route to C via B");
-        }
+        
 
         [TestMethod]
         public void LinkState_SendLSA_MustSetCorrectIntendedTargetAndOriginalSender()

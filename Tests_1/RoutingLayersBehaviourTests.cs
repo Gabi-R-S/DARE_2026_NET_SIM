@@ -392,6 +392,9 @@ namespace Tests_1
             var lsaB = new LSA(rB, 1, new List<ReplicaID> { rA, rC });
             lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
 
+            var lsaC = new LSA(rC, 1, new List<ReplicaID> { rB });
+            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rC, new Message(lsaC.ToJson()), true).ToJson()));
+
             mockLower.SentMessages.Clear();
 
             // A receives transit data message intended for C

@@ -11,9 +11,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
     //TODO: dynamically adjust distances/link cost based on latency
     public class LinkStateRoutingLayer : NetworkLayer
     {
-        
-        
-
+        const bool ALLOW_SINGLE_CONNETIONS = false;
         Dictionary<ReplicaID, LSA> mostRecentLSAs = new();
 
         object lsaHelperLock = new object();
@@ -50,51 +48,67 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             }
         }
 
-        
+
 
 
 
 
         void RecalculateRoutingTable()
         {
-            Dictionary<ReplicaID,float> distancesTo = new();
+            Dictionary<ReplicaID, float> distancesTo = new();
             Dictionary<ReplicaID, ReplicaID> previous = new();
 
             distancesTo[replicaID] = 0;
-            
+
             List<ReplicaID> processed = new List<ReplicaID>();
 
             var getClosestReplica = () =>
             {
-                ReplicaID rep= new ReplicaID(int.MaxValue);
-                float distance=float.PositiveInfinity;
+                ReplicaID rep = new ReplicaID(int.MaxValue);
+                float distance = float.PositiveInfinity;
 
-                foreach (var repl in distancesTo.Keys) {
+                foreach (var repl in distancesTo.Keys)
+                {
                     var dist = distancesTo[repl];
 
-                    if (dist < distance && !processed.Contains(repl)) {
+                    if ((dist < distance||float.IsInfinity(distance)) && !processed.Contains(repl))
+                    {
                         rep = repl;
                         distance = dist;
                     }
                 }
 
-                return (rep,distance);
+                return (rep, distance);
             };
 
-            while (processed.Count < distancesTo.Count) {
+            while (processed.Count < distancesTo.Count)
+            {
                 (ReplicaID closest, float distance) = getClosestReplica();
-                if (float.IsPositiveInfinity(distance)) break;
-
                 processed.Add(closest);
 
+                if (float.IsPositiveInfinity(distance)) 
+                {
+                    break; 
+                }
+                
                 if (mostRecentLSAs.ContainsKey(closest))
                 {
                     var neighbours = mostRecentLSAs[closest].Neighbours;
 
                     foreach (var neighbour in neighbours)
                     {
+                        if (!mostRecentLSAs.ContainsKey(neighbour)&&!ALLOW_SINGLE_CONNETIONS)
+                        {
+                            continue;
+                        }
+
+                        if (!mostRecentLSAs[neighbour].Neighbours.Contains(closest) && !ALLOW_SINGLE_CONNETIONS)
+                        {
+                            continue;
+                        }
+
                         var distanceToNeighbour = distance + 1;
-                        if (distanceToNeighbour < distancesTo.GetValueOrDefault(neighbour,float.PositiveInfinity))
+                        if (distanceToNeighbour < distancesTo.GetValueOrDefault(neighbour, float.PositiveInfinity))
                         {
                             distancesTo[neighbour] = distanceToNeighbour;
                             previous[neighbour] = closest;
@@ -104,39 +118,36 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             }
 
 
-             
-            foreach (var dest in distancesTo.Keys) {
+            nextNodeGivenTarget.Clear();
+            foreach (var dest in distancesTo.Keys)
+            {
                 var current = dest;
                 var path = new List<ReplicaID>();
-                
-                while (current != replicaID && previous.ContainsKey(current)) {
+
+                while (current != replicaID && previous.ContainsKey(current))
+                {
                     path.Insert(0, current);
                     current = previous[current];
                 }
 
                 if (current == replicaID)
                 {
-                    if (path.Count > 0) {
+                    if (path.Count > 0)
+                    {
                         nextNodeGivenTarget[dest] = path[0];
-                    } else {
+                    }
+                    else
+                    {
                         nextNodeGivenTarget[dest] = replicaID;
                     }
                 }
-                else {
+                else
+                {
                     nextNodeGivenTarget[dest] = dest;
                 }
             }
 
-
-
-
         }
-
-
-
-
-
-
 
 
 
@@ -149,23 +160,27 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             layerBelow.AddOnConnectionInterruptedHandler(OnDisconnect);
             layerBelow.AddOnConnectionRegainedHandler(OnConnect);
             this.connectionTracker = connectionTracker;
+            CreateNextLSA();
         }
 
         public void OnConnect(ReplicaID replica)
         {
-            var lsa = CreateNextLSA();
             foreach (var oldLSA in mostRecentLSAs.Values)
             {
-                SendLSA(replica, oldLSA);
+                if (oldLSA.Replica != replicaID&& oldLSA.Replica != replica)
+                {
+                    SendLSA(replica, oldLSA);
+                }
             }
-            FloodLSA(lsa);
+            var lsa = CreateNextLSA();
+            FloodLSA(lsa, replicaID);
             RecalculateRoutingTable();
             CallConnectionRegained(replica);
         }
         public void OnDisconnect(ReplicaID replica)
         {
             var lsa = CreateNextLSA();
-            FloodLSA(lsa);
+            FloodLSA(lsa,replicaID);
             RecalculateRoutingTable();
             CallConnectionInterrupted(replica);
         }
@@ -189,18 +204,21 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             LayerBelow.SendMessage(target,
                 new Message(
-                    new LinkStateMessage(target,replicaID,
+                    new LinkStateMessage(target, replicaID,
                         new Message(lsa.ToJson())
                         , true).ToJson()
                     )
                 );
         }
 
-        void FloodLSA(LSA lsa)
+        void FloodLSA(LSA lsa, ReplicaID sender )
         {
             foreach (var replica in connectionTracker.ActiveConnections)
             {
-                SendLSA(replica, lsa);
+                if(replica != sender&&replica!=replicaID)
+                {
+                    SendLSA(replica, lsa);
+                }
             }
         }
 
@@ -221,10 +239,13 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     throw new Exception("incorrect lsa format in link state protocol message!");
                 }
 
-                if (AddLSA(lsa))
+                if (lsa.Replica != replicaID)
                 {
-                    FloodLSA(lsa);
-                    RecalculateRoutingTable();
+                    if (AddLSA(lsa))
+                    {
+                        FloodLSA(lsa, replica);
+                        RecalculateRoutingTable();
+                    }
                 }
 
             }
@@ -248,5 +269,16 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
             return LayerBelow.SendMessage(GetNextNodeInPathTo(recipient), newMessage);
         }
+
+
+        public override Task Run()
+        {
+            Running = true;
+            mostRecentLSAs.Clear();
+            CreateNextLSA();
+            var t = base.Run();
+            return t;
+        }
+
     }
 }

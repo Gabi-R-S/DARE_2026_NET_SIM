@@ -124,13 +124,18 @@ namespace Simulator
         protected void DeliverMessage(NetworkMessage message)
         {
             //Console.WriteLine("sending " +message.Payload +" from "+message.Source.ToString()+" to " + message.Recipient.ToString());
-            if (messageDeliveredHandlers.TryGetValue(message.Recipient, out var handlers))
+
+            if (ConnectionMap.IsConnectionAvailable(message.Source, message.Recipient))
             {
-                foreach (var handler in handlers)
+            
+                if (messageDeliveredHandlers.TryGetValue(message.Recipient, out var handlers))
                 {
-                    handler(message);
+                    foreach (var handler in handlers)
+                    {
+                        handler(message);
+                    }
+                    MessageDelivered?.Invoke(message);
                 }
-                MessageDelivered?.Invoke(message);
             }
         }
 
