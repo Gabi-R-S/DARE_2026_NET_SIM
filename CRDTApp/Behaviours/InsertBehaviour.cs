@@ -85,7 +85,7 @@ namespace CRDTApp.Behaviours
                SendUntilSuccess(replica, message);
             }
 
-            scheduler.ExecuteAfter(delayBetweenOps,()=> { SendUpdateUntil(currentNumber++,maxNumber); });
+            scheduler.ExecuteAfter(delayBetweenOps,()=> { SendUpdateUntil(currentNumber+1,maxNumber); });
 
         }
 

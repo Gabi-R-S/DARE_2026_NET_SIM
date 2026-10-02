@@ -7,8 +7,9 @@ using System.Text;
 namespace Shared
 {
     //TODO: I THINK THIS ISN'T SERIALIZING CORRECTLY!
-    public struct VersionVector
+    public class VersionVector
     {
+      
         public override int GetHashCode()
         {
             int hash = 0;
@@ -174,7 +175,7 @@ namespace Shared
             versions = new();
         }
         public VersionVector(Dictionary<ReplicaID, ulong> versions) { 
-            this.versions = versions;
+            this.versions = new Dictionary<ReplicaID, ulong>(versions);
         }
 
         public void Increment(ReplicaID id)

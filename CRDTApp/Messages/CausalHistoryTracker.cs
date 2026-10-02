@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CRDTs
 {
-    internal class CausalHistoryTracker
+    public class CausalHistoryTracker
     {
 
         object messageIssuedLock = new object();
@@ -39,7 +39,7 @@ namespace CRDTs
         public CausalHistoryTracker(ReplicaID replicaID, VersionVector? latest = null) 
         {
             this.replicaID = replicaID;
-            this.Latest = latest ?? new VersionVector();
+            this.Latest = latest?.Clone() ?? new VersionVector();
             pendingReceivedMessages = new();
 
         }

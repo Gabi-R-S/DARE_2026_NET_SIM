@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CRDTApp.Messages
 {
-    internal class HistoryTrackedMessage:NetworkLayerMessage<HistoryTrackedMessage>
+    public class HistoryTrackedMessage:NetworkLayerMessage<HistoryTrackedMessage>
     {
 
         public Message? Message { get; set; }

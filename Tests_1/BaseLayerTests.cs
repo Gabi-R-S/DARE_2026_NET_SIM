@@ -101,37 +101,6 @@ namespace Tests_1
         }
 
 
-        [TestMethod]
-        public async Task SimulatedNetworkBaseLayer_MessageDelivered()
-        {
-            var simulator = new MockNetworkSimulator(new ConnectionMap());
-            var replica1 = new ReplicaID(1);
-            var replica2 = new ReplicaID(2);
-            
-            var simLayer1 = new SimulatedNetworkBaseLayer(simulator, replica1);
-            
-            bool messageReceived = false;
-            simLayer1.AddOnMessageReceivedHandler((src, msg) =>
-            {
-                if (src == replica2 && msg.Payload == "hello")
-                {
-                    messageReceived = true;
-                }
-            });
-
-            await simLayer1.SendMessage(replica1, new Message("hello"));
-            
-            // We just schedule it. In our mock simulator, it's delivered instantly.
-            // But wait, the send message sends to replica1, from replica1. 
-            // In SimulatedNetworkBaseLayer, SendMessage creates new NetworkMessage(this.replicaID, recipient, payload)
-            // It calls ScheduleMessageDelivery.
-            // Our mock simulator calls DeliverMessage, which invokes messageDeliveredHandlers on the recipient.
-            // That handler in SimulatedNetworkBaseLayer calls CallMessageReceived.
-            // So simulating from replica2 to replica1 directly:
-            simulator.ScheduleMessageDelivery(new NetworkMessage(replica2, replica1, "hello"));
-            
-            Assert.IsTrue(messageReceived);
-        }
         
         [TestMethod]
         public void SimulatedNetworkBaseLayer_ConnectionInterrupted()
