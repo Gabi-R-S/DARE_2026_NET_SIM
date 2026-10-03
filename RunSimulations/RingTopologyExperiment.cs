@@ -8,7 +8,7 @@ namespace RunSimulations
 {
     internal class RingTopologyExperiment : Experiment // assumes no broken connections, and no lost messages
     {
-        public RingTopologyExperiment(float maxExperimentDuration = 100.0f, float delay = 0.0f, int opsPerReplica = 1000, int numReplicas = 10, bool runHopelessCases=false, float delayBetweenSends = 0.4f, float delayBetweenOps = 0.1f)
+        public RingTopologyExperiment(float maxExperimentDuration = 100.0f, float delay = 0.0f, int opsPerReplica = 1000, int numReplicas = 10, bool runHopelessCases = false, float delayBetweenSends = 0.4f, float delayBetweenOps = 0.1f, string prefix = "")
         {
 
             this.delay = delay;
@@ -18,8 +18,10 @@ namespace RunSimulations
             this.runHopelessCases = runHopelessCases;
             this.delayBetweenOps = delayBetweenOps;
             this.delayBetweenSends = delayBetweenSends;
+            this.prefix = prefix;
         }
 
+        string prefix = "";
         int opsPerReplica;
         float maxExperimentDuration;
         float delay;
@@ -32,7 +34,7 @@ namespace RunSimulations
         {
             List<ExperimentResults> results = new();
 
-            
+
             var CreateDiscreteSim = (ConnectionMap map) =>
             {
                 Simulation sim = new ThreadSafeSimulation();
@@ -40,26 +42,26 @@ namespace RunSimulations
             };
 
 
-            var CreateMap = () => { return CreateRingNetwork(this.numReplicas, delay); };
+            var CreateMap = () => { return NetworkCreationFunctions.CreateRingNetwork(this.numReplicas, delay); };
 
             if (runHopelessCases)
             {
                 // Control case: no network stack.
-                results.Add(RunIndividualFillArraySimulation("ring-no-stack", CreateMap, CreateOnlyBaseLayer, CreateDiscreteSim, maxExperimentDuration, opsPerReplica,delayBetweenSends,delayBetweenOps, BasicMetricCreator));
+                results.Add(RunIndividualFillArraySimulation(prefix + "ring-no-stack", CreateMap, NetworkCreationFunctions.CreateOnlyBaseLayer, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
 
                 // Simple Case: full stack, no routing
-                results.Add(RunIndividualFillArraySimulation("ring-ack-no-routing", CreateMap, CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
+                results.Add(RunIndividualFillArraySimulation(prefix + "ring-ack-no-routing", CreateMap, NetworkCreationFunctions.CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
             }
             // Flood routing case
-            results.Add(RunIndividualFillArraySimulation("ring-basic-hop-flood", CreateMap, CreateBasicFloodRoutingStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
+            results.Add(RunIndividualFillArraySimulation(prefix + "ring-basic-hop-flood", CreateMap, NetworkCreationFunctions.CreateBasicFloodRoutingStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
             // Distance Vector case
-            results.Add(RunIndividualFillArraySimulation("ring-basic-distance-vector", CreateMap, CreateBasicDistanceVectorStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
+            results.Add(RunIndividualFillArraySimulation(prefix + "ring-basic-distance-vector", CreateMap, NetworkCreationFunctions.CreateBasicDistanceVectorStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
             // Distance Vector case
-            results.Add(RunIndividualFillArraySimulation("ring-basic-link-state", CreateMap, CreateBasicLinkStateStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
+            results.Add(RunIndividualFillArraySimulation(prefix + "ring-basic-link-state", CreateMap, NetworkCreationFunctions.CreateBasicLinkStateStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
 
 

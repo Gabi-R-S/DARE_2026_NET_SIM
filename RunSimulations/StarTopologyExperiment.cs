@@ -7,13 +7,14 @@ using SimSharp;
 using Simulator;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace RunSimulations
 {
     internal class StarTopologyExperiment : Experiment // assumes no broken connections, and no lost messages
     {
-        public StarTopologyExperiment(float maxExperimentDuration = 100.0f, float delay = 0.0f, int opsPerReplica = 1000, int numReplicas = 10, bool runHopelessCases=false, float delayBetweenSends = 0.4f, float delayBetweenOps = 0.1f)
+        public StarTopologyExperiment(float maxExperimentDuration = 100.0f, float delay = 0.0f, int opsPerReplica = 1000, int numReplicas = 10, bool runHopelessCases = false, float delayBetweenSends = 0.4f, float delayBetweenOps = 0.1f, string prefix = "")
         {
 
             this.delay = delay;
@@ -23,8 +24,9 @@ namespace RunSimulations
             this.runHopelessCases = runHopelessCases;
             this.delayBetweenSends = delayBetweenSends;
             this.delayBetweenOps = delayBetweenOps;
+            this.prefix = prefix;
         }
-
+        string prefix;
         int opsPerReplica;
         float maxExperimentDuration;
         float delay;
@@ -44,26 +46,26 @@ namespace RunSimulations
             };
 
 
-            var CreateMap = () => { return CreateStarNetwork(this.numReplicas,0,delay); };
+            var CreateMap = () => { return NetworkCreationFunctions.CreateStarNetwork(this.numReplicas, 0, delay); };
 
             if (runHopelessCases)
             {
                 // Control case: no network stack.
-                results.Add(RunIndividualFillArraySimulation("star-no-stack", CreateMap, CreateOnlyBaseLayer, CreateDiscreteSim, maxExperimentDuration, opsPerReplica,delayBetweenSends,delayBetweenOps, BasicMetricCreator));
+                results.Add(RunIndividualFillArraySimulation(prefix + "star-no-stack", CreateMap, NetworkCreationFunctions.CreateOnlyBaseLayer, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
 
                 // Simple Case: full stack, no routing
-                results.Add(RunIndividualFillArraySimulation("star-ack-no-routing", CreateMap, CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
+                results.Add(RunIndividualFillArraySimulation(prefix + "star-ack-no-routing", CreateMap, NetworkCreationFunctions.CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
             }
 
             // Flood routing case
-            results.Add(RunIndividualFillArraySimulation("star-basic-hop-flood", CreateMap, CreateBasicFloodRoutingStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
+            results.Add(RunIndividualFillArraySimulation(prefix + "star-basic-hop-flood", CreateMap, NetworkCreationFunctions.CreateBasicFloodRoutingStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
             // Distance Vector case
-            results.Add(RunIndividualFillArraySimulation("star-basic-distance-vector", CreateMap, CreateBasicDistanceVectorStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
+            results.Add(RunIndividualFillArraySimulation(prefix + "star-basic-distance-vector", CreateMap, NetworkCreationFunctions.CreateBasicDistanceVectorStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
             // Distance Vector case
-            results.Add(RunIndividualFillArraySimulation("star-basic-link-state", CreateMap, CreateBasicLinkStateStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, BasicMetricCreator));
+            results.Add(RunIndividualFillArraySimulation(prefix + "star-basic-link-state", CreateMap, NetworkCreationFunctions.CreateBasicLinkStateStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
 
 
