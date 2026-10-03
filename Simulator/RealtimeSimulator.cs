@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 using SimSharp;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,9 @@ namespace Simulator
             {
                 tasks.Add(ev());
             }
-            var delay = Task.Delay(TimeSpan.FromSeconds(simulationTimeLimit));
+            var delay = simulationTimeLimit > 0
+                ? Task.Delay(TimeSpan.FromSeconds(simulationTimeLimit))
+                : Task.Delay(System.Threading.Timeout.InfiniteTimeSpan);
             var t = await Task.WhenAny(Task.WhenAll(tasks), delay);
             
             foreach (var ev in CloseEvents) {
@@ -56,13 +58,23 @@ namespace Simulator
                     messageEvent.LaunchTime = GetCurrentTime();
                     messageEvent.Message = message;
 
-                    if (!connectionsToMessageEvents.ContainsKey(connection))
+                    lock (connectionsToMessageEvents)
                     {
-                        connectionsToMessageEvents[connection] = new List<MessageEvent>();
+                        if (!connectionsToMessageEvents.ContainsKey(connection))
+                        {
+                            connectionsToMessageEvents[connection] = new List<MessageEvent>();
+                        }
+                        connectionsToMessageEvents[connection].Add(messageEvent);
                     }
-                    connectionsToMessageEvents[connection].Add(messageEvent);
 
-                    ExecuteAfter(connection.TransmissionTime, () => { if (messageEvent.Active) { DeliverMessage(message); } connectionsToMessageEvents[connection].Remove(messageEvent); });
+                    ExecuteAfter(connection.TransmissionTime, () =>
+                    {
+                        if (messageEvent.Active) { DeliverMessage(message); }
+                        lock (connectionsToMessageEvents)
+                        {
+                            connectionsToMessageEvents[connection].Remove(messageEvent);
+                        }
+                    });
                     CallMessageSendScheduled(message);
                     return true;
                 }
@@ -87,8 +99,19 @@ namespace Simulator
 
         public override void ExecuteAfter(float time, Action action)
         {
+            if (time <= 0)
+            {
+                Task.Run(action);
+                return;
+            }
+
             System.Timers.Timer timer = new System.Timers.Timer();
-            timer.Elapsed += (_, _) => { action(); };
+            timer.AutoReset = false;
+            timer.Elapsed += (_, _) =>
+            {
+                timer.Dispose();
+                action();
+            };
             timer.Interval = time * 1000;
             timer.Enabled = true;
         }
@@ -106,16 +129,19 @@ namespace Simulator
             var con = ConnectionMap.GetConnection(rep1, rep2);
             if (con != null)
             {
-                if (connectionsToMessageEvents.ContainsKey(con))
+                lock (connectionsToMessageEvents)
                 {
-                    foreach (var ev in connectionsToMessageEvents[con])
+                    if (connectionsToMessageEvents.ContainsKey(con))
                     {
-                        ev.Active = false;
+                        foreach (var ev in connectionsToMessageEvents[con])
+                        {
+                            ev.Active = false;
+                        }
                     }
-                }
-                else
-                {
-                    connectionsToMessageEvents[con] = new();
+                    else
+                    {
+                        connectionsToMessageEvents[con] = new();
+                    }
                 }
             }
         }
@@ -124,31 +150,39 @@ namespace Simulator
             var con = ConnectionMap.GetConnection(rep1, rep2);
             if (con != null)
             {
-                if (connectionsToMessageEvents.ContainsKey(con))
+                lock (connectionsToMessageEvents)
                 {
-                    var currTime = GetCurrentTime();
-                    foreach (var ev in connectionsToMessageEvents[con])
+                    if (connectionsToMessageEvents.ContainsKey(con))
                     {
-                        ev.Active = false;
-                        float timeRunning = (float)(currTime - ev.LaunchTime).TotalSeconds;
-                        float timePercentage = oldTime == 0 ? 1 : timeRunning / oldTime;
+                        var currTime = GetCurrentTime();
+                        foreach (var ev in connectionsToMessageEvents[con].ToArray())
+                        {
+                            ev.Active = false;
+                            float timeRunning = (float)(currTime - ev.LaunchTime).TotalSeconds;
+                            float timePercentage = oldTime == 0 ? 1 : timeRunning / oldTime;
 
-                        float missingTime = (1 - timePercentage) * newTime;
+                            float missingTime = (1 - timePercentage) * newTime;
 
-                        MessageEvent newEv = new MessageEvent();
-                        connectionsToMessageEvents[con].Add(newEv);
-                        newEv.Active = true;
-                        newEv.LaunchTime = GetCurrentTime();
-                        newEv.Message = ev.Message;
+                            MessageEvent newEv = new MessageEvent();
+                            connectionsToMessageEvents[con].Add(newEv);
+                            newEv.Active = true;
+                            newEv.LaunchTime = GetCurrentTime();
+                            newEv.Message = ev.Message;
 
-                        ExecuteAfter(missingTime, () => { if (newEv.Active) { DeliverMessage(newEv.Message); } connectionsToMessageEvents[con].Remove(newEv); });
-
-
+                            ExecuteAfter(missingTime, () =>
+                            {
+                                if (newEv.Active) { DeliverMessage(newEv.Message); }
+                                lock (connectionsToMessageEvents)
+                                {
+                                    connectionsToMessageEvents[con].Remove(newEv);
+                                }
+                            });
+                        }
                     }
-                }
-                else
-                {
-                    connectionsToMessageEvents[con] = new();
+                    else
+                    {
+                        connectionsToMessageEvents[con] = new();
+                    }
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿using Shared;
+using Shared;
 using SimSharp;
 using System;
 using System.Collections.Generic;
@@ -41,7 +41,7 @@ namespace Simulator
         }
         protected void CallMessageDelivered(NetworkMessage message)
         {
-            MessageSendAttempted?.Invoke(message);
+            MessageDelivered?.Invoke(message);
         }
 
 

@@ -9,8 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CRDTApp\CRDTApp.csproj" />
+    <ProjectReference Include="..\CRDTs\CRDTs.csproj" />
+    <ProjectReference Include="..\RunSimulations\RunSimulations.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
     <ProjectReference Include="..\Simulator\Simulator.csproj" />
   </ItemGroup>
+
 
 </Project>

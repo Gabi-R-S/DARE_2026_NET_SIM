@@ -75,6 +75,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -100,7 +101,7 @@
                             Margin="0,0,16,0"/>
 
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Network Simulation Visualizer"
+                        <TextBlock Text="Realtime Mesh Network Simulation"
                                    Foreground="#F8FAFC"
                                    FontSize="15"
                                    FontWeight="Bold"/>
@@ -111,54 +112,47 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Center: Simulation Actions -->
+                <!-- Center: Simulation Actions & Routing Selector -->
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center">
 
-                    <!-- Topology dropdown -->
-                    <TextBlock Text="Topology:"
+                    <!-- Protocol dropdown -->
+                    <TextBlock Text="Protocol:"
                                Foreground="#94A3B8"
                                VerticalAlignment="Center"
                                FontSize="12"
                                Margin="0,0,6,0"/>
-                    <ComboBox x:Name="TopologyComboBox"
-                              Width="105"
+                    <ComboBox x:Name="ProtocolComboBox"
+                              Width="140"
                               Height="28"
                               SelectedIndex="0"
-                              SelectionChanged="TopologyComboBox_SelectionChanged"
-                              Margin="0,0,14,0">
-                        <ComboBoxItem Content="Mesh"/>
-                        <ComboBoxItem Content="Ring"/>
-                        <ComboBoxItem Content="Star"/>
-                        <ComboBoxItem Content="Grid"/>
+                              SelectionChanged="ProtocolComboBox_SelectionChanged"
+                              Margin="0,0,12,0">
+                        <ComboBoxItem Content="Flood Routing"/>
+                        <ComboBoxItem Content="Distance Vector"/>
+                        <ComboBoxItem Content="Link State"/>
+                        <ComboBoxItem Content="No-Route (Ack)"/>
+                        <ComboBoxItem Content="Base Layer Only"/>
                     </ComboBox>
 
-                    <!-- Send Packet -->
+                    <!-- Inject Manual App Op -->
                     <Button Style="{StaticResource AccentButton}"
-                            Content="⚡ Send Packet"
-                            Click="SendPacket_Click"
+                            Content="⚡ Inject App Op"
+                            ToolTip="Manually triggers a new CRDT insert operation on a replica node"
+                            Click="InjectAppOp_Click"
                             Margin="0,0,8,0"/>
 
-                    <!-- Continuous Traffic Toggle -->
-                    <ToggleButton x:Name="AutoTrafficToggle"
-                                  Content="▶ Auto Traffic"
-                                  Height="28"
-                                  Padding="10,4"
-                                  Cursor="Hand"
-                                  Checked="AutoTrafficToggle_Checked"
-                                  Unchecked="AutoTrafficToggle_Unchecked"
-                                  Margin="0,0,8,0"/>
-
-                    <!-- Burst Traffic -->
+                    <!-- Re-randomize / Restart -->
                     <Button Style="{StaticResource ModernButton}"
-                            Content="💥 Burst (10x)"
-                            Click="BurstPacket_Click"
+                            Content="🔄 Restart (New Random Mesh)"
+                            ToolTip="Generates a new random network topology and restarts the realtime simulation"
+                            Click="RestartSimulation_Click"
                             Margin="0,0,8,0"/>
                 </StackPanel>
 
-                <!-- Right: Viewport Controls & Stats -->
+                <!-- Right: Viewport Controls -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Style="{StaticResource ModernButton}"
                             Content="Zoom In (+)"
@@ -175,16 +169,54 @@
             </Grid>
         </Border>
 
+        <!-- Packet Color Legend Strip -->
+        <Border Grid.Row="1"
+                Background="#090D16"
+                BorderBrush="#1E293B"
+                BorderThickness="0,0,0,1"
+                Padding="16,6">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Packet Colors:" Foreground="#64748B" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                <!-- App Data Badge -->
+                <Border Background="#10B981" Width="10" Height="10" CornerRadius="5" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="App Data (CRDT)" Foreground="#E2E8F0" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,16,0"/>
+
+                <!-- Ack Badge -->
+                <Border Background="#A855F7" Width="10" Height="10" CornerRadius="5" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Protocol: ACK" Foreground="#E2E8F0" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0"/>
+
+                <!-- Distance Vector / Route Badge -->
+                <Border Background="#F97316" Width="10" Height="10" CornerRadius="5" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Protocol: Route Update (DV)" Foreground="#E2E8F0" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0"/>
+
+                <!-- Link State Badge -->
+                <Border Background="#F59E0B" Width="10" Height="10" CornerRadius="5" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Protocol: LSA Broadcast" Foreground="#E2E8F0" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0"/>
+
+                <!-- Heartbeat Badge -->
+                <Border Background="#0EA5E9" Width="10" Height="10" CornerRadius="5" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Protocol: Heartbeat" Foreground="#E2E8F0" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0"/>
+
+                <!-- Node Status Badge -->
+                <Border BorderBrush="#38BDF8" BorderThickness="1.5" Width="10" Height="10" CornerRadius="5" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Active Node" Foreground="#94A3B8" FontSize="11" VerticalAlignment="Center" Margin="0,0,16,0"/>
+
+                <Border BorderBrush="#10B981" Background="#064E3B" BorderThickness="1.5" Width="10" Height="10" CornerRadius="5" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Converged Node" Foreground="#6EE7B7" FontSize="11" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
         <!-- Main Graph Visualization Canvas (Read-Only) -->
         <graph:NetworkGraphView x:Name="GraphViewControl"
-                                Grid.Row="1"
+                                Grid.Row="2"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
                                 BackgroundBrush="#0B0F19"
                                 ShowGrid="True"/>
 
         <!-- Bottom Status Bar -->
-        <Border Grid.Row="2"
+        <Border Grid.Row="3"
                 Background="#0F172A"
                 BorderBrush="#1E293B"
                 BorderThickness="0,1,0,0"
@@ -199,27 +231,34 @@
                 <!-- Left: Stats -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock x:Name="StatsTextBlock"
-                               Text="Nodes: 0 | Edges: 0 | Active Packets: 0"
+                               Text="Packets: 0 | App: 0 | Protocol: 0 | In Flight: 0"
                                Foreground="#94A3B8"
                                FontSize="12"/>
                 </StackPanel>
 
-                <!-- Center: Interaction Hint -->
+                <!-- Center: Node Convergence Status -->
                 <TextBlock Grid.Column="1"
-                           Text="Navigation: Drag anywhere to Pan | Mouse Wheel to Zoom | Hover node for info (Read-Only)"
-                           Foreground="#64748B"
+                           x:Name="ConvergenceTextBlock"
+                           Text="Replicas Converged: 0/0 (0%)"
+                           Foreground="#E2E8F0"
+                           FontWeight="Medium"
                            FontSize="11"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
 
-                <!-- Right: FPS -->
-                <TextBlock Grid.Column="2"
-                           x:Name="FpsTextBlock"
-                           Text="FPS: --"
-                           Foreground="#38BDF8"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           VerticalAlignment="Center"/>
+                <!-- Right: FPS & Sim Time -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="SimTimeTextBlock"
+                               Text="Time: 0.0s"
+                               Foreground="#94A3B8"
+                               FontSize="12"
+                               Margin="0,0,12,0"/>
+                    <TextBlock x:Name="FpsTextBlock"
+                               Text="FPS: --"
+                               Foreground="#38BDF8"
+                               FontSize="12"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
             </Grid>
         </Border>
     </Grid>

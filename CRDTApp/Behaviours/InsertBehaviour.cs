@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using CRDTApp.Messages;
@@ -37,9 +37,16 @@ namespace CRDTApp.Behaviours
             historyTracker.AddMessageIssuedHandler(OnMessageReceivedInSequence);
         }
 
+        public int CurrentCount => ints.GetValues().Count;
+        public int ExpectedCount => expectedCount;
+        public ReplicaID ReplicaID => replicaID;
+        public event Action<ReplicaID, int, int>? OperationApplied;
+
         void OnMessageReceivedInSequence(ReplicaID replica, Message? message,VersionVector vector) { //TODO: retrieve CRDT and merge it
             var op = ORSet<int>.FromJSON(message.Payload, (str) => { return int.Parse(str); });
             ints.Merge(op);
+
+            OperationApplied?.Invoke(replicaID, ints.GetValues().Count, expectedCount);
 
             if (ints.GetValues().Count == expectedCount) {
                 CallBehaviourEnded();
@@ -73,6 +80,8 @@ namespace CRDTApp.Behaviours
             
             ints.Merge(addOp);
             
+            OperationApplied?.Invoke(replicaID, ints.GetValues().Count, expectedCount);
+
             if (ints.GetValues().Count == expectedCount)
             {
                 CallBehaviourEnded();
@@ -97,6 +106,23 @@ namespace CRDTApp.Behaviours
 
         public override void Stop() {
             running = false;
+        }
+
+        public void InsertManualValue(int val)
+        {
+            if (!running) return;
+            var addOp = ints.CreateAddOperation(replicaID, val);
+            ints.Merge(addOp);
+            OperationApplied?.Invoke(replicaID, ints.GetValues().Count, expectedCount);
+            if (ints.GetValues().Count == expectedCount)
+            {
+                CallBehaviourEnded();
+            }
+            Message message = historyTracker.TagMessage(new Message(addOp.ToJson((i) => i.ToString()))).AsMessage();
+            foreach (ReplicaID replica in otherReplicas)
+            {
+                SendUntilSuccess(replica, message);
+            }
         }
 
     }

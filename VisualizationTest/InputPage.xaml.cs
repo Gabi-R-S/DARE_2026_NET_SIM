@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 
@@ -21,13 +21,13 @@ namespace VisualizationTest
 
             if (!float.TryParse(MinimumMessageDelayTextBox.Text, out float minimumMessageDelay))
             {
-                MessageBox.Show("Minimum message delay must be a valid integer.");
+                MessageBox.Show("Minimum message delay must be a valid number.");
                 return;
             }
 
             if (!float.TryParse(MaximumMessageDelayTextBox.Text, out float maximumMessageDelay))
             {
-                MessageBox.Show("Maximum message delay must be a valid integer.");
+                MessageBox.Show("Maximum message delay must be a valid number.");
                 return;
             }
 
@@ -50,12 +50,15 @@ namespace VisualizationTest
                 return;
             }
 
+            string routingProtocol = (RoutingProtocolComboBox?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Flood Routing";
+
             // Navigate to the simulation page
             NavigationService.Navigate(
                 new SimulationPage(
                     numberOfNodes,
                     minimumMessageDelay,
-                    maximumMessageDelay
+                    maximumMessageDelay,
+                    routingProtocol
                 )
             );
         }

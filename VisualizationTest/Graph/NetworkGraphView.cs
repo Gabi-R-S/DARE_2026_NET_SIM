@@ -400,8 +400,8 @@ namespace VisualizationTest.Graph
 
             foreach (var p in particles)
             {
-                if (!nodes.TryGetValue(p.SourceId, out var src) ||
-                    !nodes.TryGetValue(p.TargetId, out var tgt))
+                if (!state.TryGetNode(p.SourceId, out var src) || src == null ||
+                    !state.TryGetNode(p.TargetId, out var tgt) || tgt == null)
                 {
                     continue;
                 }
@@ -410,7 +410,7 @@ namespace VisualizationTest.Graph
                 Point pos = Lerp(src.Position, tgt.Position, t);
 
                 Brush coreBrush = p.Fill ?? DefaultParticleCore;
-                Brush glowBrush = DefaultParticleGlow;
+                Brush glowBrush = p.GlowBrush ?? DefaultParticleGlow;
 
                 double size = p.Size;
 

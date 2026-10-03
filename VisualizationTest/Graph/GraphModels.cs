@@ -117,6 +117,11 @@ namespace VisualizationTest.Graph
         public Brush? Fill { get; set; }
 
         /// <summary>
+        /// Particle glow color.
+        /// </summary>
+        public Brush? GlowBrush { get; set; }
+
+        /// <summary>
         /// Optional brief label (e.g. "ACK", "MSG", "SYNC").
         /// </summary>
         public string? Label { get; set; }
@@ -131,12 +136,13 @@ namespace VisualizationTest.Graph
         /// </summary>
         public object? Payload { get; set; }
 
-        public GraphParticle(object sourceId, object targetId, double durationSeconds = 1.0, Brush? fill = null, string? label = null)
+        public GraphParticle(object sourceId, object targetId, double durationSeconds = 1.0, Brush? fill = null, Brush? glowBrush = null, string? label = null)
         {
             SourceId = sourceId;
             TargetId = targetId;
             DurationSeconds = Math.Max(0.01, durationSeconds);
             Fill = fill;
+            GlowBrush = glowBrush;
             Label = label;
         }
     }
@@ -223,13 +229,50 @@ namespace VisualizationTest.Graph
         /// <summary>
         /// Thread-safe convenience method to spawn a particle.
         /// </summary>
-        public void SpawnParticle(object sourceId, object targetId, double durationSeconds, Brush? fill = null, string? label = null, object? payload = null)
+        public void SpawnParticle(object sourceId, object targetId, double durationSeconds, Brush? fill = null, Brush? glowBrush = null, string? label = null, object? payload = null)
         {
-            var p = new GraphParticle(sourceId, targetId, durationSeconds, fill, label)
+            var p = new GraphParticle(sourceId, targetId, durationSeconds, fill, glowBrush, label)
             {
                 Payload = payload
             };
             SpawnParticle(p);
+        }
+
+        public void SpawnParticle(object sourceId, object targetId, double durationSeconds, Brush? fill = null, string? label = null, object? payload = null)
+        {
+            SpawnParticle(sourceId, targetId, durationSeconds, fill, null, label, payload);
+        }
+
+        public void LightUpEdge(object sourceId, object targetId)
+        {
+            lock (_syncLock)
+            {
+                ulong s = sourceId is Shared.ReplicaID rs ? rs.ID : Convert.ToUInt64(sourceId);
+                ulong t = targetId is Shared.ReplicaID rt ? rt.ID : Convert.ToUInt64(targetId);
+
+                foreach (var edge in _edges)
+                {
+                    ulong es = edge.SourceId is Shared.ReplicaID ers ? ers.ID : Convert.ToUInt64(edge.SourceId);
+                    ulong et = edge.TargetId is Shared.ReplicaID ert ? ert.ID : Convert.ToUInt64(edge.TargetId);
+
+                    if ((es == s && et == t) || (!edge.IsDirected && es == t && et == s))
+                    {
+                        edge.Activity = 1.0;
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void PulseNode(object nodeId)
+        {
+            lock (_syncLock)
+            {
+                if (TryGetNode(nodeId, out var node) && node != null)
+                {
+                    // Tag node or stroke pulse if needed
+                }
+            }
         }
 
         /// <summary>
@@ -264,17 +307,35 @@ namespace VisualizationTest.Graph
                         }
                     }
                 }
+
+                // Decay edge glowing activity
+                foreach (var edge in _edges)
+                {
+                    if (edge.Activity > 0)
+                    {
+                        edge.Activity = Math.Max(0.0, edge.Activity - deltaTimeSeconds * 1.5);
+                    }
+                }
             }
         }
 
         /// <summary>
-        /// Finds node by Id with internal lock.
+        /// Finds node by Id with internal lock, safely matching ulong or ReplicaID.
         /// </summary>
         public bool TryGetNode(object id, out GraphNode? node)
         {
             lock (_syncLock)
             {
-                return _nodes.TryGetValue(id, out node);
+                if (_nodes.TryGetValue(id, out node)) return true;
+                if (id is Shared.ReplicaID rep && _nodes.TryGetValue(rep.ID, out node)) return true;
+                if (id is ulong uid && _nodes.TryGetValue(new Shared.ReplicaID(uid), out node)) return true;
+                if (ulong.TryParse(id?.ToString(), out ulong parsed))
+                {
+                    if (_nodes.TryGetValue(parsed, out node)) return true;
+                    if (_nodes.TryGetValue(new Shared.ReplicaID(parsed), out node)) return true;
+                }
+                node = null;
+                return false;
             }
         }
 
