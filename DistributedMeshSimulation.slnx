@@ -5,4 +5,5 @@
   <Project Path="Shared/Shared.csproj" Id="bf4ec58f-1b52-472d-a76e-281cc94527d2" />
   <Project Path="Simulator/Simulator.csproj" Id="38f867e6-8dce-4aee-9c84-747157222ed4" />
   <Project Path="Tests_1/Tests_1.csproj" Id="bd44c577-a80a-4e77-b575-a3b6efe6a94f" />
+  <Project Path="VisualizationTest/VisualizationTest.csproj" Id="a45201fa-f601-4249-887b-4f627af0eeeb" />
 </Solution>

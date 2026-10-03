@@ -1,0 +1,12 @@
+<Window x:Class="VisualizationTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:VisualizationTest"
+        Title="Visualization Test"
+        Height="450"
+        Width="800">
+
+    <Frame x:Name="MainFrame"
+           NavigationUIVisibility="Hidden"/>
+
+</Window>
