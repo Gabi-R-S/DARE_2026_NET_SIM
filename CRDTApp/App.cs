@@ -17,7 +17,6 @@ namespace CRDTApp
         public void Close() {
             Behaviour.Stop();
             NetworkComponent.Stop();
-            closeSem.Release();
         }
         public App(Behaviour behaviour, IScheduler scheduler, NetworkLayer networkComponent)
         {
@@ -30,15 +29,7 @@ namespace CRDTApp
         {
             var t1 = Behaviour.Run();
             var t2 =NetworkComponent.Run();
-
-            
-            if (Scheduler != null && executionTime > 0) {
-                Scheduler.ExecuteAfter(executionTime, Close);
-                await Scheduler.ExecuteTaskOrTimeout(closeSem.WaitAsync(), executionTime);
-            }
-            else {
-                await closeSem.WaitAsync();
-            }
+            await Task.WhenAll(t1, t2);
         }
     }
 }

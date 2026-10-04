@@ -12,7 +12,8 @@ namespace Simulator
         protected List<Func<Task>> RunEvents { get; private set; } = new List<Func<Task>>(); //close events!
         protected List<Func<Task>> CloseEvents { get; private set; } = new List<Func<Task>>(); //close events!
 
-        public void AddRunEvent(Func<Task> task) {
+        public void AddRunEvent(Func<Task> task)
+        {
             RunEvents.Add(task);
         }
         public void AddCloseEvent(Func<Task> task)
@@ -32,7 +33,8 @@ namespace Simulator
         protected event Action<NetworkMessage>? MessageLost;
         protected event Action<NetworkMessage>? MessageDelivered;
 
-        protected void CallMessageSendAttempted(NetworkMessage message) {
+        protected void CallMessageSendAttempted(NetworkMessage message)
+        {
             MessageSendAttempted?.Invoke(message);
         }
         protected void CallMessageSendScheduled(NetworkMessage message)
@@ -50,7 +52,8 @@ namespace Simulator
 
 
 
-        public void AddMessageSendAttemptedHandler(Action<NetworkMessage>handler) {
+        public void AddMessageSendAttemptedHandler(Action<NetworkMessage> handler)
+        {
             MessageSendAttempted += handler;
 
         }
@@ -79,7 +82,8 @@ namespace Simulator
         {
             MessageLost -= handler;
         }
-        public void AddMessageDeliveredHandler(Action<NetworkMessage> handler) {
+        public void AddMessageDeliveredHandler(Action<NetworkMessage> handler)
+        {
             MessageDelivered += handler;
         }
         public void RemoveMessageDeliveredHandler(Action<NetworkMessage> handler)
@@ -93,52 +97,80 @@ namespace Simulator
         protected Dictionary<ReplicaID, List<Action<ReplicaID>>> connectionInterruptedHandlers = new Dictionary<ReplicaID, List<Action<ReplicaID>>>();
 
         public ConnectionMap ConnectionMap { get; private set; }
-       
 
-        public NetworkSimulator(ConnectionMap connectionMap) {
+
+        public NetworkSimulator(ConnectionMap connectionMap)
+        {
             ConnectionMap = connectionMap;
         }
 
 
-        public void AddConnectionInterruptedHandler(ReplicaID source, Action<ReplicaID> handler) {
-            if (!connectionInterruptedHandlers.ContainsKey(source)) {
-                connectionInterruptedHandlers[source] = new List<Action<ReplicaID>>();
-            } 
-            connectionInterruptedHandlers[source].Add(handler);
+        public void AddConnectionInterruptedHandler(ReplicaID source, Action<ReplicaID> handler)
+        {
+            lock (connectionInterruptedHandlers)
+            {
+                if (!connectionInterruptedHandlers.ContainsKey(source))
+                {
+                    connectionInterruptedHandlers[source] = new List<Action<ReplicaID>>();
+                }
+                connectionInterruptedHandlers[source].Add(handler);
+            }
         }
 
         public void RemoveConnectionInterruptedHandler(ReplicaID source, Action<ReplicaID> handler)
         {
-            connectionInterruptedHandlers[source].Remove(handler);
+            lock (connectionInterruptedHandlers)
+            {
+                connectionInterruptedHandlers[source].Remove(handler);
+            }
         }
 
         public void AddMessageDeliveredHandler(ReplicaID id, Action<NetworkMessage> handler)
         {
-            if (!messageDeliveredHandlers.ContainsKey(id)) {
-                messageDeliveredHandlers[id] = new List<Action<NetworkMessage>>();
+            lock (messageDeliveredHandlers)
+            {
+                if (!messageDeliveredHandlers.ContainsKey(id))
+                {
+                    messageDeliveredHandlers[id] = new List<Action<NetworkMessage>>();
+                }
+                messageDeliveredHandlers[id].Add(handler);
             }
-            messageDeliveredHandlers[id].Add(handler);
         }
 
         public void RemoveMessageDeliveredHandler(ReplicaID id, Action<NetworkMessage> handler)
         {
-            messageDeliveredHandlers[id].Remove(handler);
+            lock (messageDeliveredHandlers)
+            {
+                if (messageDeliveredHandlers.ContainsKey(id))
+                {
+                    messageDeliveredHandlers[id].Remove(handler);
+                }
+            }
         }
 
         protected void DeliverMessage(NetworkMessage message)
         {
             //Console.WriteLine("sending " +message.Payload +" from "+message.Source.ToString()+" to " + message.Recipient.ToString());
 
-            if (ConnectionMap.IsConnectionAvailable(message.Source, message.Recipient))
+            lock (ConnectionMap)
             {
-            
-                if (messageDeliveredHandlers.TryGetValue(message.Recipient, out var handlers))
+                if (ConnectionMap.IsConnectionAvailable(message.Source, message.Recipient))
                 {
-                    foreach (var handler in handlers)
+                    bool shouldProceed;
+                    List<Action<NetworkMessage>> handlers;
+                    lock (messageDeliveredHandlers)
                     {
-                        handler(message);
+                        shouldProceed = messageDeliveredHandlers.TryGetValue(message.Recipient, out handlers);
                     }
-                    MessageDelivered?.Invoke(message);
+
+                    if (shouldProceed)
+                    {
+                        foreach (var handler in handlers)
+                        {
+                            handler(message);
+                        }
+                        MessageDelivered?.Invoke(message);
+                    }
                 }
             }
         }
@@ -152,38 +184,54 @@ namespace Simulator
 
 
         protected abstract void DropCommunicationsBetween(ReplicaID rep1, ReplicaID rep2);
-        protected abstract void ChangeTimeOfCommunicationsBetween(ReplicaID rep1, ReplicaID rep2,float oldTime,float newTime);
+        protected abstract void ChangeTimeOfCommunicationsBetween(ReplicaID rep1, ReplicaID rep2, float oldTime, float newTime);
 
-        public void SetConnectionLatency(ReplicaID rep1, ReplicaID rep2, float time) {
+        public void SetConnectionLatency(ReplicaID rep1, ReplicaID rep2, float time)
+        {
 
-
-            var con = ConnectionMap.GetConnection(rep1, rep2);
+            lock (ConnectionMap)
+            {
+             var con = ConnectionMap.GetConnection(rep1, rep2);
             if (con != null)
             {
                 var latenctBefore = con.TransmissionTime;
-                con.TransmissionTime=time;
-                ChangeTimeOfCommunicationsBetween(rep1,rep2,latenctBefore,time);
- 
+                con.TransmissionTime = time;
+                ChangeTimeOfCommunicationsBetween(rep1, rep2, latenctBefore, time);
+
             }
-        
+            }
+
+
         }
-        public void TurnOffConnection(ReplicaID rep1, ReplicaID rep2) {
-            var con = ConnectionMap.GetConnection(rep1, rep2);
-            if (con != null)
+        public void TurnOffConnection(ReplicaID rep1, ReplicaID rep2)
+        {
+            lock (ConnectionMap)
             {
-                con.Active = false;
-                DropCommunicationsBetween(rep1,rep2);
+                var con = ConnectionMap.GetConnection(rep1, rep2);
+                if (con != null)
+                {
+                    con.Active = false;
+                    DropCommunicationsBetween(rep1, rep2);
+                }
             }
         }
-        public void TurnOnConnection(ReplicaID rep1, ReplicaID rep2) {
-            var con=ConnectionMap.GetConnection(rep1, rep2);
-            if (con != null) {
-                con.Active = true;
+        public void TurnOnConnection(ReplicaID rep1, ReplicaID rep2)
+        {
+            lock (ConnectionMap)
+            {
+                var con = ConnectionMap.GetConnection(rep1, rep2);
+                if (con != null)
+                {
+                    con.Active = true;
+                }
             }
         }
 
-        public HashSet<ReplicaID> GetAllKnownReplicas() {
-            return ConnectionMap.GetAllKnownReplicas();
+        public HashSet<ReplicaID> GetAllKnownReplicas()
+        {
+            lock (ConnectionMap) { 
+                return ConnectionMap.GetAllKnownReplicas();
+            }
         }
 
 

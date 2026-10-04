@@ -56,7 +56,7 @@ namespace CRDTApp.NetworkLayers.Composite
                 {
                     if (tracker.SetInnactive(recipient))
                     {
-                        CallConnectionRegained(recipient);
+                        CallConnectionInterrupted(recipient);
                     }
                 }
             }

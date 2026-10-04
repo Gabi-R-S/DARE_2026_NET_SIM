@@ -19,22 +19,26 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         int num = 0;
         bool AddLSA(LSA lsa)
         {
-            if (mostRecentLSAs.ContainsKey(lsa.Replica))
+            lock (lsaHelperLock)
             {
-                var mostRecentBefore = mostRecentLSAs[lsa.Replica];
 
-                if (lsa.Number > mostRecentBefore.Number)
+                if (mostRecentLSAs.ContainsKey(lsa.Replica))
+                {
+                    var mostRecentBefore = mostRecentLSAs[lsa.Replica];
+
+                    if (lsa.Number > mostRecentBefore.Number)
+                    {
+                        mostRecentLSAs[lsa.Replica] = lsa;
+                        return true;
+                    }
+
+                    return false;
+                }
+                else
                 {
                     mostRecentLSAs[lsa.Replica] = lsa;
                     return true;
                 }
-
-                return false;
-            }
-            else
-            {
-                mostRecentLSAs[lsa.Replica] = lsa;
-                return true;
             }
         }
         LSA CreateNextLSA()
@@ -55,97 +59,103 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void RecalculateRoutingTable()
         {
-            Dictionary<ReplicaID, float> distancesTo = new();
-            Dictionary<ReplicaID, ReplicaID> previous = new();
+                Dictionary<ReplicaID, float> distancesTo = new();
+                Dictionary<ReplicaID, ReplicaID> previous = new();
 
-            distancesTo[replicaID] = 0;
-
-            List<ReplicaID> processed = new List<ReplicaID>();
-
-            var getClosestReplica = () =>
+            lock (lsaHelperLock)
             {
-                ReplicaID rep = new ReplicaID(int.MaxValue);
-                float distance = float.PositiveInfinity;
+                distancesTo[replicaID] = 0;
 
-                foreach (var repl in distancesTo.Keys)
+                List<ReplicaID> processed = new List<ReplicaID>();
+
+                var getClosestReplica = () =>
                 {
-                    var dist = distancesTo[repl];
+                    ReplicaID rep = new ReplicaID(int.MaxValue);
+                    float distance = float.PositiveInfinity;
 
-                    if ((dist < distance||float.IsInfinity(distance)) && !processed.Contains(repl))
+                    foreach (var repl in distancesTo.Keys)
                     {
-                        rep = repl;
-                        distance = dist;
+                        var dist = distancesTo[repl];
+
+                        if ((dist < distance || float.IsInfinity(distance)) && !processed.Contains(repl))
+                        {
+                            rep = repl;
+                            distance = dist;
+                        }
                     }
-                }
 
-                return (rep, distance);
-            };
+                    return (rep, distance);
+                };
 
-            while (processed.Count < distancesTo.Count)
-            {
-                (ReplicaID closest, float distance) = getClosestReplica();
-                processed.Add(closest);
-
-                if (float.IsPositiveInfinity(distance)) 
+                while (processed.Count < distancesTo.Count)
                 {
-                    break; 
-                }
-                
-                if (mostRecentLSAs.ContainsKey(closest))
-                {
-                    var neighbours = mostRecentLSAs[closest].Neighbours;
+                    (ReplicaID closest, float distance) = getClosestReplica();
+                    processed.Add(closest);
 
-                    foreach (var (neighbour, distanceToNewNeighbour) in neighbours)
+                    if (float.IsPositiveInfinity(distance))
                     {
-                        if (!mostRecentLSAs.ContainsKey(neighbour)&&!ALLOW_SINGLE_CONNETIONS)
-                        {
-                            continue;
-                        }
+                        break;
+                    }
 
-                        if (!mostRecentLSAs[neighbour].Neighbours.Select(n => n.Item1).Contains(closest) && !ALLOW_SINGLE_CONNETIONS)
-                        {
-                            continue;
-                        }
+                    if (mostRecentLSAs.ContainsKey(closest))
+                    {
+                        var neighbours = mostRecentLSAs[closest].Neighbours;
 
-                        var distanceToNeighbour = distance + distanceToNewNeighbour;
-                        if (distanceToNeighbour < distancesTo.GetValueOrDefault(neighbour, float.PositiveInfinity))
+                        foreach (var (neighbour, distanceToNewNeighbour) in neighbours)
                         {
-                            distancesTo[neighbour] = distanceToNeighbour;
-                            previous[neighbour] = closest;
+                            if (!mostRecentLSAs.ContainsKey(neighbour) && !ALLOW_SINGLE_CONNETIONS)
+                            {
+                                continue;
+                            }
+
+                            if (!mostRecentLSAs[neighbour].Neighbours.Select(n => n.Item1).Contains(closest) && !ALLOW_SINGLE_CONNETIONS)
+                            {
+                                continue;
+                            }
+
+                            var distanceToNeighbour = distance + distanceToNewNeighbour;
+                            if (distanceToNeighbour < distancesTo.GetValueOrDefault(neighbour, float.PositiveInfinity))
+                            {
+                                distancesTo[neighbour] = distanceToNeighbour;
+                                previous[neighbour] = closest;
+                            }
                         }
                     }
                 }
             }
-
-
-            nextNodeGivenTarget.Clear();
-            foreach (var dest in distancesTo.Keys)
+            lock (nextNodeGivenTarget)
             {
-                var current = dest;
-                var path = new List<ReplicaID>();
 
-                while (current != replicaID && previous.ContainsKey(current))
+                nextNodeGivenTarget.Clear();
+                foreach (var dest in distancesTo.Keys)
                 {
-                    path.Insert(0, current);
-                    current = previous[current];
-                }
+                    var current = dest;
+                    var path = new List<ReplicaID>();
 
-                if (current == replicaID)
-                {
-                    if (path.Count > 0)
+                    while (current != replicaID && previous.ContainsKey(current))
                     {
-                        nextNodeGivenTarget[dest] = path[0];
+                        path.Insert(0, current);
+                        current = previous[current];
+                    }
+
+                    if (current == replicaID)
+                    {
+                        if (path.Count > 0)
+                        {
+                            nextNodeGivenTarget[dest] = path[0];
+                        }
+                        else
+                        {
+                            nextNodeGivenTarget[dest] = replicaID;
+                        }
                     }
                     else
                     {
-                        nextNodeGivenTarget[dest] = replicaID;
+                        nextNodeGivenTarget[dest] = dest;
                     }
                 }
-                else
-                {
-                    nextNodeGivenTarget[dest] = dest;
-                }
             }
+
 
         }
 
@@ -167,7 +177,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             foreach (var oldLSA in mostRecentLSAs.Values)
             {
-                if (oldLSA.Replica != replicaID&& oldLSA.Replica != replica)
+                if (oldLSA.Replica != replicaID && oldLSA.Replica != replica)
                 {
                     SendLSA(replica, oldLSA);
                 }
@@ -180,7 +190,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public void OnDisconnect(ReplicaID replica)
         {
             var lsa = CreateNextLSA();
-            FloodLSA(lsa,replicaID);
+            FloodLSA(lsa, replicaID);
             RecalculateRoutingTable();
             CallConnectionInterrupted(replica);
         }
@@ -190,11 +200,19 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         ReplicaID GetNextNodeInPathTo(ReplicaID target)
         {
-            if (nextNodeGivenTarget.ContainsKey(target))
+            lock (nextNodeGivenTarget)
             {
-                return nextNodeGivenTarget[target];
+                if (target == replicaID)
+                {
+                    return replicaID;
+                }
+
+                if (nextNodeGivenTarget.ContainsKey(target))
+                {
+                    return nextNodeGivenTarget[target];
+                }
+                return target;
             }
-            return target;
         }
 
 
@@ -211,11 +229,11 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 );
         }
 
-        void FloodLSA(LSA lsa, ReplicaID sender )
+        void FloodLSA(LSA lsa, ReplicaID sender)
         {
             foreach (var replica in connectionTracker.ActiveConnections)
             {
-                if(replica != sender&&replica!=replicaID)
+                if (replica != sender && replica != replicaID)
                 {
                     SendLSA(replica, lsa);
                 }

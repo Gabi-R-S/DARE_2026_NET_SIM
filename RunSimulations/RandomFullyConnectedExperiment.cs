@@ -34,7 +34,7 @@ namespace RunSimulations
         int numReplicas;
 
         bool runHopelessCases = false;
-        public override List<ExperimentResults> Run()
+        public override async Task<List<ExperimentResults>> Run()
         {
             List<ExperimentResults> results = new();
 
@@ -51,21 +51,21 @@ namespace RunSimulations
             if (runHopelessCases)
             {
                 // Control case: no network stack.
-                results.Add(RunIndividualFillArraySimulation(prefix + "random-no-stack", CreateMap, NetworkCreationFunctions.CreateOnlyBaseLayer, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
+                results.Add(await RunIndividualFillArraySimulation(prefix + "random-no-stack", CreateMap, NetworkCreationFunctions.CreateOnlyBaseLayer, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
 
                 // Simple Case: full stack, no routing
-                results.Add(RunIndividualFillArraySimulation(prefix + "random-ack-no-routing", CreateMap, NetworkCreationFunctions.CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
+                results.Add(await RunIndividualFillArraySimulation(prefix + "random-ack-no-routing", CreateMap, NetworkCreationFunctions.CreateBasicNoRouteStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
             }
             // Flood routing case
-            results.Add(RunIndividualFillArraySimulation(prefix + "random-basic-hop-flood", CreateMap, NetworkCreationFunctions.CreateBasicFloodRoutingStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
+            results.Add(await RunIndividualFillArraySimulation(prefix + "random-basic-hop-flood", CreateMap, NetworkCreationFunctions.CreateBasicFloodRoutingStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
             // Distance Vector case
-            results.Add(RunIndividualFillArraySimulation(prefix + "random-basic-distance-vector", CreateMap, NetworkCreationFunctions.CreateBasicDistanceVectorStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
+            results.Add(await RunIndividualFillArraySimulation(prefix + "random-basic-distance-vector", CreateMap, NetworkCreationFunctions.CreateBasicDistanceVectorStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
             // Distance Vector case
-            results.Add(RunIndividualFillArraySimulation(prefix + "random-basic-link-state", CreateMap, NetworkCreationFunctions.CreateBasicLinkStateStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
+            results.Add(await RunIndividualFillArraySimulation(prefix + "random-basic-link-state", CreateMap, NetworkCreationFunctions.CreateBasicLinkStateStack, CreateDiscreteSim, maxExperimentDuration, opsPerReplica, delayBetweenSends, delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
 
 
 

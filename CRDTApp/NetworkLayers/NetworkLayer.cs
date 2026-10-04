@@ -10,17 +10,21 @@ namespace CRDTApp.NetworkLayers
 {
     public abstract class NetworkLayer
     {
-        public virtual void Stop() {
+        public virtual void Stop()
+        {
             Running = false;
             LayerBelow?.Stop();
         }
-        public bool Running { get; protected set; }
+        public volatile bool Running;
         public NetworkLayer? LayerBelow { get; private set; }
-        public NetworkLayer(NetworkLayer? layerBelow = null, bool connectMessageReceived=false, bool connectConnectionInterrupted = false, bool connectConnectionRegained = false) {
+        public NetworkLayer(NetworkLayer? layerBelow = null, bool connectMessageReceived = false, bool connectConnectionInterrupted = false, bool connectConnectionRegained = false)
+        {
             this.LayerBelow = layerBelow;
 
-            if (layerBelow != null) {
-                if (connectMessageReceived) {
+            if (layerBelow != null)
+            {
+                if (connectMessageReceived)
+                {
                     layerBelow.AddOnMessageReceivedHandler(CallMessageReceived);
                 }
                 if (connectConnectionInterrupted)
@@ -33,88 +37,63 @@ namespace CRDTApp.NetworkLayers
                 }
 
             }
-        
+
         }
-        public virtual Task Run(){
+        public virtual Task Run()
+        {
             Running = true;
-            if (LayerBelow == null) {
+            if (LayerBelow == null)
+            {
                 return Task.CompletedTask;
             }
             return LayerBelow.Run();
         }
 
-        object receiveLock = new object();
-        object interruptedLock = new object();
-        object regainedLock = new object();
+
         event Action<ReplicaID, Message?>? MessageReceived;
         event Action<ReplicaID>? ConnectionInterrupted;
         event Action<ReplicaID>? ConnectionRegained;
 
-        protected void CallConnectionRegained(ReplicaID replica) {
-            lock (regainedLock) {
-                ConnectionRegained?.Invoke(replica);
-            }
+        protected void CallConnectionRegained(ReplicaID replica)
+        {
+            ConnectionRegained?.Invoke(replica);
         }
         protected void CallMessageReceived(ReplicaID replica, Message? message)
         {
-            lock (receiveLock)
-            {
-                MessageReceived?.Invoke(replica, message);
-            }
+            MessageReceived?.Invoke(replica, message);
         }
 
-        protected  void CallConnectionInterrupted(ReplicaID replica)
+        protected void CallConnectionInterrupted(ReplicaID replica)
         {
-            lock (interruptedLock)
-            {
-                ConnectionInterrupted?.Invoke(replica);
-            }
+            ConnectionInterrupted?.Invoke(replica);
         }
 
         public void AddOnMessageReceivedHandler(Action<ReplicaID, Message> handler)
         {
-            lock (receiveLock)
-            {
-                MessageReceived += handler;
-            }
-         }
+            MessageReceived += handler;
+        }
 
         public void RemoveOnMessageReceivedHandler(Action<ReplicaID, Message> handler)
         {
-            lock (receiveLock)
-            {
-                MessageReceived -= handler;
-            }
+            MessageReceived -= handler;
         }
 
         public void AddOnConnectionInterruptedHandler(Action<ReplicaID> handler)
         {
-            lock (interruptedLock)
-            {
-                ConnectionInterrupted += handler;
-            }
+            ConnectionInterrupted += handler;
         }
         public void RemoveOnConnectionInterruptedHandler(Action<ReplicaID> handler)
         {
-            lock (interruptedLock)
-            {
                 ConnectionInterrupted -= handler;
-            }
         }
 
         public void AddOnConnectionRegainedHandler(Action<ReplicaID> handler)
         {
-            lock (regainedLock)
-            {
                 ConnectionRegained += handler;
-            }
         }
         public void RemoveOnConnectionRegainedHandler(Action<ReplicaID> handler)
         {
-            lock (regainedLock)
-            {
                 ConnectionRegained -= handler;
-            }
         }
         public virtual Task<bool> SendMessage(ReplicaID recipient, Message message)
         {

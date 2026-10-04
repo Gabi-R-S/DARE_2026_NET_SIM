@@ -12,19 +12,24 @@ namespace Simulator
         const float MAX_SIM_TIME = 1.0f;
         public override async Task Run(float simulationTimeLimit)
         {
+            List<Task> tasks = new List<Task>();
 
             foreach (var runEvent in RunEvents)
             {
-                runEvent();
+                tasks.Add(runEvent());
             }
+           
+            await Task.WhenAll(tasks);
 
 
-            
             await Task.Run(() => { env.RunD(simulationTimeLimit); });
+
+            tasks.Clear();  
             foreach (var ev in CloseEvents)
             {
-                ev();
+                tasks.Add(Task.Run(ev));
             }
+            await Task.WhenAll(tasks);
         }
 
         Simulation env;

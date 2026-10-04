@@ -10,7 +10,7 @@ namespace CRDTApp.Schedulers
     {
             
         public void ExecuteAfter(float time, Action action) {
-            System.Timers.Timer timer = new System.Timers.Timer(time);
+            System.Timers.Timer timer = new System.Timers.Timer(time*1000);
             timer.AutoReset = false;
             timer.Elapsed += (_,_) => action();
             timer.Start();
@@ -36,7 +36,7 @@ namespace CRDTApp.Schedulers
 
             var t = Task.Delay((int)time * 1000);
 
-            var res = Task.WhenAny(t, task);
+            var res = await Task.WhenAny(t, task);
 
             if (res == t)
             {

@@ -10,33 +10,27 @@ namespace CRDTs
     public class CausalHistoryTracker
     {
 
-        object messageIssuedLock = new object();
         event Action<ReplicaID, Message?, VersionVector>? MessageIssued;
 
         public void AddMessageIssuedHandler(Action<ReplicaID, Message?, VersionVector> handler)
         {
-            lock (messageIssuedLock)
-            {
                 MessageIssued += handler;
-            }
         }
         public void RemoveMessageIssuedHandler(Action<ReplicaID, Message?, VersionVector> handler)
         {
-            lock (messageIssuedLock)
-            {
                 MessageIssued -= handler;
-            }
         }
 
 
         ReplicaID replicaID;
 
-        public HistoryTrackedMessage TagMessage(Message message) {
+        public HistoryTrackedMessage TagMessage(Message message)
+        {
             var version = IncrementVersion();
-            return new HistoryTrackedMessage(message,version);
+            return new HistoryTrackedMessage(message, version);
         }
 
-        public CausalHistoryTracker(ReplicaID replicaID, VersionVector? latest = null) 
+        public CausalHistoryTracker(ReplicaID replicaID, VersionVector? latest = null)
         {
             this.replicaID = replicaID;
             this.Latest = latest?.Clone() ?? new VersionVector();
@@ -51,8 +45,11 @@ namespace CRDTs
 
         public VersionVector IncrementVersion()
         {
-            Latest.Increment(replicaID);
-            return Latest.Clone();
+            lock (Latest)
+            {
+                Latest.Increment(replicaID);
+                return Latest.Clone();
+            }
         }
 
         public void OnMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
@@ -64,40 +61,41 @@ namespace CRDTs
                 throw new Exception("Error: unexpected message format!");
             }
 
-            var comp = trackerMessage.CausalityTracker.Compare(Latest);
-            if (comp != VersionVector.Comparison.ThisHappenedBeforeOther && comp != VersionVector.Comparison.Equal)
-            {
-                pendingReceivedMessages.Add((senderID, trackerMessage));
-            }
 
-
-            bool shouldContinue = true;
-            while (shouldContinue)
+            lock (Latest)
             {
-                shouldContinue = false;
-                for (int i = 0; i < pendingReceivedMessages.Count; i++)
+                
+                var comp = trackerMessage.CausalityTracker.Compare(Latest);
+                if (comp != VersionVector.Comparison.ThisHappenedBeforeOther && comp != VersionVector.Comparison.Equal)
                 {
-                    if (!Latest.LacksDependencies(pendingReceivedMessages[i].Item2.CausalityTracker))
+                    pendingReceivedMessages.Add((senderID, trackerMessage));
+                }
+
+
+                bool shouldContinue = true;
+                while (shouldContinue)
+                {
+                    shouldContinue = false;
+                    for (int i = 0; i < pendingReceivedMessages.Count; i++)
                     {
-                        Latest.Merge(pendingReceivedMessages[i].Item2.CausalityTracker);
-                        var atPos = pendingReceivedMessages[i];
-                        pendingReceivedMessages.RemoveAt(i);
-                        
-                        lock (messageIssuedLock)
+                        if (!Latest.LacksDependencies(pendingReceivedMessages[i].Item2.CausalityTracker))
                         {
-                            MessageIssued?.Invoke(atPos.Item1, atPos.Item2.Message, atPos.Item2.CausalityTracker);
+                            Latest.Merge(pendingReceivedMessages[i].Item2.CausalityTracker);
+                            var atPos = pendingReceivedMessages[i];
+                            pendingReceivedMessages.RemoveAt(i);
+
+                                MessageIssued?.Invoke(atPos.Item1, atPos.Item2.Message, atPos.Item2.CausalityTracker);
+                            shouldContinue = true;
+                            break;
                         }
-                        shouldContinue = true;
-                        break;
                     }
                 }
             }
 
-
         }
 
 
-      
+
 
 
     }

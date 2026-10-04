@@ -8,8 +8,9 @@ using System.Text;
 
 namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
 {
-     class DistanceTable
+    class DistanceTable
     {
+        private object lockObj = new object();
         Dictionary<ReplicaID, (float, ReplicaID)> distances; // target -> (distance, next in sequence)
 
         public DistanceTable(ReplicaID id)
@@ -20,15 +21,17 @@ namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
 
         public void ResetConnection(ReplicaID replica)
         {
-
-            foreach (var (k, (v1, v2)) in distances)
+            lock (lockObj)
             {
-                if (v2 == replica)
+                foreach (var (k, (v1, v2)) in distances)
                 {
-                    distances.Remove(k);
+                    if (v2 == replica)
+                    {
+                        distances.Remove(k);
+                    }
                 }
+                distances.Remove(replica);
             }
-            distances.Remove(replica);
         }
 
 
@@ -44,70 +47,81 @@ namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
             return reps;
         }
 
-        public void Update(ReplicaID us, ReplicaID sender, DistanceTableUpdateMessage update,ActiveConnectionTracker tracker)
+        public void Update(ReplicaID us, ReplicaID sender, DistanceTableUpdateMessage update, ActiveConnectionTracker tracker)
         {
-            var timeDifference = tracker.GetDistance(sender);
-            var updateDistances = ConvertIntsToReplicaIDs(update.Distances);
-            foreach (var (targetDest, oldDistance) in updateDistances)
+            lock (lockObj)
             {
-
-                var newDistance = Math.Max(oldDistance + timeDifference, 0);
-                if (!distances.ContainsKey(targetDest))
-                {
-                    distances[targetDest] = (newDistance, sender);
-                }
-                else
+                var timeDifference = tracker.GetDistance(sender);
+                var updateDistances = ConvertIntsToReplicaIDs(update.Distances);
+                foreach (var (targetDest, oldDistance) in updateDistances)
                 {
 
-                    if (sender == distances[targetDest].Item2)  // if the sender is the target
+                    var newDistance = Math.Max(oldDistance + timeDifference, 0);
+                    if (!distances.ContainsKey(targetDest))
                     {
                         distances[targetDest] = (newDistance, sender);
                     }
                     else
                     {
-                        //Console.WriteLine("known dest " + sender + " seen at " + us);
-                        var currentValue = distances[targetDest].Item1;
-                        if (newDistance < currentValue)
+
+                        if (sender == distances[targetDest].Item2)  // if the sender is the target
                         {
                             distances[targetDest] = (newDistance, sender);
+                        }
+                        else
+                        {
+                            //Console.WriteLine("known dest " + sender + " seen at " + us);
+                            var currentValue = distances[targetDest].Item1;
+                            if (newDistance < currentValue)
+                            {
+                                distances[targetDest] = (newDistance, sender);
 
+                            }
                         }
                     }
+
                 }
 
-            }
 
 
-
-            foreach (var (target, (distance, nextInRoute)) in distances)
-            {
-                if (nextInRoute == sender && !updateDistances.ContainsKey(target))
+                foreach (var (target, (distance, nextInRoute)) in distances)
                 {
-                    distances.Remove(target);
-                }
+                    if (nextInRoute == sender && !updateDistances.ContainsKey(target))
+                    {
+                        distances.Remove(target);
+                    }
 
+                }
             }
+
         }
 
         public ReplicaID GetNextInPathTo(ReplicaID target)
         {
-            if (distances.ContainsKey(target))
+            lock (lockObj)
             {
-                return distances[target].Item2;
+
+                if (distances.ContainsKey(target))
+                {
+                    return distances[target].Item2;
+                }
+                return target;
             }
-            return target;
         }
 
-        public DistanceTableUpdateMessage GetUpdate(IScheduler scheduler,ReplicaID target)
+        public DistanceTableUpdateMessage GetUpdate(IScheduler scheduler, ReplicaID target)
         {
             Dictionary<int, float> messgDistances = new();
             var timestamp = scheduler.GetCurrentTime();
 
-            foreach ((var dest, (float k, ReplicaID v)) in distances)
+            lock (lockObj)
             {
-                if (v != target)
+                foreach ((var dest, (float k, ReplicaID v)) in distances)
                 {
-                    messgDistances[(int)dest.ID] = Math.Max(k,0);
+                    if (v != target)
+                    {
+                        messgDistances[(int)dest.ID] = Math.Max(k, 0);
+                    }
                 }
             }
 

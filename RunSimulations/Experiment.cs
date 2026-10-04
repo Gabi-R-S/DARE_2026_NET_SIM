@@ -17,7 +17,7 @@ namespace RunSimulations
     internal abstract class Experiment
     {
 
-        protected ExperimentResults RunIndividualFillArraySimulation(string name, Func<(ConnectionMap map, List<ReplicaID> replicas)> createNetwork, Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> networkStackCreator, Func<ConnectionMap, NetworkSimulator> simulatorCreator, float maxExperimentDuration, int opsPerReplica,float delayBetweenSends,float delayBetweenOps, Func<NetworkSimulator, List<App>, List<ExtraMetric>>? generalMetricsCreator = null)
+        protected  async Task<ExperimentResults> RunIndividualFillArraySimulation(string name, Func<(ConnectionMap map, List<ReplicaID> replicas)> createNetwork, Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> networkStackCreator, Func<ConnectionMap, NetworkSimulator> simulatorCreator, float maxExperimentDuration, int opsPerReplica,float delayBetweenSends,float delayBetweenOps, Func<NetworkSimulator, List<App>, List<ExtraMetric>>? generalMetricsCreator = null)
         {
             (ConnectionMap map, List<ReplicaID> replicas) = createNetwork();
 
@@ -69,6 +69,6 @@ namespace RunSimulations
         }
 
 
-        public abstract List<ExperimentResults> Run();
+        public abstract Task<List<ExperimentResults>> Run();
     }
 }

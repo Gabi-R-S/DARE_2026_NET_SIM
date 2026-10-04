@@ -10,15 +10,15 @@ using System.Text;
 namespace CRDTApp.NetworkLayers.Composite
 {
     // Goal: ensure at-least-once delivery (or return false if impossible)
-    public class EnsureAckNetworkLayer<T>: NetworkLayer
+    public class EnsureAckNetworkLayer<T> : NetworkLayer
     {
         IScheduler scheduler;
         ReplicaID replicaID;
-        Func<ReplicaID,T> GenerateNextTag;
+        Func<ReplicaID, T> GenerateNextTag;
         Dictionary<(T, ReplicaID), SemaphoreSlim> pendingAcks = new();
-        
 
-        public EnsureAckNetworkLayer(ReplicaID replicaID, NetworkLayer lowerLayerNetworkManager,IScheduler scheduler, Func<ReplicaID, T> generateNextTag,float waitTime=0.5f):base(lowerLayerNetworkManager,false,true,true)
+
+        public EnsureAckNetworkLayer(ReplicaID replicaID, NetworkLayer lowerLayerNetworkManager, IScheduler scheduler, Func<ReplicaID, T> generateNextTag, float waitTime = 0.5f) : base(lowerLayerNetworkManager, false, true, true)
         {
             this.replicaID = replicaID;
             GenerateNextTag = generateNextTag;
@@ -31,40 +31,39 @@ namespace CRDTApp.NetworkLayers.Composite
 
         void OnAckReceived(T tag, ReplicaID senderID)
         {
-            if (pendingAcks.ContainsKey((tag, senderID)))
+            lock (pendingAcks)
             {
-                pendingAcks[(tag, senderID)].Release();
-                pendingAcks.Remove((tag, senderID));
+                if (pendingAcks.ContainsKey((tag, senderID)))
+                {
+                    pendingAcks[(tag, senderID)].Release();
+                    pendingAcks.Remove((tag, senderID));
+                }
             }
         }
 
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (lowerLayerMessage == null) {
-                //throw new Exception("WHY? THIS SHOULDN'T HAPPEN!");
-                Console.WriteLine("Strange null thing!");
-                return;
-            }
-            //Console.WriteLine(lowerLayerMessage.Payload);
-
-            var pendingAckMessage = EnsureAckMessage<T>.FromJson(lowerLayerMessage.Payload);
-
-            if (pendingAckMessage == null)
+            lock (pendingAcks)
             {
-                throw new Exception("Error: unexpected message format!");
-            }
+                var pendingAckMessage = EnsureAckMessage<T>.FromJson(lowerLayerMessage.Payload);
 
-            if (pendingAckMessage.IsAck)
-            {
-                OnAckReceived(pendingAckMessage.Tag, senderID);
-            }
-            else
-            {
-                var ack = new EnsureAckMessage<T>( pendingAckMessage.Tag, new Message(""),true);
-                LayerBelow.SendMessage(senderID, new Message(ack.ToJson()));
-                
-                CallMessageReceived(senderID,pendingAckMessage.Message);
+                if (pendingAckMessage == null)
+                {
+                    throw new Exception("Error: unexpected message format!");
+                }
+
+                if (pendingAckMessage.IsAck)
+                {
+                    OnAckReceived(pendingAckMessage.Tag, senderID);
+                }
+                else
+                {
+                    var ack = new EnsureAckMessage<T>(pendingAckMessage.Tag, new Message(""), true);
+                    LayerBelow.SendMessage(senderID, new Message(ack.ToJson()));
+
+                    CallMessageReceived(senderID, pendingAckMessage.Message);
+                }
             }
         }
 
@@ -79,7 +78,7 @@ namespace CRDTApp.NetworkLayers.Composite
         {
             var newTag = GenerateNextTag(replicaID);
 
-            var trackerMessage = new EnsureAckMessage<T>(newTag,message);
+            var trackerMessage = new EnsureAckMessage<T>(newTag, message);
 
             var networkMessage = new Message(trackerMessage.ToJson());
 

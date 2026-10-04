@@ -23,10 +23,13 @@ namespace Simulator
                 ? Task.Delay(TimeSpan.FromSeconds(simulationTimeLimit))
                 : Task.Delay(System.Threading.Timeout.InfiniteTimeSpan);
             var t = await Task.WhenAny(Task.WhenAll(tasks), delay);
-            
+
+            tasks.Clear();
             foreach (var ev in CloseEvents) {
-                ev();
+                tasks.Add(ev());
             }
+
+            await Task.WhenAll(tasks);
 
         }
 

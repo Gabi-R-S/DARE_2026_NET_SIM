@@ -31,7 +31,9 @@ namespace RunSimulations
             List<ExperimentResults> results = new();
 
             foreach (var experiment in experiments) {
-                results.AddRange(experiment.Run());
+                var t = experiment.Run();
+                t.Wait();
+                results.AddRange(t.Result);
             }
 
             Console.WriteLine(JsonConvert.SerializeObject(results));

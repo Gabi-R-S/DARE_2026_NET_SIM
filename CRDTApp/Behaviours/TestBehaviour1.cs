@@ -37,12 +37,12 @@ namespace CRDTApp.Behaviours
         {
             if (keepSending == true)
             {
-                scheduler.ExecuteAfter(1, () =>
+                scheduler.ExecuteAfter(1, async () =>
                 {
                     if (keepSending)
                     {
                         var t = manager.SendMessage(otherReplica, new Message("HI"));
-                        t.Wait();
+                        await t;
 
                         if (!t.Result)
                         {

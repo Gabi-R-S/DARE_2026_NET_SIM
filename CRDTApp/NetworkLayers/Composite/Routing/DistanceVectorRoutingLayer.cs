@@ -14,7 +14,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
     public class DistanceVectorRoutingLayer : NetworkLayer
     {
-     
+
 
 
 
@@ -25,9 +25,9 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         DistanceTable table;
 
         uint maxTTLHops;
-        HashSet<ReplicaID> sendingTo;
+        HashSet<ReplicaID> sendingTo = new();
 
-        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler,uint maxTTLHops) : base(layerBelow, false, true, true)
+        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, uint maxTTLHops) : base(layerBelow, false, true, true)
         {
             this.connectionTracker = connectionTracker;
             this.replicaID = replicaID;
@@ -41,17 +41,21 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void OnConnectionGained(ReplicaID replica)
         {
-            if (replica != replicaID && !sendingTo.Contains(replica) && Running)
+            lock (sendingTo)
             {
-                sendingTo.Add(replica);
-                Hearbeat(replica);
+
+                if (replica != replicaID && !sendingTo.Contains(replica) && Running)
+                {
+                    sendingTo.Add(replica);
+                    Task.Run(() => Hearbeat(replica));
+                }
             }
         }
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
             var message = DistanceVectorMessage.FromJson(lowerLayerMessage.Payload);
-            
+
             if (message == null)
             {
                 throw new Exception("WRONG MESSAGE FORMAT IN DISTANCE VECTOR ROUTING");
@@ -75,8 +79,8 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             {
                 if (message.IntendedTarget == replicaID)
                 {
-                        CallMessageReceived(message.OriginalSender, message.Message);
-                   
+                    CallMessageReceived(message.OriginalSender, message.Message);
+
                 }
                 else
                 {
@@ -93,13 +97,14 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-            var newMessage = new DistanceVectorMessage(recipient, replicaID, message, false,maxTTLHops).AsMessage();
-            
-            if (recipient == replicaID) {
-                return LayerBelow?.SendMessage(recipient,newMessage);
+            var newMessage = new DistanceVectorMessage(recipient, replicaID, message, false, maxTTLHops).AsMessage();
+
+            if (recipient == replicaID)
+            {
+                return LayerBelow?.SendMessage(recipient, newMessage);
             }
-            
-            
+
+
             var target = table.GetNextInPathTo(recipient);
 
 
@@ -114,14 +119,15 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             if (Running)
             {
-                DistanceTableUpdateMessage message = table.GetUpdate(scheduler,replica);
+                DistanceTableUpdateMessage message = table.GetUpdate(scheduler, replica);
                 Message messg = new Message(message.ToJson());
 
-                DistanceVectorMessage mes = new DistanceVectorMessage(replica,replicaID,messg,true,1);
+                DistanceVectorMessage mes = new DistanceVectorMessage(replica, replicaID, messg, true, 1);
 
                 LayerBelow.SendMessage(replica, new Message(mes.ToJson()));
 
-                scheduler.ExecuteAfter(heartbeatTime, () => {
+                scheduler.ExecuteAfter(heartbeatTime, () =>
+                {
                     if (Running)
                     {
                         Hearbeat(replica);
@@ -134,13 +140,17 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             Running = true;
             var t = base.Run();
+
             sendingTo = new HashSet<ReplicaID>();
-            foreach (var replica in connectionTracker.AllConnections)
+            lock (sendingTo)
             {
-                if (replica != replicaID)
+                foreach (var replica in connectionTracker.AllConnections)
                 {
-                    sendingTo.Add(replica);
-                    Hearbeat(replica);
+                    if (replica != replicaID)
+                    {
+                        sendingTo.Add(replica);
+                        Hearbeat(replica);
+                    }
                 }
             }
             return t;
