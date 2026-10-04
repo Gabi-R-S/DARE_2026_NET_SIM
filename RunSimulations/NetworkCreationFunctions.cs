@@ -1,4 +1,4 @@
-﻿using CRDTApp;
+using CRDTApp;
 using CRDTApp.Messages;
 using CRDTApp.NetworkLayers;
 using CRDTApp.NetworkLayers.Base;
@@ -17,14 +17,14 @@ namespace RunSimulations
     {
         public static float HEARTBEAT_TIME = 0.1f;
         public static float MESSAGE_TIMEOUT = 5.0f;
-        public static(NetworkLayer, IScheduler, List<ExtraMetric>) CreateOnlyBaseLayer(NetworkSimulator simulator, ReplicaID id)
+        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateOnlyBaseLayer(NetworkSimulator simulator, ReplicaID id)
         {
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
             return (baseLayer, scheduler, new List<ExtraMetric>());
 
         }
-        public static(NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicNoRouteStack(NetworkSimulator simulator, ReplicaID id)
+        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicNoRouteStack(NetworkSimulator simulator, ReplicaID id)
         {
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
@@ -34,7 +34,7 @@ namespace RunSimulations
             return (ackLayer, scheduler, new List<ExtraMetric>());
         }
 
-        public static(NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicFloodRoutingStack(NetworkSimulator simulator, ReplicaID id)
+        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicFloodRoutingStack(NetworkSimulator simulator, ReplicaID id)
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
@@ -57,7 +57,7 @@ namespace RunSimulations
             return (ackLayer, scheduler, new List<ExtraMetric>());
 
         }
-        public static(NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicDistanceVectorStack(NetworkSimulator simulator, ReplicaID id)
+        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicDistanceVectorStack(NetworkSimulator simulator, ReplicaID id)
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
@@ -80,7 +80,7 @@ namespace RunSimulations
             return (ackLayer, scheduler, new List<ExtraMetric>());
 
         }
-        public static(NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicLinkStateStack(NetworkSimulator simulator, ReplicaID id)
+        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicLinkStateStack(NetworkSimulator simulator, ReplicaID id)
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
@@ -171,7 +171,7 @@ namespace RunSimulations
 
 
 
-        public static (ConnectionMap, List<ReplicaID>) CreateRandomFullyConnectedNetwork(int numReplicas, float minDelay, float maxDelay, int seed = 42)
+        public static (ConnectionMap, List<ReplicaID>) CreateRandomFullyConnectedNetwork(int numReplicas, float minDelay, float maxDelay, int seed = 42, double extraEdgeProbability = 0.15)
         {
             ConnectionMap map = new ConnectionMap();
             List<ReplicaID> replicaIDs = new List<ReplicaID>();
@@ -182,23 +182,25 @@ namespace RunSimulations
             }
 
             var random = new Random(seed);
+
             for (int i = 1; i < numReplicas; i++)
             {
-                for (int j = 0; j < i; j++)
-                {
-                    map.SetConnection(replicaIDs[i], replicaIDs[j], new NetworkConnection(minDelay + (float)(random.NextDouble() * (maxDelay - minDelay))));
-                }
+                int j = random.Next(i);
+                map.SetConnection(replicaIDs[i], replicaIDs[j],
+                    new NetworkConnection(minDelay + (float)(random.NextDouble() * (maxDelay - minDelay))));
             }
 
-            int extraEdges = (int)(random.NextDouble() * (numReplicas * numReplicas - numReplicas));
-
-            for (int i = 0; i < extraEdges; i++)
+            for (int i = 0; i < numReplicas; i++)
             {
-                int a = random.Next(0, numReplicas);
-                int b = random.Next(0, numReplicas);
-                if (a != b)
+                for (int j = i + 1; j < numReplicas; j++)
                 {
-                    map.SetConnection(replicaIDs[a], replicaIDs[b], new NetworkConnection(minDelay + (float)(random.NextDouble() * (maxDelay - minDelay))));
+                    if (map.GetConnection(replicaIDs[i], replicaIDs[j]) != null) continue;
+
+                    if (random.NextDouble() < extraEdgeProbability)
+                    {
+                        map.SetConnection(replicaIDs[i], replicaIDs[j],
+                            new NetworkConnection(minDelay + (float)(random.NextDouble() * (maxDelay - minDelay))));
+                    }
                 }
             }
 
