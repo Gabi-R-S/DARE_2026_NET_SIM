@@ -9,10 +9,10 @@ namespace Simulator
 {
     public class RealtimeSimulator : NetworkSimulator
     {
-
+        DateTime start;
         public override async Task Run(float simulationTimeLimit)
         {
-            var start = DateTime.Now;
+            start = DateTime.Now;
 
             List<Task> tasks = new List<Task>();
             foreach (var ev in RunEvents)
@@ -28,6 +28,11 @@ namespace Simulator
                 ev();
             }
 
+        }
+
+        public override DateTime GetRunStartTime()
+        {
+            return start;
         }
 
         public RealtimeSimulator(ConnectionMap connectionMap) : base(connectionMap)

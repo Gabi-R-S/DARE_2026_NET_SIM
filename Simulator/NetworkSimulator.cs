@@ -22,6 +22,10 @@ namespace Simulator
 
         public abstract Task Run(float simulationTimeLimit);
 
+        public virtual DateTime GetRunStartTime()
+        {
+            return DateTime.Now;
+        }
 
         protected event Action<NetworkMessage>? MessageSendAttempted;
         protected event Action<NetworkMessage>? MessageSendScheduled;

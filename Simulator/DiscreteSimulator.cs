@@ -8,7 +8,7 @@ namespace Simulator
 {
     public class DiscreteSimulator : NetworkSimulator
     {
-
+        
         const float MAX_SIM_TIME = 1.0f;
         public override async Task Run(float simulationTimeLimit)
         {
@@ -34,6 +34,11 @@ namespace Simulator
             this.env = env;
         }
 
+
+        public override DateTime GetRunStartTime()
+        {
+            return env.StartDate;
+        }
 
         public override bool ScheduleMessageDelivery(NetworkMessage message)
         {

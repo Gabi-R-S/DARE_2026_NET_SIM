@@ -213,7 +213,8 @@ namespace RunSimulations
 
 
             BooleanMetric endedSuccessfully = new BooleanMetric("ended_successfully", false);
-
+            FloatMetric executionTime = new FloatMetric("execution_time", 0.0f);
+            
             int count = 0;
             foreach (var app in apps)
             {
@@ -224,6 +225,7 @@ namespace RunSimulations
                     {
                         Console.WriteLine("Task ended!");
                         endedSuccessfully.Value = true;
+                        executionTime.Value = (float)(sim.GetCurrentTime() - sim.GetRunStartTime()).TotalSeconds;
                         foreach (var a in apps)
                         {
                             a.Close();
@@ -233,6 +235,7 @@ namespace RunSimulations
             }
 
             metrics.Add(endedSuccessfully);
+            metrics.Add(executionTime);
 
 
             return metrics;
