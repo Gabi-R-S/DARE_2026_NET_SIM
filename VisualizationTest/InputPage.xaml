@@ -85,14 +85,22 @@
             <Setter Property="Margin" Value="0,0,8,0"/>
         </Style>
 
+        <!-- ComboBox Style -->
+        <Style TargetType="ComboBox">
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
         <!-- Text Box Style -->
         <Style x:Key="ModernTextBox" TargetType="TextBox">
             <Setter Property="Background" Value="#1E293B"/>
             <Setter Property="Foreground" Value="#F8FAFC"/>
             <Setter Property="BorderBrush" Value="#334155"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="CaretBrush" Value="#38BDF8"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -101,8 +109,10 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                                CornerRadius="6">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
@@ -145,7 +155,7 @@
         <Style x:Key="FieldHint" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="Foreground" Value="#64748B"/>
-            <Setter Property="Margin" Value="0,1,0,8"/>
+            <Setter Property="Margin" Value="0,2,0,8"/>
         </Style>
     </Page.Resources>
 
@@ -195,11 +205,11 @@
                             <TextBlock Text="🌐 Network &amp; Topology" Style="{StaticResource CardHeader}"/>
 
                             <TextBlock Text="Number of Nodes" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="NumberOfNodesTextBox" Text="6" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="NumberOfNodesTextBox" Text="6" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Number of participating replicas in the mesh (2 - 50)" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock Text="Network Topology" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox x:Name="TopologyComboBox" Height="28" Margin="0,0,0,2" SelectionChanged="TopologyComboBox_SelectionChanged">
+                            <ComboBox x:Name="TopologyComboBox" Height="36" Margin="0,0,0,2" SelectionChanged="TopologyComboBox_SelectionChanged">
                                 <ComboBoxItem Content="Random Mesh" IsSelected="True"/>
                                 <ComboBoxItem Content="Fully Connected"/>
                                 <ComboBoxItem Content="Ring"/>
@@ -209,7 +219,7 @@
                             <TextBlock Text="Graph topology connecting the replicas" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock x:Name="ExtraEdgeLabel" Text="Mesh Cross-Link Probability" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="ExtraEdgeProbabilityTextBox" Text="0.15" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="ExtraEdgeProbabilityTextBox" Text="0.15" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock x:Name="ExtraEdgeHint" Text="Probability of additional random cross-links (0.00 - 1.00)" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock Text="Randomness Seed" Style="{StaticResource FieldLabel}"/>
@@ -230,14 +240,16 @@
                                 <TextBox x:Name="SeedTextBox"
                                          Grid.Column="0"
                                          Text="42"
-                                         Height="28"
+                                         Height="36"
                                          IsEnabled="False"
                                          Style="{StaticResource ModernTextBox}"
                                          Margin="0,0,6,0"/>
                                 <Button Grid.Column="1"
                                         Style="{StaticResource ModernButton}"
                                         Content="🎲 Randomize"
-                                        Padding="10,4"
+                                        Height="36"
+                                        Padding="12,0"
+                                        VerticalContentAlignment="Center"
                                         Click="RandomizeSeed_Click"/>
                             </Grid>
                             <TextBlock Text="Deterministic seed for repeatable topologies and delays" Style="{StaticResource FieldHint}"/>
@@ -250,11 +262,11 @@
                             <TextBlock Text="⏱ Link Latency &amp; Delays" Style="{StaticResource CardHeader}"/>
 
                             <TextBlock Text="Minimum Message Delay (seconds)" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="MinimumMessageDelayTextBox" Text="0.5" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="MinimumMessageDelayTextBox" Text="0.5" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Fastest link transmission time in seconds (≥ 0.01)" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock Text="Maximum Message Delay (seconds)" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="MaximumMessageDelayTextBox" Text="1.5" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="MaximumMessageDelayTextBox" Text="1.5" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Slowest link transmission time in seconds (≥ Min Delay)" Style="{StaticResource FieldHint}"/>
                         </StackPanel>
                     </Border>
@@ -268,7 +280,7 @@
                             <TextBlock Text="📡 Routing &amp; Protocol Timers" Style="{StaticResource CardHeader}"/>
 
                             <TextBlock Text="Routing Protocol" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox x:Name="RoutingProtocolComboBox" Height="28" Margin="0,0,0,2">
+                            <ComboBox x:Name="RoutingProtocolComboBox" Height="36" Margin="0,0,0,2">
                                 <ComboBoxItem Content="Flood Routing" IsSelected="True"/>
                                 <ComboBoxItem Content="Distance Vector"/>
                                 <ComboBoxItem Content="Link State"/>
@@ -278,15 +290,15 @@
                             <TextBlock Text="Network routing and forwarding protocol stack" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock Text="Heartbeat / Protocol Interval (seconds)" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="HeartbeatIntervalTextBox" Text="1.0" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="HeartbeatIntervalTextBox" Text="1.0" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Frequency of heartbeat pings and route updates (≥ 0.05s)" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock Text="Message Timeout Duration (seconds)" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="MessageTimeoutTextBox" Text="5.0" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="MessageTimeoutTextBox" Text="5.0" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Timeout before assuming packet loss / connection drop (≥ 0.1s)" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock Text="Max Hop Count / TTL" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="MaxHopsTextBox" Text="5" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="MaxHopsTextBox" Text="5" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Maximum network hops for flooding or distance vector (≥ 1)" Style="{StaticResource FieldHint}"/>
                         </StackPanel>
                     </Border>
@@ -297,15 +309,15 @@
                             <TextBlock Text="📦 CRDT Workload &amp; Operations" Style="{StaticResource CardHeader}"/>
 
                             <TextBlock Text="Operations Per Replica" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="OperationsPerReplicaTextBox" Text="3" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="OperationsPerReplicaTextBox" Text="3" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Number of initial CRDT insert operations each node generates (≥ 1)" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock Text="Delay Between Operations (seconds)" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="DelayBetweenOpsTextBox" Text="1.0" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="DelayBetweenOpsTextBox" Text="1.0" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Pause between consecutive operations on each replica (≥ 0.0s)" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock Text="Delay Between Sends / Retries (seconds)" Style="{StaticResource FieldLabel}"/>
-                            <TextBox x:Name="DelayBetweenSendsTextBox" Text="0.5" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBox x:Name="DelayBetweenSendsTextBox" Text="0.5" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Interval between packet transmissions and retries (≥ 0.01s)" Style="{StaticResource FieldHint}"/>
                         </StackPanel>
                     </Border>

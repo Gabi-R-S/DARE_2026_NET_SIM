@@ -79,8 +79,10 @@
             <Setter Property="Foreground" Value="#F8FAFC"/>
             <Setter Property="BorderBrush" Value="#334155"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="CaretBrush" Value="#38BDF8"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -89,8 +91,10 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                                CornerRadius="5">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          VerticalAlignment="Center"
+                                          Margin="{TemplateBinding Padding}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
@@ -108,14 +112,14 @@
         <Style x:Key="DrawerLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="Foreground" Value="#CBD5E1"/>
-            <Setter Property="Margin" Value="0,4,0,2"/>
+            <Setter Property="Margin" Value="0,5,0,3"/>
         </Style>
 
         <Style x:Key="DrawerSection" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="#38BDF8"/>
-            <Setter Property="Margin" Value="0,10,0,4"/>
+            <Setter Property="Margin" Value="0,12,0,4"/>
         </Style>
     </Page.Resources>
 
@@ -173,7 +177,8 @@
                                Margin="0,0,6,0"/>
                     <ComboBox x:Name="ProtocolComboBox"
                               Width="140"
-                              Height="28"
+                              Height="30"
+                              VerticalContentAlignment="Center"
                               SelectedIndex="0"
                               SelectionChanged="ProtocolComboBox_SelectionChanged"
                               Margin="0,0,10,0">
@@ -324,10 +329,10 @@
                             <TextBlock Text="Topology &amp; Scale" Style="{StaticResource DrawerSection}"/>
 
                             <TextBlock Text="Number of Nodes (2 - 50)" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerNodesTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerNodesTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
                             <TextBlock Text="Topology" Style="{StaticResource DrawerLabel}"/>
-                            <ComboBox x:Name="DrawerTopologyComboBox" Height="26" SelectionChanged="DrawerTopologyComboBox_SelectionChanged">
+                            <ComboBox x:Name="DrawerTopologyComboBox" Height="34" VerticalContentAlignment="Center" SelectionChanged="DrawerTopologyComboBox_SelectionChanged">
                                 <ComboBoxItem Content="Random Mesh"/>
                                 <ComboBoxItem Content="Fully Connected"/>
                                 <ComboBoxItem Content="Ring"/>
@@ -336,7 +341,7 @@
                             </ComboBox>
 
                             <TextBlock x:Name="DrawerExtraEdgeLabel" Text="Mesh Extra Link Probability" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerExtraEdgeTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerExtraEdgeTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
                             <TextBlock Text="Randomness Seed" Style="{StaticResource DrawerLabel}"/>
                             <CheckBox x:Name="DrawerUseRandomSeedCheckBox"
@@ -353,13 +358,15 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBox x:Name="DrawerSeedTextBox"
                                          Grid.Column="0"
-                                         Height="26"
+                                         Height="34"
                                          Style="{StaticResource DrawerTextBox}"
                                          Margin="0,0,4,0"/>
                                 <Button Grid.Column="1"
                                         Style="{StaticResource ModernButton}"
                                         Content="🎲"
-                                        Padding="8,2"
+                                        Height="34"
+                                        Padding="10,0"
+                                        VerticalContentAlignment="Center"
                                         Click="DrawerRandomizeSeed_Click"/>
                             </Grid>
 
@@ -367,16 +374,16 @@
                             <TextBlock Text="Link Transmission Latencies" Style="{StaticResource DrawerSection}"/>
 
                             <TextBlock Text="Min Message Delay (s)" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerMinDelayTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerMinDelayTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
                             <TextBlock Text="Max Message Delay (s)" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerMaxDelayTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerMaxDelayTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
                             <!-- Section: Routing & Timers -->
                             <TextBlock Text="Routing &amp; Protocol Timers" Style="{StaticResource DrawerSection}"/>
 
                             <TextBlock Text="Routing Protocol" Style="{StaticResource DrawerLabel}"/>
-                            <ComboBox x:Name="DrawerProtocolComboBox" Height="26">
+                            <ComboBox x:Name="DrawerProtocolComboBox" Height="34" VerticalContentAlignment="Center">
                                 <ComboBoxItem Content="Flood Routing"/>
                                 <ComboBoxItem Content="Distance Vector"/>
                                 <ComboBoxItem Content="Link State"/>
@@ -385,25 +392,25 @@
                             </ComboBox>
 
                             <TextBlock Text="Heartbeat Interval (s)" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerHeartbeatTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerHeartbeatTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
                             <TextBlock Text="Message Timeout (s)" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerTimeoutTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerTimeoutTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
                             <TextBlock Text="Max Hop Count / TTL" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerMaxHopsTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerMaxHopsTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
                             <!-- Section: Workload -->
                             <TextBlock Text="CRDT Replication Workload" Style="{StaticResource DrawerSection}"/>
 
                             <TextBlock Text="Operations Per Replica" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerOpsTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerOpsTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
                             <TextBlock Text="Delay Between Ops (s)" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerDelayOpsTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerDelayOpsTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
                             <TextBlock Text="Delay Between Sends (s)" Style="{StaticResource DrawerLabel}"/>
-                            <TextBox x:Name="DrawerDelaySendsTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                            <TextBox x:Name="DrawerDelaySendsTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
                         </StackPanel>
                     </ScrollViewer>
 
