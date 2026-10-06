@@ -22,7 +22,8 @@ namespace Simulator
             var delay = simulationTimeLimit > 0
                 ? Task.Delay(TimeSpan.FromSeconds(simulationTimeLimit))
                 : Task.Delay(System.Threading.Timeout.InfiniteTimeSpan);
-            var t = await Task.WhenAny(Task.WhenAll(tasks), delay);
+            
+            await delay;
 
             tasks.Clear();
             foreach (var ev in CloseEvents) {
