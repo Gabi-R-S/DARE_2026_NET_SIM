@@ -5,11 +5,12 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:graph="clr-namespace:VisualizationTest.Graph"
       mc:Ignorable="d"
-      d:DesignHeight="700" d:DesignWidth="1000"
+      d:DesignHeight="700" d:DesignWidth="1100"
       Title="Simulation Visualization"
       Background="#0B0F19">
 
     <Page.Resources>
+        <!-- Modern Button Style -->
         <Style x:Key="ModernButton" TargetType="Button">
             <Setter Property="Background" Value="#1E293B"/>
             <Setter Property="Foreground" Value="#F8FAFC"/>
@@ -44,6 +45,7 @@
             </Setter>
         </Style>
 
+        <!-- Accent Button Style -->
         <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
             <Setter Property="Background" Value="#0284C7"/>
             <Setter Property="BorderBrush" Value="#38BDF8"/>
@@ -69,6 +71,51 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- Modern TextBox for Drawer -->
+        <Style x:Key="DrawerTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CaretBrush" Value="#38BDF8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#38BDF8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DrawerLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#CBD5E1"/>
+            <Setter Property="Margin" Value="0,4,0,2"/>
+        </Style>
+
+        <Style x:Key="DrawerSection" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#38BDF8"/>
+            <Setter Property="Margin" Value="0,10,0,4"/>
         </Style>
     </Page.Resources>
 
@@ -129,7 +176,7 @@
                               Height="28"
                               SelectedIndex="0"
                               SelectionChanged="ProtocolComboBox_SelectionChanged"
-                              Margin="0,0,12,0">
+                              Margin="0,0,10,0">
                         <ComboBoxItem Content="Flood Routing"/>
                         <ComboBoxItem Content="Distance Vector"/>
                         <ComboBoxItem Content="Link State"/>
@@ -142,14 +189,28 @@
                             Content="⚡ Inject App Op"
                             ToolTip="Manually triggers a new CRDT insert operation on a replica node"
                             Click="InjectAppOp_Click"
-                            Margin="0,0,8,0"/>
+                            Margin="0,0,6,0"/>
 
-                    <!-- Re-randomize / Restart -->
+                    <!-- Restart current config -->
                     <Button Style="{StaticResource ModernButton}"
-                            Content="🔄 Restart (New Random Mesh)"
-                            ToolTip="Generates a new random network topology and restarts the realtime simulation"
+                            Content="🔄 Restart"
+                            ToolTip="Restarts the simulation using current parameters"
                             Click="RestartSimulation_Click"
-                            Margin="0,0,8,0"/>
+                            Margin="0,0,6,0"/>
+
+                    <!-- New Random Seed & Restart -->
+                    <Button Style="{StaticResource ModernButton}"
+                            Content="🎲 New Seed"
+                            ToolTip="Picks a new random seed and restarts the simulation"
+                            Click="NewSeedRestart_Click"
+                            Margin="0,0,6,0"/>
+
+                    <!-- Toggle Parameters Panel -->
+                    <Button x:Name="ToggleParametersButton"
+                            Style="{StaticResource ModernButton}"
+                            Content="⚙ Parameters"
+                            ToolTip="Open live simulation parameters drawer"
+                            Click="ToggleParameters_Click"/>
                 </StackPanel>
 
                 <!-- Right: Viewport Controls -->
@@ -207,13 +268,162 @@
             </StackPanel>
         </Border>
 
-        <!-- Main Graph Visualization Canvas (Read-Only) -->
-        <graph:NetworkGraphView x:Name="GraphViewControl"
-                                Grid.Row="2"
+        <!-- Main Content Area: Graph Canvas + Collapsible Parameters Drawer -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Graph Viewport -->
+            <graph:NetworkGraphView x:Name="GraphViewControl"
+                                    Grid.Column="0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    BackgroundBrush="#0B0F19"
+                                    ShowGrid="True"/>
+
+            <!-- Collapsible Live Parameters Drawer -->
+            <Border x:Name="ParametersDrawer"
+                    Grid.Column="1"
+                    Width="320"
+                    Background="#0F172A"
+                    BorderBrush="#1E293B"
+                    BorderThickness="1,0,0,0"
+                    Visibility="Collapsed">
+                <Grid Margin="16,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Drawer Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="⚙ Live Parameters"
+                                   FontSize="15"
+                                   FontWeight="Bold"
+                                   Foreground="#F8FAFC"
+                                   VerticalAlignment="Center"/>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource ModernButton}"
+                                Content="✕"
+                                Padding="8,3"
+                                FontSize="11"
+                                Click="CloseDrawer_Click"/>
+                    </Grid>
+
+                    <!-- Drawer Fields -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="0,0,6,0">
+                            <!-- Section: Network & Topology -->
+                            <TextBlock Text="Topology &amp; Scale" Style="{StaticResource DrawerSection}"/>
+
+                            <TextBlock Text="Number of Nodes (2 - 50)" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerNodesTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+
+                            <TextBlock Text="Topology" Style="{StaticResource DrawerLabel}"/>
+                            <ComboBox x:Name="DrawerTopologyComboBox" Height="26" SelectionChanged="DrawerTopologyComboBox_SelectionChanged">
+                                <ComboBoxItem Content="Random Mesh"/>
+                                <ComboBoxItem Content="Fully Connected"/>
+                                <ComboBoxItem Content="Ring"/>
+                                <ComboBoxItem Content="Star"/>
+                                <ComboBoxItem Content="Line / Bus"/>
+                            </ComboBox>
+
+                            <TextBlock x:Name="DrawerExtraEdgeLabel" Text="Mesh Extra Link Probability" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerExtraEdgeTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+
+                            <TextBlock Text="Randomness Seed" Style="{StaticResource DrawerLabel}"/>
+                            <CheckBox x:Name="DrawerUseRandomSeedCheckBox"
+                                      Content="Auto-randomize on restart"
+                                      Foreground="#CBD5E1"
+                                      FontSize="11"
+                                      Margin="0,2,0,4"
+                                      Checked="DrawerUseRandomSeed_Changed"
+                                      Unchecked="DrawerUseRandomSeed_Changed"/>
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="DrawerSeedTextBox"
+                                         Grid.Column="0"
+                                         Height="26"
+                                         Style="{StaticResource DrawerTextBox}"
+                                         Margin="0,0,4,0"/>
+                                <Button Grid.Column="1"
+                                        Style="{StaticResource ModernButton}"
+                                        Content="🎲"
+                                        Padding="8,2"
+                                        Click="DrawerRandomizeSeed_Click"/>
+                            </Grid>
+
+                            <!-- Section: Delays -->
+                            <TextBlock Text="Link Transmission Latencies" Style="{StaticResource DrawerSection}"/>
+
+                            <TextBlock Text="Min Message Delay (s)" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerMinDelayTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+
+                            <TextBlock Text="Max Message Delay (s)" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerMaxDelayTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+
+                            <!-- Section: Routing & Timers -->
+                            <TextBlock Text="Routing &amp; Protocol Timers" Style="{StaticResource DrawerSection}"/>
+
+                            <TextBlock Text="Routing Protocol" Style="{StaticResource DrawerLabel}"/>
+                            <ComboBox x:Name="DrawerProtocolComboBox" Height="26">
+                                <ComboBoxItem Content="Flood Routing"/>
+                                <ComboBoxItem Content="Distance Vector"/>
+                                <ComboBoxItem Content="Link State"/>
+                                <ComboBoxItem Content="No-Route (Ack)"/>
+                                <ComboBoxItem Content="Base Layer Only"/>
+                            </ComboBox>
+
+                            <TextBlock Text="Heartbeat Interval (s)" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerHeartbeatTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+
+                            <TextBlock Text="Message Timeout (s)" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerTimeoutTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+
+                            <TextBlock Text="Max Hop Count / TTL" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerMaxHopsTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+
+                            <!-- Section: Workload -->
+                            <TextBlock Text="CRDT Replication Workload" Style="{StaticResource DrawerSection}"/>
+
+                            <TextBlock Text="Operations Per Replica" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerOpsTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+
+                            <TextBlock Text="Delay Between Ops (s)" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerDelayOpsTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+
+                            <TextBlock Text="Delay Between Sends (s)" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerDelaySendsTextBox" Height="26" Style="{StaticResource DrawerTextBox}"/>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Drawer Footer / Apply Button -->
+                    <StackPanel Grid.Row="2" Margin="0,10,0,0">
+                        <TextBlock x:Name="DrawerValidationTextBlock"
+                                   Foreground="#EF4444"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"
+                                   Visibility="Collapsed"
+                                   Margin="0,0,0,6"/>
+                        <Button Style="{StaticResource AccentButton}"
+                                Content="Apply &amp; Restart Simulation"
                                 HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                BackgroundBrush="#0B0F19"
-                                ShowGrid="True"/>
+                                Click="DrawerApply_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
 
         <!-- Bottom Status Bar -->
         <Border Grid.Row="3"
@@ -228,12 +438,20 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: Stats -->
+                <!-- Left: Stats & Seed Badge -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock x:Name="StatsTextBlock"
                                Text="Packets: 0 | App: 0 | Protocol: 0 | In Flight: 0"
                                Foreground="#94A3B8"
-                               FontSize="12"/>
+                               FontSize="12"
+                               Margin="0,0,16,0"/>
+                    <Border Background="#1E293B" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                        <TextBlock x:Name="SeedBadgeTextBlock"
+                                   Text="Seed: --"
+                                   Foreground="#38BDF8"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"/>
+                    </Border>
                 </StackPanel>
 
                 <!-- Center: Node Convergence Status -->

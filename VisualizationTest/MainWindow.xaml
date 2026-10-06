@@ -2,9 +2,13 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:VisualizationTest"
-        Title="Visualization Test"
-        Height="450"
-        Width="800">
+        Title="Distributed Mesh Network Simulation"
+        Height="780"
+        Width="1150"
+        MinWidth="900"
+        MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="#0B0F19">
 
     <Frame x:Name="MainFrame"
            NavigationUIVisibility="Hidden"/>

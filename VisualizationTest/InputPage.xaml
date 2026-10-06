@@ -3,65 +3,344 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:VisualizationTest"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="InputPage">
+      d:DesignHeight="750" d:DesignWidth="1100"
+      Title="Simulation Setup"
+      Background="#0B0F19">
 
-    <Grid Margin="20">
-        <StackPanel Width="350"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Top">
+    <Page.Resources>
+        <!-- Modern Button Style -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#334155"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#64748B"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#0F172A"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <TextBlock Text="Simulation Parameters"
-                       FontSize="24"
-                       FontWeight="Bold"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,25"/>
+        <!-- Primary Accent Button -->
+        <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#0284C7"/>
+            <Setter Property="BorderBrush" Value="#38BDF8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="20,9"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#0369A1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#075985"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <TextBlock Text="Number of Nodes"
-                       Margin="0,0,0,5"/>
+        <!-- Quick Preset Button -->
+        <Style x:Key="PresetButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#0F172A"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="BorderBrush" Value="#1E293B"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
 
-            <TextBox x:Name="NumberOfNodesTextBox"
-                     Text="6"
-                     Height="30"
-                     Margin="0,0,0,15"/>
+        <!-- Text Box Style -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="#F8FAFC"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CaretBrush" Value="#38BDF8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="#38BDF8"/>
+                                <Setter TargetName="border" Property="Background" Value="#1E293B"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <TextBlock Text="Minimum Message Delay (seconds)"
-                       Margin="0,0,0,5"/>
+        <!-- Card Container Style -->
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="#0F172A"/>
+            <Setter Property="BorderBrush" Value="#1E293B"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="Margin" Value="6"/>
+        </Style>
 
-            <TextBox x:Name="MinimumMessageDelayTextBox"
-                     Text="0.5"
-                     Height="30"
-                     Margin="0,0,0,15"/>
+        <!-- Common text styles -->
+        <Style x:Key="CardHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#38BDF8"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
 
-            <TextBlock Text="Maximum Message Delay (seconds)"
-                       Margin="0,0,0,5"/>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#CBD5E1"/>
+            <Setter Property="Margin" Value="0,4,0,3"/>
+        </Style>
 
-            <TextBox x:Name="MaximumMessageDelayTextBox"
-                     Text="1.5"
-                     Height="30"
-                     Margin="0,0,0,15"/>
+        <Style x:Key="FieldHint" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="Margin" Value="0,1,0,8"/>
+        </Style>
+    </Page.Resources>
 
-            <TextBlock Text="Routing Protocol"
-                       Margin="0,0,0,5"/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="24,20,24,24" MaxWidth="960" HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-            <ComboBox x:Name="RoutingProtocolComboBox"
-                      Height="30"
-                      SelectedIndex="0"
-                      Margin="0,0,0,30">
-                <ComboBoxItem Content="Flood Routing"/>
-                <ComboBoxItem Content="Distance Vector"/>
-                <ComboBoxItem Content="Link State"/>
-            </ComboBox>
+            <!-- Top Header -->
+            <StackPanel Grid.Row="0" Margin="6,0,6,16">
+                <TextBlock Text="Mesh Network Simulation Setup"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           Foreground="#F8FAFC"/>
+                <TextBlock Text="Configure topology, link latency, routing protocols, timers, and CRDT replication workload."
+                           FontSize="12"
+                           Foreground="#94A3B8"
+                           Margin="0,4,0,14"/>
 
-            <Button Height="32"
-                    FontSize="13"
-                    FontWeight="SemiBold"
-                    Click="StartSimulation_Click">
-                Start Simulation
-            </Button>
+                <!-- Quick Presets -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Presets:" Foreground="#64748B" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <Button Style="{StaticResource PresetButton}" Content="Default Balanced" Click="PresetBalanced_Click"/>
+                    <Button Style="{StaticResource PresetButton}" Content="Fast Realtime" Click="PresetFast_Click"/>
+                    <Button Style="{StaticResource PresetButton}" Content="Ring Topology" Click="PresetRing_Click"/>
+                    <Button Style="{StaticResource PresetButton}" Content="Star Hub" Click="PresetStar_Click"/>
+                    <Button Style="{StaticResource PresetButton}" Content="Heavy Workload" Click="PresetHeavy_Click"/>
+                </StackPanel>
+            </StackPanel>
 
-        </StackPanel>
-    </Grid>
+            <!-- 2-Column Grid of Parameter Cards -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- LEFT COLUMN -->
+                <StackPanel Grid.Column="0">
+                    <!-- Card 1: Network & Topology -->
+                    <Border Style="{StaticResource CardBorder}">
+                        <StackPanel>
+                            <TextBlock Text="🌐 Network &amp; Topology" Style="{StaticResource CardHeader}"/>
+
+                            <TextBlock Text="Number of Nodes" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="NumberOfNodesTextBox" Text="6" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Number of participating replicas in the mesh (2 - 50)" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock Text="Network Topology" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox x:Name="TopologyComboBox" Height="28" Margin="0,0,0,2" SelectionChanged="TopologyComboBox_SelectionChanged">
+                                <ComboBoxItem Content="Random Mesh" IsSelected="True"/>
+                                <ComboBoxItem Content="Fully Connected"/>
+                                <ComboBoxItem Content="Ring"/>
+                                <ComboBoxItem Content="Star"/>
+                                <ComboBoxItem Content="Line / Bus"/>
+                            </ComboBox>
+                            <TextBlock Text="Graph topology connecting the replicas" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock x:Name="ExtraEdgeLabel" Text="Mesh Cross-Link Probability" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="ExtraEdgeProbabilityTextBox" Text="0.15" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock x:Name="ExtraEdgeHint" Text="Probability of additional random cross-links (0.00 - 1.00)" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock Text="Randomness Seed" Style="{StaticResource FieldLabel}"/>
+                            <CheckBox x:Name="UseRandomSeedCheckBox"
+                                      Content="Generate random seed on each run"
+                                      Foreground="#CBD5E1"
+                                      FontSize="11"
+                                      IsChecked="True"
+                                      Margin="0,2,0,6"
+                                      Checked="UseRandomSeedCheckBox_Changed"
+                                      Unchecked="UseRandomSeedCheckBox_Changed"/>
+
+                            <Grid Margin="0,0,0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="SeedTextBox"
+                                         Grid.Column="0"
+                                         Text="42"
+                                         Height="28"
+                                         IsEnabled="False"
+                                         Style="{StaticResource ModernTextBox}"
+                                         Margin="0,0,6,0"/>
+                                <Button Grid.Column="1"
+                                        Style="{StaticResource ModernButton}"
+                                        Content="🎲 Randomize"
+                                        Padding="10,4"
+                                        Click="RandomizeSeed_Click"/>
+                            </Grid>
+                            <TextBlock Text="Deterministic seed for repeatable topologies and delays" Style="{StaticResource FieldHint}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Card 2: Link Latencies -->
+                    <Border Style="{StaticResource CardBorder}">
+                        <StackPanel>
+                            <TextBlock Text="⏱ Link Latency &amp; Delays" Style="{StaticResource CardHeader}"/>
+
+                            <TextBlock Text="Minimum Message Delay (seconds)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="MinimumMessageDelayTextBox" Text="0.5" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Fastest link transmission time in seconds (≥ 0.01)" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock Text="Maximum Message Delay (seconds)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="MaximumMessageDelayTextBox" Text="1.5" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Slowest link transmission time in seconds (≥ Min Delay)" Style="{StaticResource FieldHint}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- RIGHT COLUMN -->
+                <StackPanel Grid.Column="1">
+                    <!-- Card 3: Routing & Protocol Timers -->
+                    <Border Style="{StaticResource CardBorder}">
+                        <StackPanel>
+                            <TextBlock Text="📡 Routing &amp; Protocol Timers" Style="{StaticResource CardHeader}"/>
+
+                            <TextBlock Text="Routing Protocol" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox x:Name="RoutingProtocolComboBox" Height="28" Margin="0,0,0,2">
+                                <ComboBoxItem Content="Flood Routing" IsSelected="True"/>
+                                <ComboBoxItem Content="Distance Vector"/>
+                                <ComboBoxItem Content="Link State"/>
+                                <ComboBoxItem Content="No-Route (Ack)"/>
+                                <ComboBoxItem Content="Base Layer Only"/>
+                            </ComboBox>
+                            <TextBlock Text="Network routing and forwarding protocol stack" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock Text="Heartbeat / Protocol Interval (seconds)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="HeartbeatIntervalTextBox" Text="1.0" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Frequency of heartbeat pings and route updates (≥ 0.05s)" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock Text="Message Timeout Duration (seconds)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="MessageTimeoutTextBox" Text="5.0" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Timeout before assuming packet loss / connection drop (≥ 0.1s)" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock Text="Max Hop Count / TTL" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="MaxHopsTextBox" Text="5" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Maximum network hops for flooding or distance vector (≥ 1)" Style="{StaticResource FieldHint}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Card 4: CRDT Workload -->
+                    <Border Style="{StaticResource CardBorder}">
+                        <StackPanel>
+                            <TextBlock Text="📦 CRDT Workload &amp; Operations" Style="{StaticResource CardHeader}"/>
+
+                            <TextBlock Text="Operations Per Replica" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="OperationsPerReplicaTextBox" Text="3" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Number of initial CRDT insert operations each node generates (≥ 1)" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock Text="Delay Between Operations (seconds)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="DelayBetweenOpsTextBox" Text="1.0" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Pause between consecutive operations on each replica (≥ 0.0s)" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock Text="Delay Between Sends / Retries (seconds)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="DelayBetweenSendsTextBox" Text="0.5" Height="28" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Interval between packet transmissions and retries (≥ 0.01s)" Style="{StaticResource FieldHint}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- Bottom Action & Validation Bar -->
+            <StackPanel Grid.Row="3" Margin="6,14,6,0">
+                <!-- Validation Error Message -->
+                <TextBlock x:Name="ValidationMessageTextBlock"
+                           Foreground="#EF4444"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Visibility="Collapsed"
+                           Margin="0,0,0,10"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Style="{StaticResource ModernButton}"
+                            Content="↺ Reset Defaults"
+                            Click="ResetDefaults_Click"/>
+
+                    <Button Grid.Column="2"
+                            Style="{StaticResource AccentButton}"
+                            Content="Start Simulation →"
+                            Click="StartSimulation_Click"/>
+                </Grid>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </Page>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -8,7 +9,11 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using CRDTApp;
 using CRDTApp.Behaviours;
+using CRDTApp.Messages;
 using CRDTApp.NetworkLayers;
+using CRDTApp.NetworkLayers.Base;
+using CRDTApp.NetworkLayers.Composite;
+using CRDTApp.NetworkLayers.Composite.Routing;
 using CRDTApp.Schedulers;
 using RunSimulations;
 using Shared;
@@ -19,10 +24,7 @@ namespace VisualizationTest
 {
     public partial class SimulationPage : Page
     {
-        private readonly int _numberOfNodes;
-        private readonly float _minimumMessageDelay;
-        private readonly float _maximumMessageDelay;
-
+        private SimulationConfig _config;
         private readonly Random _random = new();
         private readonly DispatcherTimer _uiUpdateTimer;
 
@@ -31,7 +33,6 @@ namespace VisualizationTest
         private readonly List<InsertBehaviour> _behaviours = new();
         private GraphState? _graphState;
         private DateTime _simulationStartTime;
-        private int _currentSeed;
 
         // Statistics
         private int _totalPacketsScheduled;
@@ -50,17 +51,11 @@ namespace VisualizationTest
             return freezable;
         }
 
-        private string _initialProtocol;
-
-        public SimulationPage(int numberOfNodes, float minimumMessageDelay, float maximumMessageDelay, string initialProtocol = "Flood Routing")
+        public SimulationPage(SimulationConfig? config = null)
         {
             InitializeComponent();
 
-            _numberOfNodes = Math.Max(2, numberOfNodes);
-            _minimumMessageDelay = minimumMessageDelay;
-            _maximumMessageDelay = maximumMessageDelay;
-            _initialProtocol = string.IsNullOrWhiteSpace(initialProtocol) ? "Flood Routing" : initialProtocol;
-            _currentSeed = _random.Next(1, 1000000);
+            _config = config?.Clone() ?? SimulationConfig.Current.Clone();
 
             // Timer for UI stats updates (FPS, counters, convergence, elapsed time)
             _uiUpdateTimer = new DispatcherTimer
@@ -73,26 +68,24 @@ namespace VisualizationTest
             Unloaded += OnPageUnloaded;
         }
 
+        // Backward-compatible constructor
+        public SimulationPage(int numberOfNodes, float minimumMessageDelay, float maximumMessageDelay, string initialProtocol = "Flood Routing")
+            : this(new SimulationConfig
+            {
+                NumberOfNodes = numberOfNodes,
+                MinimumMessageDelay = minimumMessageDelay,
+                MaximumMessageDelay = maximumMessageDelay,
+                RoutingProtocol = string.IsNullOrWhiteSpace(initialProtocol) ? "Flood Routing" : initialProtocol
+            })
+        {
+        }
+
         private void OnPageLoaded(object sender, RoutedEventArgs e)
         {
-            if (ProtocolComboBox != null)
-            {
-                foreach (ComboBoxItem item in ProtocolComboBox.Items)
-                {
-                    string content = item.Content?.ToString() ?? "";
-                    if (content.Equals(_initialProtocol, StringComparison.OrdinalIgnoreCase) ||
-                        (_initialProtocol.Contains("Flood", StringComparison.OrdinalIgnoreCase) && content.Contains("Flood", StringComparison.OrdinalIgnoreCase)) ||
-                        (_initialProtocol.Contains("Distance", StringComparison.OrdinalIgnoreCase) && content.Contains("Distance", StringComparison.OrdinalIgnoreCase)) ||
-                        (_initialProtocol.Contains("Link", StringComparison.OrdinalIgnoreCase) && content.Contains("Link", StringComparison.OrdinalIgnoreCase)))
-                    {
-                        ProtocolComboBox.SelectedItem = item;
-                        break;
-                    }
-                }
-            }
+            SetComboBoxItem(ProtocolComboBox, _config.RoutingProtocol);
+            PopulateDrawerFromConfig(_config);
 
-            string protocol = (ProtocolComboBox?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? _initialProtocol;
-            StartSimulation(protocol, _currentSeed);
+            StartSimulation(_config);
 
             Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
             {
@@ -110,14 +103,18 @@ namespace VisualizationTest
         }
 
         /// <summary>
-        /// Initializes a random network configuration using NetworkCreationFunctions
+        /// Initializes the network configuration based on SimulationConfig
         /// and hooks the GraphView to the RealtimeSimulator and App events.
         /// </summary>
-        private void StartSimulation(string stackType, int? seed = null)
+        private void StartSimulation(SimulationConfig config, bool forceNewSeed = false)
         {
             StopSimulation();
 
-            _currentSeed = seed ?? _random.Next(1, 1000000);
+            int seed = config.ResolveSeed(_random, forceNewSeed);
+            if (SeedBadgeTextBlock != null)
+            {
+                SeedBadgeTextBlock.Text = $"Seed: {seed}";
+            }
 
             // Reset statistics counters
             Interlocked.Exchange(ref _totalPacketsScheduled, 0);
@@ -126,17 +123,12 @@ namespace VisualizationTest
             Interlocked.Exchange(ref _protocolPacketsScheduled, 0);
             Interlocked.Exchange(ref _convergedCount, 0);
 
-            // Use NetworkCreationFunctions to generate the random network configuration
-            // Set reasonable heartbeat time for real-time visualization
-            NetworkCreationFunctions.HEARTBEAT_TIME = 1.0f;
-            NetworkCreationFunctions.MESSAGE_TIMEOUT = 5.0f;
+            // Configure static defaults on NetworkCreationFunctions
+            NetworkCreationFunctions.HEARTBEAT_TIME = config.HeartbeatInterval;
+            NetworkCreationFunctions.MESSAGE_TIMEOUT = config.MessageTimeout;
 
-            (ConnectionMap map, List<ReplicaID> replicas) =
-                NetworkCreationFunctions.CreateRandomFullyConnectedNetwork(
-                    _numberOfNodes,
-                    _minimumMessageDelay,
-                    _maximumMessageDelay,
-                    _currentSeed);
+            // Generate the network configuration based on selected topology
+            (ConnectionMap map, List<ReplicaID> replicas) = SimulationConfig.CreateNetwork(config, seed);
 
             // Compute canvas center and radius for circular node layout
             double canvasWidth = Math.Max(600, GraphViewControl.ActualWidth > 0 ? GraphViewControl.ActualWidth : 800);
@@ -159,26 +151,16 @@ namespace VisualizationTest
             _simulator.AddMessageSendScheduledHandler(OnMessageSendScheduled);
             _simulator.AddMessageDeliveredHandler(OnMessageDelivered);
 
-            // Select network stack creator function from NetworkCreationFunctions
-            Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> stackCreator = stackType switch
-            {
-                "Distance Vector" => NetworkCreationFunctions.CreateBasicDistanceVectorStack,
-                "Link State" => NetworkCreationFunctions.CreateBasicLinkStateStack,
-                "No-Route (Ack)" => NetworkCreationFunctions.CreateBasicNoRouteStack,
-                "Base Layer Only" => NetworkCreationFunctions.CreateOnlyBaseLayer,
-                _ => NetworkCreationFunctions.CreateBasicFloodRoutingStack
-            };
-
             // Set up each replica node with its network stack and CRDT InsertBehaviour app
-            int opsPerReplica = 3;
+            int opsPerReplica = config.OperationsPerReplica;
             int totalExpectedOps = opsPerReplica * replicas.Count;
-            float delayBetweenSends = 0.5f;
-            float delayBetweenOps = 1.0f;
+            float delayBetweenSends = config.DelayBetweenSends;
+            float delayBetweenOps = config.DelayBetweenOperations;
 
             int i = 0;
             foreach (var replica in replicas)
             {
-                (NetworkLayer networkManager, IScheduler scheduler, _) = stackCreator(_simulator, replica);
+                (NetworkLayer networkManager, IScheduler scheduler, _) = CreateStack(config.RoutingProtocol, _simulator, replica, config);
 
                 var otherReplicas = new List<ReplicaID>(replicas);
                 otherReplicas.Remove(replica);
@@ -218,7 +200,7 @@ namespace VisualizationTest
 
             if (TopologySubtext != null)
             {
-                TopologySubtext.Text = $"Random Network (Seed: {_currentSeed}) | {_numberOfNodes} Nodes | Delays: {_minimumMessageDelay:F2}s - {_maximumMessageDelay:F2}s | {stackType}";
+                TopologySubtext.Text = $"{config.Topology} (Seed: {seed}) | {replicas.Count} Nodes | Delays: {config.MinimumMessageDelay:F2}s-{config.MaximumMessageDelay:F2}s | {config.RoutingProtocol} | HB: {config.HeartbeatInterval:F2}s | Timeout: {config.MessageTimeout:F2}s | Ops/Node: {config.OperationsPerReplica}";
             }
 
             // Run the RealtimeSimulator in the background
@@ -226,7 +208,10 @@ namespace VisualizationTest
             {
                 try
                 {
-                    await _simulator.Run(3600);
+                    if (_simulator != null)
+                    {
+                        await _simulator.Run(3600);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -235,6 +220,70 @@ namespace VisualizationTest
             });
 
             UpdateStats();
+        }
+
+        private static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateStack(
+            string stackType,
+            NetworkSimulator simulator,
+            ReplicaID id,
+            SimulationConfig config)
+        {
+            var set = simulator.GetAllKnownReplicas();
+            set.Remove(id);
+            ActiveConnectionTracker tracker = new(new HashSet<ReplicaID> { id }, set, id);
+            IScheduler scheduler = new SimulationScheduler(simulator);
+            SimulatedNetworkBaseLayer baseLayer = new(simulator, id);
+
+            switch (stackType)
+            {
+                case "Distance Vector":
+                {
+                    TrackMessageReceptionTimeoutLayer timeoutLayer = new(id, config.MessageTimeout, scheduler, baseLayer, false);
+                    TrackActiveConnectionsLayer trackerLayer = new(timeoutLayer, tracker, id);
+                    DistanceTrackerLayer distanceTrackerLayer = new(trackerLayer, tracker, id, scheduler);
+                    uint maxTTL = Math.Max(config.MaxHops, (uint)simulator.ConnectionMap.GetAllKnownReplicas().Count);
+                    DistanceVectorRoutingLayer distanceVectorRoutingLayer = new(id, tracker, distanceTrackerLayer, scheduler, maxTTL);
+                    int i = 0;
+                    EnsureAckNetworkLayer<int> ackLayer = new(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; });
+                    return (ackLayer, scheduler, new List<ExtraMetric>());
+                }
+
+                case "Link State":
+                {
+                    TrackMessageReceptionTimeoutLayer timeoutLayer = new(id, config.MessageTimeout, scheduler, baseLayer, false);
+                    TrackActiveConnectionsLayer trackerLayer = new(timeoutLayer, tracker, id);
+                    DistanceTrackerLayer distanceTrackerLayer = new(trackerLayer, tracker, id, scheduler);
+                    HeartbeatLayer heartbeat = new(tracker, distanceTrackerLayer, scheduler, config.HeartbeatInterval, id);
+                    LinkStateRoutingLayer lsLayer = new(id, heartbeat, tracker);
+                    int i = 0;
+                    EnsureAckNetworkLayer<int> ackLayer = new(id, lsLayer, scheduler, (_) => { i++; return i; });
+                    return (ackLayer, scheduler, new List<ExtraMetric>());
+                }
+
+                case "No-Route (Ack)":
+                {
+                    int i = 0;
+                    EnsureAckNetworkLayer<int> ackLayer = new(id, baseLayer, scheduler, (_) => { i++; return i; });
+                    return (ackLayer, scheduler, new List<ExtraMetric>());
+                }
+
+                case "Base Layer Only":
+                {
+                    return (baseLayer, scheduler, new List<ExtraMetric>());
+                }
+
+                case "Flood Routing":
+                default:
+                {
+                    TrackMessageReceptionTimeoutLayer timeoutLayer = new(id, config.MessageTimeout, scheduler, baseLayer, false);
+                    TrackActiveConnectionsLayer trackerLayer = new(timeoutLayer, tracker, id);
+                    HeartbeatLayer heartbeat = new(tracker, trackerLayer, scheduler, config.HeartbeatInterval, id);
+                    FloodingRedirectionLayer flood = new(id, scheduler, tracker, heartbeat, config.MaxHops, 60.0f);
+                    int i = 0;
+                    EnsureAckNetworkLayer<int> ackLayer = new(id, flood, scheduler, (_) => { i++; return i; });
+                    return (ackLayer, scheduler, new List<ExtraMetric>());
+                }
+            }
         }
 
         private void StopSimulation()
@@ -258,25 +307,17 @@ namespace VisualizationTest
 
         #region Simulator and App Event Handlers
 
-        /// <summary>
-        /// Hooked to Simulator.MessageSendScheduled:
-        /// Spawns a particle representing the packet traveling between source and recipient nodes,
-        /// using distinct colors for protocol packets vs app-relevant packets.
-        /// </summary>
         private void OnMessageSendScheduled(NetworkMessage message)
         {
             if (_graphState == null || _simulator == null) return;
 
-            // Classify packet: protocol packets vs app-relevant packets
             var packetInfo = PacketClassifier.Classify(message.Payload);
 
-            // Retrieve the connection latency to determine flight duration
             var connection = _simulator.ConnectionMap.GetConnection(message.Source, message.Recipient);
             double duration = connection != null && connection.TransmissionTime > 0
                 ? connection.TransmissionTime
                 : 0.2;
 
-            // Spawn particle traveling between nodes
             _graphState.SpawnParticle(
                 message.Source.ID,
                 message.Recipient.ID,
@@ -286,10 +327,8 @@ namespace VisualizationTest
                 packetInfo.Label,
                 message);
 
-            // Light up the edge connection to show activity
             _graphState.LightUpEdge(message.Source.ID, message.Recipient.ID);
 
-            // Update stats
             Interlocked.Increment(ref _totalPacketsScheduled);
             if (packetInfo.IsProtocol)
             {
@@ -301,20 +340,12 @@ namespace VisualizationTest
             }
         }
 
-        /// <summary>
-        /// Hooked to Simulator.MessageDelivered:
-        /// Signals packet arrival at the destination node.
-        /// </summary>
         private void OnMessageDelivered(NetworkMessage message)
         {
             Interlocked.Increment(ref _totalPacketsDelivered);
             _graphState?.PulseNode(message.Recipient.ID);
         }
 
-        /// <summary>
-        /// Hooked to App.InsertBehaviour.OperationApplied:
-        /// Updates the node's visual info with CRDT convergence progress.
-        /// </summary>
         private void OnOperationApplied(ReplicaID replica, int currentCount, int expectedCount)
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
@@ -327,10 +358,6 @@ namespace VisualizationTest
             }));
         }
 
-        /// <summary>
-        /// Hooked to App.InsertBehaviour.BehaviourEnded:
-        /// Highlights the replica node when it has successfully converged.
-        /// </summary>
         private void OnBehaviourEnded(ReplicaID replica)
         {
             Interlocked.Increment(ref _convergedCount);
@@ -358,15 +385,16 @@ namespace VisualizationTest
             int protocolPackets = _protocolPacketsScheduled;
             int activePackets = state.ParticleCount;
             int converged = _convergedCount;
+            int numNodes = _config.NumberOfNodes;
 
             StatsTextBlock.Text = $"Packets: {totalPackets} | App: {appPackets} | Protocol: {protocolPackets} | In Flight: {activePackets}";
 
-            double convergedPct = _numberOfNodes > 0 ? (double)converged / _numberOfNodes * 100.0 : 0;
-            ConvergenceTextBlock.Text = converged == _numberOfNodes
-                ? $"All Replicas Converged! ({converged}/{_numberOfNodes})"
-                : $"Replicas Converged: {converged}/{_numberOfNodes} ({convergedPct:F0}%)";
+            double convergedPct = numNodes > 0 ? (double)converged / numNodes * 100.0 : 0;
+            ConvergenceTextBlock.Text = converged == numNodes
+                ? $"All Replicas Converged! ({converged}/{numNodes})"
+                : $"Replicas Converged: {converged}/{numNodes} ({convergedPct:F0}%)";
 
-            if (converged == _numberOfNodes)
+            if (converged == numNodes)
             {
                 ConvergenceTextBlock.Foreground = ConvergedNodeStroke;
             }
@@ -376,12 +404,13 @@ namespace VisualizationTest
             FpsTextBlock.Text = $"FPS: {GraphViewControl.CurrentFps:F0}";
         }
 
-        #region UI Event Handlers
+        #region Toolbar UI Event Handlers
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             _uiUpdateTimer.Stop();
             StopSimulation();
+            SimulationConfig.Current = _config.Clone();
             NavigationService?.GoBack();
         }
 
@@ -390,15 +419,46 @@ namespace VisualizationTest
             if (IsLoaded)
             {
                 string protocol = (ProtocolComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Flood Routing";
-                StartSimulation(protocol, _currentSeed);
+                _config.RoutingProtocol = protocol;
+                SetComboBoxItem(DrawerProtocolComboBox, protocol);
+                StartSimulation(_config, forceNewSeed: false);
                 GraphViewControl.FitToView();
             }
         }
 
         private void RestartSimulation_Click(object sender, RoutedEventArgs e)
         {
-            string protocol = (ProtocolComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Flood Routing";
-            StartSimulation(protocol, _random.Next(1, 1000000));
+            StartSimulation(_config, forceNewSeed: false);
+            GraphViewControl.FitToView();
+        }
+
+        private void NewSeedRestart_Click(object sender, RoutedEventArgs e)
+        {
+            StartSimulation(_config, forceNewSeed: true);
+            if (DrawerSeedTextBox != null)
+            {
+                DrawerSeedTextBox.Text = _config.ActiveSeed.ToString();
+            }
+            GraphViewControl.FitToView();
+        }
+
+        private void ToggleParameters_Click(object sender, RoutedEventArgs e)
+        {
+            if (ParametersDrawer.Visibility == Visibility.Visible)
+            {
+                ParametersDrawer.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                PopulateDrawerFromConfig(_config);
+                ParametersDrawer.Visibility = Visibility.Visible;
+            }
+            GraphViewControl.FitToView();
+        }
+
+        private void CloseDrawer_Click(object sender, RoutedEventArgs e)
+        {
+            ParametersDrawer.Visibility = Visibility.Collapsed;
             GraphViewControl.FitToView();
         }
 
@@ -406,7 +466,6 @@ namespace VisualizationTest
         {
             if (_behaviours.Count == 0) return;
 
-            // Pick a random replica to inject a manual CRDT operation
             int index = _random.Next(_behaviours.Count);
             var targetBehaviour = _behaviours[index];
             int opVal = 1000 + _random.Next(9000);
@@ -426,6 +485,190 @@ namespace VisualizationTest
         private void FitView_Click(object sender, RoutedEventArgs e)
         {
             GraphViewControl.FitToView();
+        }
+
+        #endregion
+
+        #region Drawer Event Handlers
+
+        private void PopulateDrawerFromConfig(SimulationConfig config)
+        {
+            DrawerNodesTextBox.Text = config.NumberOfNodes.ToString();
+            SetComboBoxItem(DrawerTopologyComboBox, config.Topology);
+            DrawerExtraEdgeTextBox.Text = config.ExtraEdgeProbability.ToString("F2", CultureInfo.InvariantCulture);
+
+            DrawerUseRandomSeedCheckBox.IsChecked = config.UseRandomSeed;
+            DrawerSeedTextBox.Text = config.ActiveSeed.ToString();
+            DrawerSeedTextBox.IsEnabled = !config.UseRandomSeed;
+
+            DrawerMinDelayTextBox.Text = config.MinimumMessageDelay.ToString("F2", CultureInfo.InvariantCulture);
+            DrawerMaxDelayTextBox.Text = config.MaximumMessageDelay.ToString("F2", CultureInfo.InvariantCulture);
+
+            SetComboBoxItem(DrawerProtocolComboBox, config.RoutingProtocol);
+            DrawerHeartbeatTextBox.Text = config.HeartbeatInterval.ToString("F2", CultureInfo.InvariantCulture);
+            DrawerTimeoutTextBox.Text = config.MessageTimeout.ToString("F2", CultureInfo.InvariantCulture);
+            DrawerMaxHopsTextBox.Text = config.MaxHops.ToString();
+
+            DrawerOpsTextBox.Text = config.OperationsPerReplica.ToString();
+            DrawerDelayOpsTextBox.Text = config.DelayBetweenOperations.ToString("F2", CultureInfo.InvariantCulture);
+            DrawerDelaySendsTextBox.Text = config.DelayBetweenSends.ToString("F2", CultureInfo.InvariantCulture);
+
+            UpdateDrawerTopologyControls();
+        }
+
+        private void DrawerTopologyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateDrawerTopologyControls();
+        }
+
+        private void UpdateDrawerTopologyControls()
+        {
+            if (DrawerExtraEdgeTextBox == null || DrawerExtraEdgeLabel == null) return;
+            string selected = (DrawerTopologyComboBox?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Random Mesh";
+            bool isMesh = selected.Equals("Random Mesh", StringComparison.OrdinalIgnoreCase);
+            DrawerExtraEdgeTextBox.IsEnabled = isMesh;
+            DrawerExtraEdgeTextBox.Opacity = isMesh ? 1.0 : 0.4;
+            DrawerExtraEdgeLabel.Opacity = isMesh ? 1.0 : 0.4;
+        }
+
+        private void DrawerUseRandomSeed_Changed(object sender, RoutedEventArgs e)
+        {
+            if (DrawerSeedTextBox != null)
+            {
+                DrawerSeedTextBox.IsEnabled = DrawerUseRandomSeedCheckBox.IsChecked != true;
+            }
+        }
+
+        private void DrawerRandomizeSeed_Click(object sender, RoutedEventArgs e)
+        {
+            DrawerSeedTextBox.Text = _random.Next(1, 1000000).ToString();
+            DrawerUseRandomSeedCheckBox.IsChecked = false;
+        }
+
+        private void DrawerApply_Click(object sender, RoutedEventArgs e)
+        {
+            DrawerValidationTextBlock.Visibility = Visibility.Collapsed;
+
+            // Validate Number of Nodes
+            if (!int.TryParse(DrawerNodesTextBox.Text, out int numberOfNodes) || numberOfNodes < 2 || numberOfNodes > 50)
+            {
+                ShowDrawerValidation("Nodes must be between 2 and 50.");
+                return;
+            }
+
+            string topology = (DrawerTopologyComboBox?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Random Mesh";
+
+            if (!double.TryParse(DrawerExtraEdgeTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double extraEdgeProb) ||
+                extraEdgeProb < 0.0 || extraEdgeProb > 1.0)
+            {
+                ShowDrawerValidation("Extra edge prob must be 0.0 to 1.0.");
+                return;
+            }
+
+            bool useRandomSeed = DrawerUseRandomSeedCheckBox.IsChecked == true;
+            int seed = _config.ActiveSeed;
+            if (!useRandomSeed)
+            {
+                if (!int.TryParse(DrawerSeedTextBox.Text, out seed) || seed <= 0)
+                {
+                    ShowDrawerValidation("Seed must be a positive integer.");
+                    return;
+                }
+            }
+
+            if (!float.TryParse(DrawerMinDelayTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float minDelay) || minDelay < 0.01f)
+            {
+                ShowDrawerValidation("Min delay must be ≥ 0.01s.");
+                return;
+            }
+
+            if (!float.TryParse(DrawerMaxDelayTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float maxDelay) || maxDelay < minDelay)
+            {
+                ShowDrawerValidation("Max delay must be ≥ Min delay.");
+                return;
+            }
+
+            string routingProtocol = (DrawerProtocolComboBox?.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Flood Routing";
+
+            if (!float.TryParse(DrawerHeartbeatTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float heartbeatInterval) || heartbeatInterval < 0.05f)
+            {
+                ShowDrawerValidation("Heartbeat interval must be ≥ 0.05s.");
+                return;
+            }
+
+            if (!float.TryParse(DrawerTimeoutTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float messageTimeout) || messageTimeout < 0.1f)
+            {
+                ShowDrawerValidation("Message timeout must be ≥ 0.1s.");
+                return;
+            }
+
+            if (!uint.TryParse(DrawerMaxHopsTextBox.Text, out uint maxHops) || maxHops < 1)
+            {
+                ShowDrawerValidation("Max hops must be ≥ 1.");
+                return;
+            }
+
+            if (!int.TryParse(DrawerOpsTextBox.Text, out int opsPerReplica) || opsPerReplica < 1 || opsPerReplica > 100)
+            {
+                ShowDrawerValidation("Ops per replica must be 1 to 100.");
+                return;
+            }
+
+            if (!float.TryParse(DrawerDelayOpsTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float delayBetweenOps) || delayBetweenOps < 0.0f)
+            {
+                ShowDrawerValidation("Delay between ops cannot be negative.");
+                return;
+            }
+
+            if (!float.TryParse(DrawerDelaySendsTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float delayBetweenSends) || delayBetweenSends < 0.01f)
+            {
+                ShowDrawerValidation("Delay between sends must be ≥ 0.01s.");
+                return;
+            }
+
+            // Update configuration
+            _config.NumberOfNodes = numberOfNodes;
+            _config.Topology = topology;
+            _config.ExtraEdgeProbability = extraEdgeProb;
+            _config.UseRandomSeed = useRandomSeed;
+            _config.Seed = seed;
+            _config.MinimumMessageDelay = minDelay;
+            _config.MaximumMessageDelay = maxDelay;
+            _config.RoutingProtocol = routingProtocol;
+            _config.HeartbeatInterval = heartbeatInterval;
+            _config.MessageTimeout = messageTimeout;
+            _config.MaxHops = maxHops;
+            _config.OperationsPerReplica = opsPerReplica;
+            _config.DelayBetweenOperations = delayBetweenOps;
+            _config.DelayBetweenSends = delayBetweenSends;
+
+            SimulationConfig.Current = _config.Clone();
+
+            // Synchronize toolbar protocol dropdown
+            SetComboBoxItem(ProtocolComboBox, routingProtocol);
+
+            // Restart simulation with new config
+            StartSimulation(_config, forceNewSeed: false);
+            GraphViewControl.FitToView();
+        }
+
+        private void ShowDrawerValidation(string message)
+        {
+            DrawerValidationTextBlock.Text = "⚠ " + message;
+            DrawerValidationTextBlock.Visibility = Visibility.Visible;
+        }
+
+        private static void SetComboBoxItem(ComboBox? comboBox, string value)
+        {
+            if (comboBox == null) return;
+            foreach (ComboBoxItem item in comboBox.Items)
+            {
+                if (string.Equals(item.Content?.ToString(), value, StringComparison.OrdinalIgnoreCase))
+                {
+                    comboBox.SelectedItem = item;
+                    return;
+                }
+            }
         }
 
         #endregion
