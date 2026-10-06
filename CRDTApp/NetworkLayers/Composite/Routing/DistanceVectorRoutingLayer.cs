@@ -1,4 +1,4 @@
-﻿using CRDTApp.Messages;
+using CRDTApp.Messages;
 using CRDTApp.Messages.LayerMessages;
 using CRDTApp.NetworkLayers.Composite.Routing.Helper;
 using CRDTApp.Schedulers;
@@ -27,13 +27,14 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         uint maxTTLHops;
         HashSet<ReplicaID> sendingTo = new();
 
-        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, uint maxTTLHops) : base(layerBelow, false, true, true)
+        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, uint maxTTLHops, float heartbeatTime = 1.0f) : base(layerBelow, false, true, true)
         {
             this.connectionTracker = connectionTracker;
             this.replicaID = replicaID;
             this.scheduler = scheduler;
             table = new DistanceTable(replicaID);
             this.maxTTLHops = maxTTLHops;
+            this.heartbeatTime = heartbeatTime;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
             AddOnConnectionInterruptedHandler(table.ResetConnection);
             AddOnConnectionRegainedHandler(OnConnectionGained);

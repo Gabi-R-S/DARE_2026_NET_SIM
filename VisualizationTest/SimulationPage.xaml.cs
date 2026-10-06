@@ -123,10 +123,6 @@ namespace VisualizationTest
             Interlocked.Exchange(ref _protocolPacketsScheduled, 0);
             Interlocked.Exchange(ref _convergedCount, 0);
 
-            // Configure static defaults on NetworkCreationFunctions
-            NetworkCreationFunctions.HEARTBEAT_TIME = config.HeartbeatInterval;
-            NetworkCreationFunctions.MESSAGE_TIMEOUT = config.MessageTimeout;
-
             // Generate the network configuration based on selected topology
             (ConnectionMap map, List<ReplicaID> replicas) = SimulationConfig.CreateNetwork(config, seed);
 
@@ -228,61 +224,36 @@ namespace VisualizationTest
             ReplicaID id,
             SimulationConfig config)
         {
-            var set = simulator.GetAllKnownReplicas();
-            set.Remove(id);
-            ActiveConnectionTracker tracker = new(new HashSet<ReplicaID> { id }, set, id);
-            IScheduler scheduler = new SimulationScheduler(simulator);
-            SimulatedNetworkBaseLayer baseLayer = new(simulator, id);
-
             switch (stackType)
             {
                 case "Distance Vector":
-                {
-                    TrackMessageReceptionTimeoutLayer timeoutLayer = new(id, config.MessageTimeout, scheduler, baseLayer, false);
-                    TrackActiveConnectionsLayer trackerLayer = new(timeoutLayer, tracker, id);
-                    DistanceTrackerLayer distanceTrackerLayer = new(trackerLayer, tracker, id, scheduler);
-                    uint maxTTL = Math.Max(config.MaxHops, (uint)simulator.ConnectionMap.GetAllKnownReplicas().Count);
-                    DistanceVectorRoutingLayer distanceVectorRoutingLayer = new(id, tracker, distanceTrackerLayer, scheduler, maxTTL);
-                    int i = 0;
-                    EnsureAckNetworkLayer<int> ackLayer = new(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; });
-                    return (ackLayer, scheduler, new List<ExtraMetric>());
-                }
+                    return NetworkCreationFunctions.CreateBasicDistanceVectorStack(
+                        simulator,
+                        id,
+                        config.MessageTimeout,
+                        config.HeartbeatInterval);
 
                 case "Link State":
-                {
-                    TrackMessageReceptionTimeoutLayer timeoutLayer = new(id, config.MessageTimeout, scheduler, baseLayer, false);
-                    TrackActiveConnectionsLayer trackerLayer = new(timeoutLayer, tracker, id);
-                    DistanceTrackerLayer distanceTrackerLayer = new(trackerLayer, tracker, id, scheduler);
-                    HeartbeatLayer heartbeat = new(tracker, distanceTrackerLayer, scheduler, config.HeartbeatInterval, id);
-                    LinkStateRoutingLayer lsLayer = new(id, heartbeat, tracker);
-                    int i = 0;
-                    EnsureAckNetworkLayer<int> ackLayer = new(id, lsLayer, scheduler, (_) => { i++; return i; });
-                    return (ackLayer, scheduler, new List<ExtraMetric>());
-                }
+                    return NetworkCreationFunctions.CreateBasicLinkStateStack(
+                        simulator,
+                        id,
+                        config.MessageTimeout,
+                        config.HeartbeatInterval);
 
                 case "No-Route (Ack)":
-                {
-                    int i = 0;
-                    EnsureAckNetworkLayer<int> ackLayer = new(id, baseLayer, scheduler, (_) => { i++; return i; });
-                    return (ackLayer, scheduler, new List<ExtraMetric>());
-                }
+                    return NetworkCreationFunctions.CreateBasicNoRouteStack(simulator, id);
 
                 case "Base Layer Only":
-                {
-                    return (baseLayer, scheduler, new List<ExtraMetric>());
-                }
+                    return NetworkCreationFunctions.CreateOnlyBaseLayer(simulator, id);
 
                 case "Flood Routing":
                 default:
-                {
-                    TrackMessageReceptionTimeoutLayer timeoutLayer = new(id, config.MessageTimeout, scheduler, baseLayer, false);
-                    TrackActiveConnectionsLayer trackerLayer = new(timeoutLayer, tracker, id);
-                    HeartbeatLayer heartbeat = new(tracker, trackerLayer, scheduler, config.HeartbeatInterval, id);
-                    FloodingRedirectionLayer flood = new(id, scheduler, tracker, heartbeat, config.MaxHops, 60.0f);
-                    int i = 0;
-                    EnsureAckNetworkLayer<int> ackLayer = new(id, flood, scheduler, (_) => { i++; return i; });
-                    return (ackLayer, scheduler, new List<ExtraMetric>());
-                }
+                    return NetworkCreationFunctions.CreateBasicFloodRoutingStack(
+                        simulator,
+                        id,
+                        config.MessageTimeout,
+                        config.HeartbeatInterval,
+                        config.MaxHops);
             }
         }
 

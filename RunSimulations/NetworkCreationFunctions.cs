@@ -34,7 +34,13 @@ namespace RunSimulations
             return (ackLayer, scheduler, new List<ExtraMetric>());
         }
 
-        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicFloodRoutingStack(NetworkSimulator simulator, ReplicaID id)
+        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicFloodRoutingStack(
+            NetworkSimulator simulator,
+            ReplicaID id,
+            float messageTimeout = 5.0f,
+            float heartbeatTime = 0.1f,
+            uint numHops = 5,
+            float forgettingTime = 60.0f)
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
@@ -42,12 +48,12 @@ namespace RunSimulations
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
 
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, MESSAGE_TIMEOUT, scheduler, baseLayer, false);
+            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, messageTimeout, scheduler, baseLayer, false);
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker, id);
-            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, HEARTBEAT_TIME, id);
+            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, heartbeatTime, id);
 
-            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(id, scheduler, tracker, heartbeat, 5, 60.0f);
+            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(id, scheduler, tracker, heartbeat, numHops, forgettingTime);
 
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, flood, scheduler, (_) => { i++; return i; });
@@ -57,7 +63,11 @@ namespace RunSimulations
             return (ackLayer, scheduler, new List<ExtraMetric>());
 
         }
-        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicDistanceVectorStack(NetworkSimulator simulator, ReplicaID id)
+        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicDistanceVectorStack(
+            NetworkSimulator simulator,
+            ReplicaID id,
+            float messageTimeout = 5.0f,
+            float heartbeatTime = 1.0f)
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
@@ -65,13 +75,13 @@ namespace RunSimulations
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
 
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, MESSAGE_TIMEOUT, scheduler, baseLayer, false);
+            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, messageTimeout, scheduler, baseLayer, false);
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker, id);
 
             DistanceTrackerLayer distanceTrackerLayer = new DistanceTrackerLayer(trackerLayer, tracker, id, scheduler);
 
-            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, distanceTrackerLayer, scheduler, (uint)simulator.ConnectionMap.GetAllKnownReplicas().Count);
+            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, distanceTrackerLayer, scheduler, (uint)simulator.ConnectionMap.GetAllKnownReplicas().Count, heartbeatTime);
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; });
 
@@ -80,7 +90,11 @@ namespace RunSimulations
             return (ackLayer, scheduler, new List<ExtraMetric>());
 
         }
-        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicLinkStateStack(NetworkSimulator simulator, ReplicaID id)
+        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicLinkStateStack(
+            NetworkSimulator simulator,
+            ReplicaID id,
+            float messageTimeout = 5.0f,
+            float heartbeatTime = 0.1f)
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
@@ -88,11 +102,11 @@ namespace RunSimulations
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
 
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, MESSAGE_TIMEOUT, scheduler, baseLayer, false);
+            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, messageTimeout, scheduler, baseLayer, false);
 
             TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker, id);
             DistanceTrackerLayer distanceTrackerLayer = new DistanceTrackerLayer(trackerLayer, tracker, id, scheduler);
-            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, distanceTrackerLayer, scheduler, HEARTBEAT_TIME, id);
+            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, distanceTrackerLayer, scheduler, heartbeatTime, id);
 
             int i = 0;
             LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id, heartbeat, tracker);
