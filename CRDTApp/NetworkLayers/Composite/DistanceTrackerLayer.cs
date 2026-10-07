@@ -24,6 +24,12 @@ namespace CRDTApp.NetworkLayers.Composite
        
         public void OnConnectionInterrupted(ReplicaID replica)
         {
+
+            if (!Running)
+            {
+                return;
+            }
+
             if (replica != replicaID) {
                 tracker.SetDistance(replica, float.PositiveInfinity);
             }
@@ -31,6 +37,11 @@ namespace CRDTApp.NetworkLayers.Composite
         }
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
+
+            if (!Running)
+            {
+                return;
+            }
             var message = DistanceTrackerMessage.FromJson(lowerLayerMessage.Payload);
             if (message == null)
             {
@@ -47,6 +58,11 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+
+            if (!Running)
+            {
+                return Task.FromResult(false);
+            }
 
             var newMessage = new DistanceTrackerMessage(scheduler.GetCurrentTime(), message).AsMessage();
 

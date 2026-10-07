@@ -58,11 +58,23 @@ namespace CRDTApp.NetworkLayers.Composite
         }
         void OnLowerLevelMessageReceived(ReplicaID sender, Message message)
         {
+
+            if (!Running)
+            {
+                return;
+            }
+
             SetTime(sender);
             CallMessageReceived(sender, message);
         }
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+
+            if (!Running)
+            {
+                return false;
+            }
+
             var res = await LayerBelow.SendMessage(recipient, message);
 
             if (res&&trackSends) {

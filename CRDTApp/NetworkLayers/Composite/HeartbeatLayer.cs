@@ -29,6 +29,12 @@ namespace CRDTApp.NetworkLayers.Composite
         }
 
         void OnConnectionGained(ReplicaID replica) {
+
+            if (!Running)
+            {
+                return;
+            }
+
             lock (sendingTo)
             {
                 if (replica != replicaID && !sendingTo.Contains(replica) && Running)
@@ -41,6 +47,11 @@ namespace CRDTApp.NetworkLayers.Composite
 
         void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
+
+            if (!Running)
+            {
+                return;
+            }
             var heartbeatMessage = HeartbeatMessage.FromJson(message.Payload);
             if (heartbeatMessage == null)
             {
@@ -95,6 +106,10 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+            if (!Running)
+            {
+                return Task.FromResult(false);
+            }
             return LayerBelow.SendMessage(recipient, new Message(new HeartbeatMessage(message).ToJson()));
         }
 

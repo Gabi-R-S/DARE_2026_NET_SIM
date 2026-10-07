@@ -122,6 +122,12 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+
+            if (!Running)
+            {
+                return false;
+            }
+
             var newMessage = new Message(new FloodMessage(recipient, replicaID, GetNextTag(), message, numHops).ToJson());
 
             if (recipient == replicaID)

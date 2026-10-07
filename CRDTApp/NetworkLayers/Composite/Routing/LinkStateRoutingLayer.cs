@@ -229,6 +229,11 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void SendLSA(ReplicaID target, LSA lsa)
         {
+
+            if (!Running)
+            {
+                return;
+            }
             LayerBelow.SendMessage(target,
                 new Message(
                     new LinkStateMessage(target, replicaID,
@@ -240,6 +245,12 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void FloodLSA(LSA lsa, ReplicaID sender)
         {
+
+            if (!Running)
+            {
+                return;
+            }
+
             foreach (var replica in connectionTracker.ActiveConnections)
             {
                 if (replica != sender && replica != replicaID)
@@ -301,6 +312,11 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+
+            if (!Running)
+            {
+                return Task.FromResult(false);
+            }
             var newMessage = new LinkStateMessage(recipient, replicaID, message).AsMessage();
 
             return LayerBelow.SendMessage(GetNextNodeInPathTo(recipient), newMessage);

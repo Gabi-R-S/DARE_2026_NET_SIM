@@ -23,24 +23,45 @@ namespace CRDTApp.NetworkLayers.Composite
         }
 
         void OnInterruption(ReplicaID replica) {
+
+            if (!Running)
+            {
+                return;
+            }
             if (tracker.SetInnactive(replica) && replica != replicaID) {
                 CallConnectionInterrupted(replica);
             }
         }
 
         void OnConnectionRegained(ReplicaID replica) {
+
+            if (!Running)
+            {
+                return;
+            }
             if (tracker.SetActive(replica)&&replica!=replicaID) {
                 CallConnectionRegained(replica);
             }
         }
 
         void OnLowerLevelMessageReceived(ReplicaID sender, Message message) {
+
+            if (!Running)
+            {
+                return;
+            }
             tracker.SetActive(sender);
             CallMessageReceived(sender,message);
         }
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+
+            if (!Running)
+            {
+                return false;
+            }
+
             var res = await LayerBelow.SendMessage(recipient, message);
 
             if (trackSends)

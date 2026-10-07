@@ -110,6 +110,12 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+
+            if (!Running)
+            {
+                return Task.FromResult(false);
+            }           
+
             var newMessage = new DistanceVectorMessage(recipient, replicaID, message, false, maxTTLHops).AsMessage();
 
             if (recipient == replicaID)

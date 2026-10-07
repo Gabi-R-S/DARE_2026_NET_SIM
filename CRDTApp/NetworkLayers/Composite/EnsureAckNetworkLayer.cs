@@ -85,6 +85,12 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+
+            if (!Running)
+            {
+                return false;
+            }
+
             var newTag = GenerateNextTag(replicaID);
 
             var trackerMessage = new EnsureAckMessage<T>(newTag, message);
