@@ -12,22 +12,27 @@ namespace CRDTApp.NetworkLayers
 {
     public abstract class NetworkLayer
     {
+        enum Running { 
+        RUNNING,
+        STOPPED
+        }
         public virtual void Stop()
         {
             SetRunning(false);
             LayerBelow?.Stop();
             
         }
-        public volatile bool Running;
+        volatile Running running = Running.STOPPED;
 
         protected void SetRunning(bool value)
         {
-            bool previousValue = Running;
+            Running previousValue = running;
             Debug.WriteLine(
                 $"Network layer Running transition: {GetType().FullName} " +
                 $"instance={RuntimeHelpers.GetHashCode(this)} {previousValue} -> {value}");
-            Running = value;
+            running = value ? Running.RUNNING : Running.STOPPED;
         }
+        public bool IsRunning { get { return running==Running.RUNNING; } }
 
         public NetworkLayer? LayerBelow { get; private set; }
         public NetworkLayer(NetworkLayer? layerBelow = null, bool connectMessageReceived = false, bool connectConnectionInterrupted = false, bool connectConnectionRegained = false)
@@ -69,14 +74,14 @@ namespace CRDTApp.NetworkLayers
 
         protected void CallConnectionRegained(ReplicaID replica)
         {
-            if (Running == false) {
+            if (IsRunning == false) {
                 return;
             }
             ConnectionRegained?.Invoke(replica);
         }
         protected void CallMessageReceived(ReplicaID replica, Message? message)
         {
-            if (Running == false)
+            if (IsRunning == false)
             {
                 return;
             }
@@ -85,7 +90,7 @@ namespace CRDTApp.NetworkLayers
 
         protected void CallConnectionInterrupted(ReplicaID replica)
         {
-            if (Running == false)
+            if (IsRunning == false)
             {
                 return;
             }
@@ -122,7 +127,7 @@ namespace CRDTApp.NetworkLayers
         public virtual Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (Running == false)
+            if (IsRunning == false)
             {
                 return Task.FromResult(false);
             }

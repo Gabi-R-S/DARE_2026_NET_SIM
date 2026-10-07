@@ -26,7 +26,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
 
         void SetTime(ReplicaID replica) {
-            if (Running)
+            if (IsRunning)
             {
 
                 float timeSinceTimeout = -1;
@@ -59,7 +59,7 @@ namespace CRDTApp.NetworkLayers.Composite
         void OnLowerLevelMessageReceived(ReplicaID sender, Message message)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -70,7 +70,7 @@ namespace CRDTApp.NetworkLayers.Composite
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return false;
             }

@@ -27,7 +27,7 @@ namespace CRDTApp.NetworkLayers.Base
 
         void OnSimulatorMessageReceived(NetworkMessage message) {
 
-            if (Running==false)
+            if (IsRunning == false)
             {
                 return;
             }
@@ -39,7 +39,7 @@ namespace CRDTApp.NetworkLayers.Base
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (Running==false)
+            if (IsRunning == false)
             {
                 return false;
             }

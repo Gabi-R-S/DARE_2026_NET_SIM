@@ -145,7 +145,7 @@ namespace Tests_1
             var unclosedAppIndices = new List<int>();
             for (int i = 0; i < numApps; i++)
             {
-                if (networkLayers[i].Running)
+                if (networkLayers[i].IsRunning)
                 {
                     unclosedAppIndices.Add(i);
                 }

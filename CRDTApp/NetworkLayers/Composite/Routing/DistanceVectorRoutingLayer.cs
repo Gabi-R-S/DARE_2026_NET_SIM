@@ -15,10 +15,6 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
     public class DistanceVectorRoutingLayer : NetworkLayer
     {
 
-
-
-
-
         ReplicaID replicaID;
         ActiveConnectionTracker connectionTracker;
         IScheduler scheduler;
@@ -42,14 +38,14 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void OnConnectionGained(ReplicaID replica)
         {
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
             lock (sendingTo)
             {
 
-                if (replica != replicaID && !sendingTo.Contains(replica) && Running)
+                if (replica != replicaID && !sendingTo.Contains(replica) && IsRunning)
                 {
                     sendingTo.Add(replica);
                     Task.Run(() => Hearbeat(replica));
@@ -59,7 +55,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -111,7 +107,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return Task.FromResult(false);
             }           
@@ -136,7 +132,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         async Task Hearbeat(ReplicaID replica)
         {
-            if (Running)
+            if (IsRunning)
             {
                 DistanceTableUpdateMessage message = table.GetUpdate(scheduler, replica);
                 Message messg = new Message(message.ToJson());
@@ -147,7 +143,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
                 scheduler.ExecuteAfter(heartbeatTime, () =>
                 {
-                    if (Running)
+                    if (IsRunning)
                     {
                         Hearbeat(replica);
                     }

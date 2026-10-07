@@ -68,7 +68,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -91,7 +91,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 bool toForward = false;
                 lock (rememberedMessages)
                 {
-                    toForward = floodMessage.NumberOfHops > 0 && Running && floodMessage.OriginalSender != replicaID && !rememberedMessages.Contains((floodMessage.Tag, floodMessage.OriginalSender));
+                    toForward = floodMessage.NumberOfHops > 0 && IsRunning && floodMessage.OriginalSender != replicaID && !rememberedMessages.Contains((floodMessage.Tag, floodMessage.OriginalSender));
                 }
                 if (toForward)
                 {
@@ -123,7 +123,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return false;
             }

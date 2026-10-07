@@ -31,7 +31,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         void OnAckReceived(T tag, ReplicaID senderID)
         {
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -49,7 +49,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -86,7 +86,7 @@ namespace CRDTApp.NetworkLayers.Composite
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return false;
             }
@@ -97,7 +97,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
             var networkMessage = new Message(trackerMessage.ToJson());
 
-            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT && Running; i++)
+            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT && IsRunning; i++)
             {
                 var semaphore = new SemaphoreSlim(0);
                 lock (pendingAcks)
@@ -118,7 +118,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
             }
 
-            if (Running)
+            if (IsRunning)
             {
                 CallConnectionInterrupted(recipient);
             }

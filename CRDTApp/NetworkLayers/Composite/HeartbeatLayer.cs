@@ -30,14 +30,14 @@ namespace CRDTApp.NetworkLayers.Composite
 
         void OnConnectionGained(ReplicaID replica) {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
 
             lock (sendingTo)
             {
-                if (replica != replicaID && !sendingTo.Contains(replica) && Running)
+                if (replica != replicaID && !sendingTo.Contains(replica) && IsRunning)
                 {
                     sendingTo.Add(replica);
                     Hearbeat(replica);
@@ -48,7 +48,7 @@ namespace CRDTApp.NetworkLayers.Composite
         void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -67,7 +67,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         async Task Hearbeat(ReplicaID replica)
         {
-            if (Running)
+            if (IsRunning)
             {
                 HeartbeatMessage message = new HeartbeatMessage(null, true);
                 Message messg = new Message(message.ToJson());
@@ -76,7 +76,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
                 scheduler.ExecuteAfter(heartbeatTime, () =>
                 {
-                    if (Running)
+                    if (IsRunning)
                     {
                         Hearbeat(replica);
                     }
@@ -106,7 +106,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-            if (!Running)
+            if (!IsRunning)
             {
                 return Task.FromResult(false);
             }

@@ -37,7 +37,7 @@ namespace CRDTApp.NetworkLayers.Base
             using (socket)
             {
                 var buffer = new byte[MESSAGE_SIZE_LIMIT];
-                while (Running)
+                while (IsRunning)
                 {
                     try
                     {
@@ -69,7 +69,7 @@ namespace CRDTApp.NetworkLayers.Base
             SetRunning(true);
        
             var tasks = new List<Task>();
-            while (Running)
+            while (IsRunning)
             {
                 try
                 {
@@ -98,7 +98,7 @@ namespace CRDTApp.NetworkLayers.Base
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-            if (!Running)
+            if (!IsRunning)
             {
                 return false;
             }

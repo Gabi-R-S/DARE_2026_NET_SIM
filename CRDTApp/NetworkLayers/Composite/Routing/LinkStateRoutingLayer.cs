@@ -175,7 +175,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnConnect(ReplicaID replica)
         {
-            if (Running)
+            if (IsRunning)
             {
                 lock (mostRecentLSAs)
                 {
@@ -195,7 +195,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         }
         public void OnDisconnect(ReplicaID replica)
         {
-            if (Running)
+            if (IsRunning)
             {
                 var lsa = CreateNextLSA();
                 FloodLSA(lsa, replicaID);
@@ -230,7 +230,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         void SendLSA(ReplicaID target, LSA lsa)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -246,7 +246,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         void FloodLSA(LSA lsa, ReplicaID sender)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -262,7 +262,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
-            if(!Running)
+            if(!IsRunning)
             {
                 return;
             }
@@ -313,7 +313,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return Task.FromResult(false);
             }

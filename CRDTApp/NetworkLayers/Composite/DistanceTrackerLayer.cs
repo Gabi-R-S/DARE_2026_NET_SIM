@@ -25,7 +25,7 @@ namespace CRDTApp.NetworkLayers.Composite
         public void OnConnectionInterrupted(ReplicaID replica)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -38,7 +38,7 @@ namespace CRDTApp.NetworkLayers.Composite
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return;
             }
@@ -59,7 +59,7 @@ namespace CRDTApp.NetworkLayers.Composite
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!Running)
+            if (!IsRunning)
             {
                 return Task.FromResult(false);
             }
