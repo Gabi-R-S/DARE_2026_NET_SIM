@@ -72,9 +72,9 @@ namespace VisualizationTest.Graph
             @"""IsAck""\s*:\s*(?:true|""true"")\b",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
 
-        private static readonly System.Text.RegularExpressions.Regex AppAckFalseRegex = new(
-            @"""IsAck""\s*:\s*(?:false|""false"")\b",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+        // NOTE: AppAckFalseRegex ("IsAck":false) was removed — it matched ALL EnsureAck data
+        // wrappers (heartbeats, routing retries, CRDT sends) and caused everything to be
+        // misclassified as APP traffic. CRDT packets are identified by their inner payload keys.
 
         private static readonly System.Text.RegularExpressions.Regex DistancesRegex = new(
             @"""Distances""\s*:",
@@ -151,12 +151,12 @@ namespace VisualizationTest.Graph
 
             // ── 5. App CRDT data ────────────────────────────────────────────────────────
             // InsertBehaviour sends ORSet operations serialized as JSON with "adds" or "removes".
-            // CausalHistoryTrackerLayer adds "CausalityTracker" metadata.
-            // EnsureAckNetworkLayer sets IsAck:false when carrying application data.
+            // CausalHistoryTrackerLayer wraps them with "CausalityTracker" metadata.
+            // These keys are unique to CRDT payloads and correctly identify app data
+            // regardless of what EnsureAck layer wrapper surrounds them.
             bool hasAppContent = AddsRegex.IsMatch(clean)
                               || RemovesRegex.IsMatch(clean)
-                              || clean.Contains("CausalityTracker", StringComparison.OrdinalIgnoreCase)
-                              || AppAckFalseRegex.IsMatch(clean);
+                              || clean.Contains("CausalityTracker", StringComparison.OrdinalIgnoreCase);
 
             if (hasAppContent)
             {

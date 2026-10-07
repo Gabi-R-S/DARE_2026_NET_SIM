@@ -31,6 +31,11 @@ namespace CRDTApp.NetworkLayers.Composite
 
         void OnAckReceived(T tag, ReplicaID senderID)
         {
+            if (!Running)
+            {
+                return;
+            }
+
             lock (pendingAcks)
             {
                 if (pendingAcks.ContainsKey((tag, senderID)))
