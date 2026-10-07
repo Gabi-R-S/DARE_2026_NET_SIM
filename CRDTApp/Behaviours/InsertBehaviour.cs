@@ -123,7 +123,27 @@ namespace CRDTApp.Behaviours
             running = false;
         }
 
-    
 
+        public void InsertManualValue(int val)
+        {
+            if (!running) return;
+            ORSet<int> addOp;
+            lock (ints)
+            {
+                addOp = ints.CreateAddOperation(replicaID, val);
+                ints.Merge(addOp);
+                OperationApplied?.Invoke(replicaID, ints.GetValues().Count, expectedCount);
+
+                if (ints.GetValues().Count == expectedCount)
+                {
+                    CallBehaviourEnded();
+                }
+            }
+            Message message = historyTracker.TagMessage(new Message(addOp.ToJson((i) => i.ToString()))).AsMessage();
+            foreach (ReplicaID replica in otherReplicas)
+            {
+                SendUntilSuccess(replica, message);
+            }
+        }
     }
 }
