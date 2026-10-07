@@ -31,6 +31,8 @@ namespace VisualizationTest
         private RealtimeSimulator? _simulator;
         private readonly List<CRDTApp.App> _apps = new();
         private readonly List<InsertBehaviour> _behaviours = new();
+        private readonly Dictionary<ReplicaID, CRDTApp.App> _appsByReplica = new();
+        private readonly HashSet<ReplicaID> _completedReplicas = new();
         private GraphState? _graphState;
         private DateTime _simulationStartTime;
 
@@ -183,6 +185,7 @@ namespace VisualizationTest
 
                 _apps.Add(app);
                 _behaviours.Add(behaviour);
+                _appsByReplica[replica] = app;
 
                 _simulator.AddRunEvent(() => app.Run());
                 _simulator.AddCloseEvent(() => Task.Run(app.Close));
@@ -259,6 +262,12 @@ namespace VisualizationTest
 
         private void StopSimulation()
         {
+            lock (_completedReplicas)
+            {
+                _completedReplicas.Clear();
+            }
+            _appsByReplica.Clear();
+
             if (_apps.Count > 0)
             {
                 foreach (var app in _apps)
@@ -296,7 +305,8 @@ namespace VisualizationTest
                 packetInfo.Brush,
                 packetInfo.GlowBrush,
                 packetInfo.Label,
-                message);
+                message,
+                packetInfo.Size);
 
             _graphState.LightUpEdge(message.Source.ID, message.Recipient.ID);
 
@@ -323,15 +333,65 @@ namespace VisualizationTest
             {
                 if (_graphState != null && _graphState.TryGetNode(replica.ID, out var node) && node != null)
                 {
-                    double pct = expectedCount > 0 ? (double)currentCount / expectedCount : 0.0;
-                    node.Tag = $"Replica {replica.ID}\nCRDT Ops: {currentCount} / {expectedCount} ({pct:P0})\nStatus: Merging operations";
+                    bool isCompleted;
+                    lock (_completedReplicas)
+                    {
+                        isCompleted = _completedReplicas.Contains(replica);
+                    }
+
+                    if (!isCompleted)
+                    {
+                        double pct = expectedCount > 0 ? (double)currentCount / expectedCount : 0.0;
+                        node.Tag = $"Replica {replica.ID}\nCRDT Ops: {currentCount} / {expectedCount} ({pct:P0})\nStatus: Merging operations";
+                    }
                 }
             }));
         }
 
         private void OnBehaviourEnded(ReplicaID replica)
         {
-            Interlocked.Increment(ref _convergedCount);
+            bool isNewlyCompleted = false;
+            bool allCompleted = false;
+
+            lock (_completedReplicas)
+            {
+                if (_completedReplicas.Add(replica))
+                {
+                    isNewlyCompleted = true;
+                    Interlocked.Increment(ref _convergedCount);
+
+                    // 1. Stop this app's usual behaviour (InsertBehaviour); it will only forward messages now
+                    if (_appsByReplica.TryGetValue(replica, out var app))
+                    {
+                        try
+                        {
+                            app.Behaviour.Stop();
+                        }
+                        catch { }
+                    }
+
+                    // 2. Check if all tasks are completed
+                    if (_completedReplicas.Count >= _apps.Count)
+                    {
+                        allCompleted = true;
+                    }
+                }
+            }
+
+            if (!isNewlyCompleted) return;
+
+            // If all tasks across all apps are completed, close all apps
+            if (allCompleted)
+            {
+                foreach (var app in _apps)
+                {
+                    try
+                    {
+                        app.Close();
+                    }
+                    catch { }
+                }
+            }
 
             Dispatcher.BeginInvoke(DispatcherPriority.Normal, new Action(() =>
             {
@@ -339,7 +399,20 @@ namespace VisualizationTest
                 {
                     node.Stroke = ConvergedNodeStroke;
                     node.Fill = ConvergedNodeFill;
-                    node.Tag = $"Replica {replica.ID}\nCRDT Ops: Fully Converged!\nStatus: Completed";
+                    node.Tag = allCompleted
+                        ? $"Replica {replica.ID}\nCRDT Ops: Fully Converged!\nStatus: Completed (All Apps Closed)"
+                        : $"Replica {replica.ID}\nCRDT Ops: Fully Converged!\nStatus: Completed (Forwarding only)";
+                }
+
+                if (allCompleted)
+                {
+                    foreach (var r in _appsByReplica.Keys)
+                    {
+                        if (_graphState != null && _graphState.TryGetNode(r.ID, out var n) && n != null)
+                        {
+                            n.Tag = $"Replica {r.ID}\nCRDT Ops: Fully Converged!\nStatus: Completed (All Apps Closed)";
+                        }
+                    }
                 }
             }));
         }
@@ -437,8 +510,16 @@ namespace VisualizationTest
         {
             if (_behaviours.Count == 0) return;
 
-            int index = _random.Next(_behaviours.Count);
-            var targetBehaviour = _behaviours[index];
+            List<InsertBehaviour> activeBehaviours;
+            lock (_completedReplicas)
+            {
+                activeBehaviours = _behaviours.FindAll(b => !_completedReplicas.Contains(b.ReplicaID));
+            }
+
+            if (activeBehaviours.Count == 0) return;
+
+            int index = _random.Next(activeBehaviours.Count);
+            var targetBehaviour = activeBehaviours[index];
             int opVal = 1000 + _random.Next(9000);
             targetBehaviour.InsertManualValue(opVal);
         }

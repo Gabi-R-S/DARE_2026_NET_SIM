@@ -229,11 +229,12 @@ namespace VisualizationTest.Graph
         /// <summary>
         /// Thread-safe convenience method to spawn a particle.
         /// </summary>
-        public void SpawnParticle(object sourceId, object targetId, double durationSeconds, Brush? fill = null, Brush? glowBrush = null, string? label = null, object? payload = null)
+        public void SpawnParticle(object sourceId, object targetId, double durationSeconds, Brush? fill = null, Brush? glowBrush = null, string? label = null, object? payload = null, double size = 5.0)
         {
             var p = new GraphParticle(sourceId, targetId, durationSeconds, fill, glowBrush, label)
             {
-                Payload = payload
+                Payload = payload,
+                Size = size
             };
             SpawnParticle(p);
         }

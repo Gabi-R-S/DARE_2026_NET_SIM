@@ -64,6 +64,38 @@ namespace VisualizationTest.Graph
         public static readonly Brush GeneralProtocolBrush = Freeze(new SolidColorBrush(Color.FromRgb(244, 63, 94))); // Rose 500
         public static readonly Brush GeneralProtocolGlow = Freeze(new SolidColorBrush(Color.FromArgb(100, 251, 113, 133)));
 
+        private static readonly System.Text.RegularExpressions.Regex HeartbeatRegex = new(
+            @"""HeartBeat""\s*:\s*(?:true|""true"")\b",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static readonly System.Text.RegularExpressions.Regex AckRegex = new(
+            @"""IsAck""\s*:\s*(?:true|""true"")\b",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static readonly System.Text.RegularExpressions.Regex AppAckFalseRegex = new(
+            @"""IsAck""\s*:\s*(?:false|""false"")\b",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static readonly System.Text.RegularExpressions.Regex DistancesRegex = new(
+            @"""Distances""\s*:",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static readonly System.Text.RegularExpressions.Regex NeighboursRegex = new(
+            @"""Neighbours""\s*:",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static readonly System.Text.RegularExpressions.Regex ProtocolMsgRegex = new(
+            @"""IsProtocolMessage""\s*:\s*(?:true|""true"")\b",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static readonly System.Text.RegularExpressions.Regex AddsRegex = new(
+            @"""adds""\s*:",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static readonly System.Text.RegularExpressions.Regex RemovesRegex = new(
+            @"""removes""\s*:",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
         private static T Freeze<T>(T freezable) where T : Freezable
         {
             if (freezable.CanFreeze) freezable.Freeze();
@@ -81,10 +113,15 @@ namespace VisualizationTest.Graph
                 return new PacketInfo(true, "Protocol", "PROT", GeneralProtocolBrush, GeneralProtocolGlow, 4.0);
             }
 
+            // In nested network layers, payloads are wrapped in JSON string properties (e.g. Message.Payload).
+            // Each level of nesting escapes quotes with backslashes (\", \\\", \\\\\\\", etc.).
+            // Removing all backslashes produces an unescaped representation where JSON keys
+            // and values can be matched reliably regardless of nesting depth.
+            string clean = payload.Replace("\\", "");
+
             // ── 1. Pure heartbeat ──────────────────────────────────────────────────────
             // HeartbeatMessage serializes HeartBeat:true when it is a probe (no data payload).
-            // This appears anywhere in the JSON string because Contains() searches recursively.
-            if (payload.Contains("\"HeartBeat\":true", StringComparison.OrdinalIgnoreCase))
+            if (HeartbeatRegex.IsMatch(clean))
             {
                 return new PacketInfo(true, "Heartbeat", "HB", HeartbeatBrush, HeartbeatGlow, 4.0);
             }
@@ -92,71 +129,47 @@ namespace VisualizationTest.Graph
             // ── 2. ACK packet ──────────────────────────────────────────────────────────
             // EnsureAckNetworkLayer sends IsAck:true for pure acknowledgements.
             // These carry no app data (Message payload is empty string "").
-            if (payload.Contains("\"IsAck\":true", StringComparison.OrdinalIgnoreCase))
+            if (AckRegex.IsMatch(clean))
             {
                 return new PacketInfo(true, "Ack", "ACK", AckBrush, AckGlow, 4.5);
             }
 
             // ── 3. Distance Vector routing update ──────────────────────────────────────
             // DistanceVectorMessage with IsProtocolMessage:true wraps a DistanceTableUpdateMessage
-            // that contains "Distances":{...}. Both markers appear in the same payload.
-            if (payload.Contains("\"IsProtocolMessage\":true", StringComparison.OrdinalIgnoreCase)
-                && payload.Contains("\"Distances\":", StringComparison.OrdinalIgnoreCase))
+            // containing "Distances":{...}.
+            if (DistancesRegex.IsMatch(clean) || clean.Contains("DistanceTableUpdate", StringComparison.OrdinalIgnoreCase))
             {
                 return new PacketInfo(true, "Distance Vector Update", "DV", RoutingBrush, RoutingGlow, 5.0);
             }
 
             // ── 4. Link State Advertisement (LSA flood) ────────────────────────────────
             // LinkStateMessage with IsProtocolMessage:true wraps an LSA containing "Neighbours":[...].
-            if (payload.Contains("\"IsProtocolMessage\":true", StringComparison.OrdinalIgnoreCase)
-                && payload.Contains("\"Neighbours\":", StringComparison.OrdinalIgnoreCase))
+            if (NeighboursRegex.IsMatch(clean) || clean.Contains("\"LSA\"", StringComparison.OrdinalIgnoreCase))
             {
                 return new PacketInfo(true, "Link State Advertisement", "LSA", LsaBrush, LsaGlow, 5.0);
             }
 
-            // ── 5. Generic IsProtocolMessage:true (any other routing protocol control msg) ──
-            if (payload.Contains("\"IsProtocolMessage\":true", StringComparison.OrdinalIgnoreCase))
-            {
-                return new PacketInfo(true, "Routing Protocol", "ROUTE", RoutingBrush, RoutingGlow, 5.0);
-            }
-
-            // ── 6. Standalone Distances or Neighbours field (safety net) ───────────────
-            if (payload.Contains("\"Distances\":", StringComparison.OrdinalIgnoreCase))
-            {
-                return new PacketInfo(true, "Distance Table Update", "DV", RoutingBrush, RoutingGlow, 5.0);
-            }
-            if (payload.Contains("\"Neighbours\":", StringComparison.OrdinalIgnoreCase))
-            {
-                return new PacketInfo(true, "Link State LSA", "LSA", LsaBrush, LsaGlow, 5.0);
-            }
-
-            // ── 7. App CRDT data ────────────────────────────────────────────────────────
-            // InsertBehaviour sends ORSet operations serialized as JSON with "Adds" or "Removes".
+            // ── 5. App CRDT data ────────────────────────────────────────────────────────
+            // InsertBehaviour sends ORSet operations serialized as JSON with "adds" or "removes".
             // CausalHistoryTrackerLayer adds "CausalityTracker" metadata.
-            // IsAck:false marks a data-carrying EnsureAck envelope, BUT we only treat it as App
-            // if there is actual app-level content (Adds/Removes/CausalityTracker) present too,
-            // to avoid misclassifying bare routing envelopes that happen to have IsAck:false.
-            bool hasAppContent = payload.Contains("\"Adds\":", StringComparison.OrdinalIgnoreCase)
-                              || payload.Contains("\"Removes\":", StringComparison.OrdinalIgnoreCase)
-                              || payload.Contains("CausalityTracker", StringComparison.OrdinalIgnoreCase);
-
-            bool isDataCarrier = payload.Contains("\"IsAck\":false", StringComparison.OrdinalIgnoreCase);
-
-            if (hasAppContent && isDataCarrier)
-            {
-                return new PacketInfo(false, "App Data (CRDT)", "APP", AppBrush, AppGlow, 6.5);
-            }
+            // EnsureAckNetworkLayer sets IsAck:false when carrying application data.
+            bool hasAppContent = AddsRegex.IsMatch(clean)
+                              || RemovesRegex.IsMatch(clean)
+                              || clean.Contains("CausalityTracker", StringComparison.OrdinalIgnoreCase)
+                              || AppAckFalseRegex.IsMatch(clean);
 
             if (hasAppContent)
             {
                 return new PacketInfo(false, "App Data (CRDT)", "APP", AppBrush, AppGlow, 6.5);
             }
 
-            // ── 8. Default: treat remaining as protocol traffic ─────────────────────────
-            // In practice this catches flood/routing envelopes that carry app messages but
-            // don't expose the inner content at this JSON level (e.g. a FloodMessage carrying
-            // a HeartbeatMessage carrying an EnsureAck carrying app data – only the flood
-            // wrapper is visible without full deserialization).
+            // ── 6. Generic IsProtocolMessage:true (any other routing protocol control msg) ──
+            if (ProtocolMsgRegex.IsMatch(clean))
+            {
+                return new PacketInfo(true, "Routing Protocol", "ROUTE", RoutingBrush, RoutingGlow, 5.0);
+            }
+
+            // ── 7. Default: treat remaining as fallback protocol traffic ─────────────────
             return new PacketInfo(true, "Protocol", "PROT", GeneralProtocolBrush, GeneralProtocolGlow, 4.0);
         }
     }
