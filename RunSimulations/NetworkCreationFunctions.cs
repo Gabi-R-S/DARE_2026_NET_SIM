@@ -39,7 +39,7 @@ namespace RunSimulations
             ReplicaID id,
             float messageTimeout = 5.0f,
             float heartbeatTime = 0.1f,
-            uint numHops = 5,
+            int numHops = 5,
             float forgettingTime = 60.0f)
         {
             var set = simulator.GetAllKnownReplicas();
@@ -81,7 +81,7 @@ namespace RunSimulations
 
             DistanceTrackerLayer distanceTrackerLayer = new DistanceTrackerLayer(trackerLayer, tracker, id, scheduler);
 
-            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, distanceTrackerLayer, scheduler, (uint)simulator.ConnectionMap.GetAllKnownReplicas().Count, heartbeatTime);
+            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, distanceTrackerLayer, scheduler, simulator.ConnectionMap.GetAllKnownReplicas().Count, heartbeatTime);
             int i = 0;
             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; });
 

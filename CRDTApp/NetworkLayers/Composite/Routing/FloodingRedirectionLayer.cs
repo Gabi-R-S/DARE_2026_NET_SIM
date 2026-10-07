@@ -18,7 +18,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         ReplicaID replicaID;
         ActiveConnectionTracker connectionTracker;
 
-        uint numHops = 10;
+        int numHops = 10;
 
 
         object tagLock = new object();
@@ -38,7 +38,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         HashSet<(uint, ReplicaID)> rememberedMessages = new();
         float forgettingTime = 60.0f;
 
-        public FloodingRedirectionLayer(ReplicaID replicaID, IScheduler scheduler, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, uint numHops, float forgettingTime) : base(layerBelow, false, true, true)
+        public FloodingRedirectionLayer(ReplicaID replicaID, IScheduler scheduler, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, int numHops, float forgettingTime) : base(layerBelow, false, true, true)
         {
             this.scheduler = scheduler;
             this.connectionTracker = connectionTracker;
@@ -96,13 +96,16 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 if (toForward)
                 {
                     Remember(floodMessage.OriginalSender, floodMessage.Tag);
-                    floodMessage.NumberOfHops -= 1;
-                    var newMessage = floodMessage.AsMessage();
-                    foreach (var connection in connectionTracker.ActiveConnections)
+                    if (floodMessage.NumberOfHops > 0)
                     {
-                        if (connection != senderID && connection != replicaID)
+                        floodMessage.NumberOfHops -= 1;
+                        var newMessage = floodMessage.AsMessage();
+                        foreach (var connection in connectionTracker.ActiveConnections)
                         {
-                            LayerBelow.SendMessage(connection, newMessage);
+                            if (connection != senderID && connection != replicaID)
+                            {
+                                LayerBelow.SendMessage(connection, newMessage);
+                            }
                         }
                     }
                 }

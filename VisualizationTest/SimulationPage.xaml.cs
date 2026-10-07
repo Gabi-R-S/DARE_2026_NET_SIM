@@ -661,7 +661,7 @@ namespace VisualizationTest
                 return;
             }
 
-            if (!uint.TryParse(DrawerMaxHopsTextBox.Text, out uint maxHops) || maxHops < 1)
+            if (!int.TryParse(DrawerMaxHopsTextBox.Text, out int maxHops) || maxHops < 1)
             {
                 ShowDrawerValidation("Max hops must be ≥ 1.");
                 return;

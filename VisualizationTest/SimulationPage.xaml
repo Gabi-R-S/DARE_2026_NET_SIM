@@ -189,12 +189,6 @@
                         <ComboBoxItem Content="Base Layer Only"/>
                     </ComboBox>
 
-                    <!-- Inject Manual App Op -->
-                    <Button Style="{StaticResource AccentButton}"
-                            Content="⚡ Inject App Op"
-                            ToolTip="Manually triggers a new CRDT insert operation on a replica node"
-                            Click="InjectAppOp_Click"
-                            Margin="0,0,6,0"/>
 
                     <!-- Restart current config -->
                     <Button Style="{StaticResource ModernButton}"

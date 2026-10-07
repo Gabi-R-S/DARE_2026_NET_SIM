@@ -51,7 +51,7 @@ namespace Tests_1
             // Verify hops decremented from 3 to 2
             var forwardedMsg = FloodMessage.FromJson(mockLower.SentMessages[0].Message.Payload);
             Assert.IsNotNull(forwardedMsg);
-            Assert.AreEqual((uint)2, forwardedMsg.NumberOfHops);
+            Assert.AreEqual(2, forwardedMsg.NumberOfHops);
             Assert.AreEqual(rTarget, forwardedMsg.IntendedTarget);
             Assert.AreEqual(rSender, forwardedMsg.OriginalSender);
         }

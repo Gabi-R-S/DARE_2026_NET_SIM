@@ -254,7 +254,7 @@ namespace VisualizationTest
                 return;
             }
 
-            if (!uint.TryParse(MaxHopsTextBox.Text, out uint maxHops) || maxHops < 1)
+            if (!int.TryParse(MaxHopsTextBox.Text, out int maxHops) || maxHops < 1)
             {
                 ShowValidation("Max hops / TTL must be at least 1.");
                 return;

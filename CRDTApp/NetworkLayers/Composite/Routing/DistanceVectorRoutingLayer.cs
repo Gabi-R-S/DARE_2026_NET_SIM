@@ -24,10 +24,10 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         IScheduler scheduler;
         DistanceTable table;
 
-        uint maxTTLHops;
+        int maxTTLHops;
         HashSet<ReplicaID> sendingTo = new();
 
-        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, uint maxTTLHops, float heartbeatTime = 1.0f) : base(layerBelow, false, true, true)
+        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, int maxTTLHops, float heartbeatTime = 1.0f) : base(layerBelow, false, true, true)
         {
             this.connectionTracker = connectionTracker;
             this.replicaID = replicaID;
@@ -96,7 +96,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 {
                     var target = table.GetNextInPathTo(message.IntendedTarget);
                     message.TTLhops--;
-                    if (message.TTLhops > 0&&target!=senderID)
+                    if (message.TTLhops > 0 && target!=senderID)
                     {
                         LayerBelow?.SendMessage(target, message.AsMessage());
                     }
