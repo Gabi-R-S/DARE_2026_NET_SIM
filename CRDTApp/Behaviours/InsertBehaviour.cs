@@ -9,20 +9,21 @@ using CRDTs.Basic;
 using Shared;
 namespace CRDTApp.Behaviours
 {
-    public  class InsertBehaviour:Behaviour
+    public class InsertBehaviour : Behaviour
     {
-        ORSet<int> ints = new ();
+        ORSet<int> ints = new();
         NetworkLayer network;
         ReplicaID[] otherReplicas;
-        int minNumber,maxNumber,expectedCount;
-        float delayBetweenSends,delayBetweenOps;
+        int minNumber, maxNumber, expectedCount;
+        float delayBetweenSends, delayBetweenOps;
         ReplicaID replicaID;
         bool running = false;
         IScheduler scheduler;
 
         CausalHistoryTracker historyTracker;
 
-        public InsertBehaviour(NetworkLayer network, IScheduler scheduler, ReplicaID ourID, ReplicaID[] otherIDs,int minNumber,int maxNumberInclusive, int expectedCount, float delayBetweenSends,float delayBetweenOps) {
+        public InsertBehaviour(NetworkLayer network, IScheduler scheduler, ReplicaID ourID, ReplicaID[] otherIDs, int minNumber, int maxNumberInclusive, int expectedCount, float delayBetweenSends, float delayBetweenOps)
+        {
             historyTracker = new CausalHistoryTracker(ourID);
             this.replicaID = ourID;
             this.otherReplicas = otherIDs;
@@ -42,14 +43,19 @@ namespace CRDTApp.Behaviours
         public ReplicaID ReplicaID => replicaID;
         public event Action<ReplicaID, int, int>? OperationApplied;
 
-        void OnMessageReceivedInSequence(ReplicaID replica, Message? message,VersionVector vector) { //TODO: retrieve CRDT and merge it
+        void OnMessageReceivedInSequence(ReplicaID replica, Message? message, VersionVector vector)
+        { //TODO: retrieve CRDT and merge it
             var op = ORSet<int>.FromJSON(message.Payload, (str) => { return int.Parse(str); });
-            ints.Merge(op);
+            lock (ints)
+            {
+                ints.Merge(op);
 
-            OperationApplied?.Invoke(replicaID, ints.GetValues().Count, expectedCount);
+                OperationApplied?.Invoke(replicaID, ints.GetValues().Count, expectedCount);
 
-            if (ints.GetValues().Count == expectedCount) {
-                CallBehaviourEnded();
+                if (ints.GetValues().Count == expectedCount)
+                {
+                    CallBehaviourEnded();
+                }
             }
         }
 
@@ -58,9 +64,10 @@ namespace CRDTApp.Behaviours
         {
             bool succeeded;
             succeeded = await network.SendMessage(replica, message);
-            if (!succeeded&&running)
+            if (!succeeded && running)
             {
-                scheduler.ExecuteAfter(delayBetweenSends, () => {
+                scheduler.ExecuteAfter(delayBetweenSends, () =>
+                {
                     if (running)
                     {
                         SendUntilSuccess(replica, message);
@@ -71,59 +78,52 @@ namespace CRDTApp.Behaviours
 
 
 
-        async Task SendUpdateUntil(int currentNumber, int maxNumber) {
-            if (currentNumber > maxNumber || !running) {
+        async Task SendUpdateUntil(int currentNumber, int maxNumber)
+        {
+            if (currentNumber > maxNumber || !running)
+            {
                 return;
             }
 
-            var addOp = ints.CreateAddOperation(replicaID, currentNumber);
-            
-            ints.Merge(addOp);
-            
-            OperationApplied?.Invoke(replicaID, ints.GetValues().Count, expectedCount);
+            ORSet<int> addOp;
+            lock (ints)
+            {
+                addOp = ints.CreateAddOperation(replicaID, currentNumber);
 
-            if (ints.GetValues().Count == expectedCount)
-            {
-                CallBehaviourEnded();
-            }
-            
-            Message message =historyTracker.TagMessage( new Message(addOp.ToJson((i) => { return i.ToString(); }))).AsMessage();
-            
-            foreach (ReplicaID replica in otherReplicas)
-            {
-               SendUntilSuccess(replica, message);
+                ints.Merge(addOp);
+
+                OperationApplied?.Invoke(replicaID, ints.GetValues().Count, expectedCount);
+
+                if (ints.GetValues().Count == expectedCount)
+                {
+                    CallBehaviourEnded();
+                }
             }
 
-            scheduler.ExecuteAfter(delayBetweenOps,()=> { SendUpdateUntil(currentNumber+1,maxNumber); });
+            Message message = historyTracker.TagMessage(new Message(addOp.ToJson((i) => { return i.ToString(); }))).AsMessage();
 
-        }
-
-
-        public override async Task Run() {
-            running = true;
-            SendUpdateUntil(minNumber,maxNumber);
-        }
-
-        public override void Stop() {
-            running = false;
-        }
-
-        public void InsertManualValue(int val)
-        {
-            if (!running) return;
-            var addOp = ints.CreateAddOperation(replicaID, val);
-            ints.Merge(addOp);
-            OperationApplied?.Invoke(replicaID, ints.GetValues().Count, expectedCount);
-            if (ints.GetValues().Count == expectedCount)
-            {
-                CallBehaviourEnded();
-            }
-            Message message = historyTracker.TagMessage(new Message(addOp.ToJson((i) => i.ToString()))).AsMessage();
             foreach (ReplicaID replica in otherReplicas)
             {
                 SendUntilSuccess(replica, message);
             }
+
+            scheduler.ExecuteAfter(delayBetweenOps, () => { SendUpdateUntil(currentNumber + 1, maxNumber); });
+
         }
+
+
+        public override async Task Run()
+        {
+            running = true;
+            SendUpdateUntil(minNumber, maxNumber);
+        }
+
+        public override void Stop()
+        {
+            running = false;
+        }
+
+    
 
     }
 }

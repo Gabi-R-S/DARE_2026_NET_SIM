@@ -85,7 +85,10 @@ namespace CRDTApp.NetworkLayers.Composite
             for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT && Running; i++)
             {
                 var semaphore = new SemaphoreSlim(0);
-                pendingAcks[(newTag, recipient)] = semaphore;
+                lock (pendingAcks)
+                {
+                    pendingAcks[(newTag, recipient)] = semaphore;
+                }
 
                 if (!await LayerBelow.SendMessage(recipient, networkMessage))
                 {

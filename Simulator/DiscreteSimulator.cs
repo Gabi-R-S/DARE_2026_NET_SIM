@@ -8,7 +8,7 @@ namespace Simulator
 {
     public class DiscreteSimulator : NetworkSimulator
     {
-        
+
         const float MAX_SIM_TIME = 1.0f;
         public override async Task Run(float simulationTimeLimit)
         {
@@ -18,13 +18,13 @@ namespace Simulator
             {
                 tasks.Add(runEvent());
             }
-           
+
             await Task.WhenAll(tasks);
 
 
             await Task.Run(() => { env.RunD(simulationTimeLimit); });
 
-            tasks.Clear();  
+            tasks.Clear();
             foreach (var ev in CloseEvents)
             {
                 tasks.Add(Task.Run(ev));
@@ -49,13 +49,13 @@ namespace Simulator
         {
             CallMessageSendAttempted(message);
 
-            if (message.Source==message.Recipient)
+            if (message.Source == message.Recipient)
             {
                 var ev = new Event(env);
-                
+
                 ev.AddCallback((env) =>
                 {
-                        DeliverMessage(message);
+                    DeliverMessage(message);
                 });
 
                 env.ScheduleD(0, ev);
@@ -125,19 +125,22 @@ namespace Simulator
 
         protected override void DropCommunicationsBetween(ReplicaID rep1, ReplicaID rep2)
         {
-            var con = ConnectionMap.GetConnection(rep1, rep2);
-            if (con != null)
+            lock (connectionsToMessageEvents)
             {
-                if (connectionsToMessageEvents.ContainsKey(con))
+                var con = ConnectionMap.GetConnection(rep1, rep2);
+                if (con != null)
                 {
-                    foreach (var ev in connectionsToMessageEvents[con])
+                    if (connectionsToMessageEvents.ContainsKey(con))
                     {
-                        ev.Active = false;
+                        foreach (var ev in connectionsToMessageEvents[con])
+                        {
+                            ev.Active = false;
+                        }
                     }
-                }
-                else
-                {
-                    connectionsToMessageEvents[con] = new();
+                    else
+                    {
+                        connectionsToMessageEvents[con] = new();
+                    }
                 }
             }
         }
@@ -145,43 +148,45 @@ namespace Simulator
         {
 
             var con = ConnectionMap.GetConnection(rep1, rep2);
-            if (con != null)
+            lock (connectionsToMessageEvents)
             {
-                if (connectionsToMessageEvents.ContainsKey(con))
+                if (con != null)
                 {
-                    var currTime = GetCurrentTime();
-                    foreach (var ev in connectionsToMessageEvents[con])
+                    if (connectionsToMessageEvents.ContainsKey(con))
                     {
-                        ev.Active = false;
-                        float timeRunning = (float)(currTime - ev.LaunchTime).TotalSeconds;
-                        float timePercentage = oldTime == 0 ? 1 : timeRunning / oldTime;
-
-                        float missingTime = (1 - timePercentage) * newTime;
-
-                        MessageEvent newEv = new MessageEvent();
-                        connectionsToMessageEvents[con].Add(newEv);
-                        newEv.Active = true;
-                        newEv.LaunchTime = GetCurrentTime();
-                        newEv.Ev = new Event(env);
-                        newEv.Message = ev.Message;
-                        newEv.Ev.AddCallback((env) =>
+                        var currTime = GetCurrentTime();
+                        foreach (var ev in connectionsToMessageEvents[con])
                         {
-                            if (newEv.Active)
-                            {
-                                DeliverMessage(newEv.Message);
-                            }
-                            connectionsToMessageEvents[con].Remove(newEv);
-                        });
+                            ev.Active = false;
+                            float timeRunning = (float)(currTime - ev.LaunchTime).TotalSeconds;
+                            float timePercentage = oldTime == 0 ? 1 : timeRunning / oldTime;
 
-                        env.ScheduleD(missingTime, newEv.Ev);
+                            float missingTime = (1 - timePercentage) * newTime;
+
+                            MessageEvent newEv = new MessageEvent();
+                            connectionsToMessageEvents[con].Add(newEv);
+                            newEv.Active = true;
+                            newEv.LaunchTime = GetCurrentTime();
+                            newEv.Ev = new Event(env);
+                            newEv.Message = ev.Message;
+                            newEv.Ev.AddCallback((env) =>
+                            {
+                                if (newEv.Active)
+                                {
+                                    DeliverMessage(newEv.Message);
+                                }
+                                connectionsToMessageEvents[con].Remove(newEv);
+                            });
+
+                            env.ScheduleD(missingTime, newEv.Ev);
+                        }
                     }
-                }
-                else
-                {
-                    connectionsToMessageEvents[con] = new();
+                    else
+                    {
+                        connectionsToMessageEvents[con] = new();
+                    }
                 }
             }
         }
-
     }
 }

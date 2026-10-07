@@ -61,7 +61,7 @@ namespace CRDTs
                 throw new Exception("Error: unexpected message format!");
             }
 
-
+            List<(ReplicaID, HistoryTrackedMessage)> toIssue= new();
             lock (Latest)
             {
                 
@@ -83,13 +83,18 @@ namespace CRDTs
                             Latest.Merge(pendingReceivedMessages[i].Item2.CausalityTracker);
                             var atPos = pendingReceivedMessages[i];
                             pendingReceivedMessages.RemoveAt(i);
-
-                                MessageIssued?.Invoke(atPos.Item1, atPos.Item2.Message, atPos.Item2.CausalityTracker);
+                            toIssue.Add(atPos);
                             shouldContinue = true;
                             break;
                         }
                     }
                 }
+            }
+
+            foreach (var (rep,messg) in toIssue)
+            {
+                MessageIssued?.Invoke(rep, messg.Message, messg.CausalityTracker);
+
             }
 
         }

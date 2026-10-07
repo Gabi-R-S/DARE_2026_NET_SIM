@@ -141,10 +141,10 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         {
             Running = true;
             var t = base.Run();
-
-            sendingTo = new HashSet<ReplicaID>();
             lock (sendingTo)
             {
+                sendingTo.Clear();
+
                 foreach (var replica in connectionTracker.AllConnections)
                 {
                     if (replica != replicaID)

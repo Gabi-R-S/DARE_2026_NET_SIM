@@ -29,10 +29,13 @@ namespace CRDTApp.NetworkLayers.Composite
         }
 
         void OnConnectionGained(ReplicaID replica) {
-            if (replica != replicaID && !sendingTo.Contains(replica) && Running)
+            lock (sendingTo)
             {
-                sendingTo.Add(replica);
-                Hearbeat(replica);
+                if (replica != replicaID && !sendingTo.Contains(replica) && Running)
+                {
+                    sendingTo.Add(replica);
+                    Hearbeat(replica);
+                }
             }
         }
 
@@ -42,7 +45,6 @@ namespace CRDTApp.NetworkLayers.Composite
             if (heartbeatMessage == null)
             {
                 throw new Exception("Unexpected message format in heartbeat layer");
-
             }
 
             if (!heartbeatMessage.HeartBeat)
@@ -75,7 +77,9 @@ namespace CRDTApp.NetworkLayers.Composite
         {
             Running = true;
             var t = LayerBelow.Run();
-            sendingTo = new HashSet<ReplicaID>();
+            lock (sendingTo)
+            {
+                sendingTo.Clear();
             foreach (var replica in connectionTracker.AllConnections)
             {
                 if (replica != replicaID)
@@ -83,6 +87,7 @@ namespace CRDTApp.NetworkLayers.Composite
                     sendingTo.Add(replica);
                     Hearbeat(replica);
                 }
+            }
             }
             return t;
         }

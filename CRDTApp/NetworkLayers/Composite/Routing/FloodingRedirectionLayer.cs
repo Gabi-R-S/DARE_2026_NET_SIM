@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Shared;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace CRDTApp.NetworkLayers.Composite.Routing
@@ -83,7 +84,12 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             }
             else
             {
-                if (floodMessage.NumberOfHops > 0 && Running && floodMessage.OriginalSender != replicaID && !rememberedMessages.Contains((floodMessage.Tag, floodMessage.OriginalSender)))
+                bool toForward = false;
+                lock (rememberedMessages)
+                {
+                    toForward = floodMessage.NumberOfHops > 0 && Running && floodMessage.OriginalSender != replicaID && !rememberedMessages.Contains((floodMessage.Tag, floodMessage.OriginalSender));
+                }
+                if (toForward)
                 {
                     Remember(floodMessage.OriginalSender, floodMessage.Tag);
                     floodMessage.NumberOfHops -= 1;

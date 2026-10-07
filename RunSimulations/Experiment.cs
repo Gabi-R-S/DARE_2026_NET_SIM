@@ -6,6 +6,7 @@ using CRDTApp.NetworkLayers.Base;
 using CRDTApp.NetworkLayers.Composite;
 using CRDTApp.NetworkLayers.Composite.Routing;
 using CRDTApp.Schedulers;
+using Microsoft.VisualStudio.CodeCoverage;
 using Shared;
 using Simulator;
 using System;
@@ -17,7 +18,7 @@ namespace RunSimulations
     internal abstract class Experiment
     {
 
-        protected  async Task<ExperimentResults> RunIndividualFillArraySimulation(string name, Func<(ConnectionMap map, List<ReplicaID> replicas)> createNetwork, Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> networkStackCreator, Func<ConnectionMap, NetworkSimulator> simulatorCreator, float maxExperimentDuration, int opsPerReplica,float delayBetweenSends,float delayBetweenOps, Func<NetworkSimulator, List<App>, List<ExtraMetric>>? generalMetricsCreator = null)
+        protected async Task<ExperimentResults> RunIndividualFillArraySimulation(string name, Func<(ConnectionMap map, List<ReplicaID> replicas)> createNetwork, Func<NetworkSimulator, ReplicaID, (NetworkLayer, IScheduler, List<ExtraMetric>)> networkStackCreator, Func<ConnectionMap, NetworkSimulator> simulatorCreator, float maxExperimentDuration, int opsPerReplica, float delayBetweenSends, float delayBetweenOps, Func<NetworkSimulator, List<App>, List<ExtraMetric>>? generalMetricsCreator = null)
         {
             (ConnectionMap map, List<ReplicaID> replicas) = createNetwork();
 
@@ -39,7 +40,7 @@ namespace RunSimulations
                 otherReplicas.Remove(replica);
 
 
-                var app = new App(new InsertBehaviour(networkManager, scheduler, replica, otherReplicas.ToArray(), opsPerReplica * i, opsPerReplica * (i + 1) - 1, opsPerReplica * replicas.Count,delayBetweenSends,delayBetweenOps), scheduler, networkManager);
+                var app = new App(new InsertBehaviour(networkManager, scheduler, replica, otherReplicas.ToArray(), opsPerReplica * i, opsPerReplica * (i + 1) - 1, opsPerReplica * replicas.Count, delayBetweenSends, delayBetweenOps), scheduler, networkManager);
 
                 apps.Add(app);
 
@@ -59,8 +60,13 @@ namespace RunSimulations
             }
 
             Console.WriteLine("starting simulation " + name);
-            var sim = simulator.Run(maxExperimentDuration);
-            sim.Wait();
+            
+            await Task.Run(() =>
+            {
+                var sim = simulator.Run(maxExperimentDuration); 
+                sim.Wait();
+            });
+
             Console.WriteLine("simulation ended!");
 
 

@@ -175,11 +175,14 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnConnect(ReplicaID replica)
         {
-            foreach (var oldLSA in mostRecentLSAs.Values)
+            lock (mostRecentLSAs)
             {
-                if (oldLSA.Replica != replicaID && oldLSA.Replica != replica)
+                foreach (var oldLSA in mostRecentLSAs.Values)
                 {
-                    SendLSA(replica, oldLSA);
+                    if (oldLSA.Replica != replicaID && oldLSA.Replica != replica)
+                    {
+                        SendLSA(replica, oldLSA);
+                    }
                 }
             }
             var lsa = CreateNextLSA();
