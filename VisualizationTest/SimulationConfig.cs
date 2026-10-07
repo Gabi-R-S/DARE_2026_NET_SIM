@@ -31,7 +31,7 @@ namespace VisualizationTest
         public string RoutingProtocol { get; set; } = "Flood Routing";
         public float HeartbeatInterval { get; set; } = 1.0f;
         public float MessageTimeout { get; set; } = 5.0f;
-        public float AckTimeout { get; set; } = 0.5f;
+        public float AckTimeout { get; set; } = 5.0f;
         public int MaxHops { get; set; } = 5;
 
         // 5. Workload / CRDT Operations

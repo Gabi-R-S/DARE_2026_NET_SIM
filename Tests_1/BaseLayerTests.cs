@@ -28,6 +28,10 @@ namespace Tests_1
 
     public class MockNetworkSimulator : NetworkSimulator
     {
+        public override void ForceStop()
+        {
+            
+        }
         protected override void DropCommunicationsBetween(ReplicaID rep1, ReplicaID rep2) { }
         protected override void ChangeTimeOfCommunicationsBetween(ReplicaID rep1, ReplicaID rep2, float oldTime, float newTime) { 
         }

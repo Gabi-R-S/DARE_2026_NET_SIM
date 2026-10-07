@@ -325,7 +325,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override Task Run()
         {
-            Running = true;
+            SetRunning(true);
             lock(mostRecentLSAs)
             {
                 mostRecentLSAs.Clear();

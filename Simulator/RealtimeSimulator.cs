@@ -9,12 +9,18 @@ namespace Simulator
 {
     public class RealtimeSimulator : NetworkSimulator
     {
+        volatile bool running = false;
+        public override void ForceStop()
+        {
+            running = false;
+        }
         DateTime start;
         public override async Task Run(float simulationTimeLimit)
         {
             start = DateTime.Now;
 
             List<Task> tasks = new List<Task>();
+            running = true;
             foreach (var ev in RunEvents)
             {
                 tasks.Add(ev());
@@ -31,7 +37,7 @@ namespace Simulator
             }
 
             await Task.WhenAll(tasks);
-
+            running = false;
         }
 
         public override DateTime GetRunStartTime()
@@ -46,6 +52,10 @@ namespace Simulator
 
         public override bool ScheduleMessageDelivery(NetworkMessage message)
         {
+            if (!running)
+            {
+                return false;
+            }
             CallMessageSendAttempted(message);
 
 
@@ -108,6 +118,11 @@ namespace Simulator
 
         public override void ExecuteAfter(float time, Action action)
         {
+            if (!running)
+            {
+                return;
+            }
+
             if (time <= 0)
             {
                 Task.Run(action);
@@ -119,7 +134,10 @@ namespace Simulator
             timer.Elapsed += (_, _) =>
             {
                 timer.Dispose();
-                action();
+                if (running)
+                {
+                    action();
+                }
             };
             timer.Interval = time * 1000;
             timer.Enabled = true;
@@ -135,6 +153,10 @@ namespace Simulator
 
         protected override void DropCommunicationsBetween(ReplicaID rep1, ReplicaID rep2)
         {
+            if(!running)
+            {
+                return;
+            }
             var con = ConnectionMap.GetConnection(rep1, rep2);
             if (con != null)
             {
@@ -156,6 +178,11 @@ namespace Simulator
         }
         protected override void ChangeTimeOfCommunicationsBetween(ReplicaID rep1, ReplicaID rep2, float oldTime, float newTime)
         {
+            if (!running)
+            {
+                return;
+            }
+
             var con = ConnectionMap.GetConnection(rep1, rep2);
             if (con != null)
             {

@@ -92,7 +92,6 @@ namespace Simulator
             MessageDelivered -= handler;
         }
 
-
         protected Dictionary<ReplicaID, List<Action<NetworkMessage>>> messageDeliveredHandlers = new Dictionary<ReplicaID, List<Action<NetworkMessage>>>();
 
         protected Dictionary<ReplicaID, List<Action<ReplicaID>>> connectionInterruptedHandlers = new Dictionary<ReplicaID, List<Action<ReplicaID>>>();
@@ -148,6 +147,9 @@ namespace Simulator
                 }
             }
         }
+
+
+        public abstract void ForceStop();
 
         protected void DeliverMessage(NetworkMessage message)
         {

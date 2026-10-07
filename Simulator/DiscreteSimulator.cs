@@ -8,8 +8,11 @@ namespace Simulator
 {
     public class DiscreteSimulator : NetworkSimulator
     {
+        public override void ForceStop()
+        {
+            env?.StopAsync();
+        }
 
-        const float MAX_SIM_TIME = 1.0f;
         public override async Task Run(float simulationTimeLimit)
         {
             List<Task> tasks = new List<Task>();
@@ -21,7 +24,7 @@ namespace Simulator
 
             await Task.WhenAll(tasks);
 
-
+            
             await Task.Run(() => { env.RunD(simulationTimeLimit); });
 
             tasks.Clear();

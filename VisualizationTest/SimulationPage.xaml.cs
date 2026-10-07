@@ -24,6 +24,7 @@ namespace VisualizationTest
 {
     public partial class SimulationPage : Page
     {
+        bool DEBUG = false;
         private SimulationConfig _config;
         private readonly Random _random = new();
         private readonly DispatcherTimer _uiUpdateTimer;
@@ -214,7 +215,7 @@ namespace VisualizationTest
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Simulation run ended: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Simulation run failed: {ex}");
                 }
             });
 
@@ -279,7 +280,10 @@ namespace VisualizationTest
                     {
                         app.Close();
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to close app: {ex}");
+                    }
                 }
                 _apps.Clear();
             }
@@ -320,7 +324,7 @@ namespace VisualizationTest
 
             _graphState.LightUpEdge(message.Source.ID, message.Recipient.ID);
 
-            Interlocked.Increment(ref _totalPacketsScheduled);
+            int totalScheduled = Interlocked.Increment(ref _totalPacketsScheduled);
             if (packetInfo.IsProtocol)
             {
                 Interlocked.Increment(ref _protocolPacketsScheduled);
@@ -328,6 +332,22 @@ namespace VisualizationTest
             else
             {
                 Interlocked.Increment(ref _appPacketsScheduled);
+            }
+
+            bool allReplicasCompleted;
+            lock (_completedReplicas)
+            {
+                allReplicasCompleted = _apps.Count > 0 && _completedReplicas.Count >= _apps.Count;
+            }
+            if (allReplicasCompleted)
+            {
+                if (DEBUG)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"Packet scheduled after all replicas completed (total={totalScheduled}, " +
+                        $"type={packetInfo.Label}, {message.Source}->{message.Recipient}). Caller stack:{Environment.NewLine}" +
+                        Environment.StackTrace);
+                }
             }
         }
 
@@ -377,7 +397,10 @@ namespace VisualizationTest
                         {
                             app.Behaviour.Stop();
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Failed to stop behaviour for replica {replica}: {ex}");
+                        }
                     }
 
                     // 2. Check if all tasks are completed
@@ -393,13 +416,18 @@ namespace VisualizationTest
             // If all tasks across all apps are completed, close all apps
             if (allCompleted)
             {
+                _simulator?.ForceStop();
+
                 foreach (var app in _apps)
                 {
                     try
                     {
                         app.Close();
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to close app after replica {replica} completed: {ex}");
+                    }
                 }
             }
 

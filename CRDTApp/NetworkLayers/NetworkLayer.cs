@@ -4,6 +4,8 @@ using Shared;
 using Simulator;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CRDTApp.NetworkLayers
@@ -12,10 +14,21 @@ namespace CRDTApp.NetworkLayers
     {
         public virtual void Stop()
         {
-            Running = false;
+            SetRunning(false);
             LayerBelow?.Stop();
+            
         }
         public volatile bool Running;
+
+        protected void SetRunning(bool value)
+        {
+            bool previousValue = Running;
+            Debug.WriteLine(
+                $"Network layer Running transition: {GetType().FullName} " +
+                $"instance={RuntimeHelpers.GetHashCode(this)} {previousValue} -> {value}");
+            Running = value;
+        }
+
         public NetworkLayer? LayerBelow { get; private set; }
         public NetworkLayer(NetworkLayer? layerBelow = null, bool connectMessageReceived = false, bool connectConnectionInterrupted = false, bool connectConnectionRegained = false)
         {
@@ -41,7 +54,7 @@ namespace CRDTApp.NetworkLayers
         }
         public virtual Task Run()
         {
-            Running = true;
+            SetRunning(true);
             if (LayerBelow == null)
             {
                 return Task.CompletedTask;
@@ -56,15 +69,26 @@ namespace CRDTApp.NetworkLayers
 
         protected void CallConnectionRegained(ReplicaID replica)
         {
+            if (Running == false) {
+                return;
+            }
             ConnectionRegained?.Invoke(replica);
         }
         protected void CallMessageReceived(ReplicaID replica, Message? message)
         {
+            if (Running == false)
+            {
+                return;
+            }
             MessageReceived?.Invoke(replica, message);
         }
 
         protected void CallConnectionInterrupted(ReplicaID replica)
         {
+            if (Running == false)
+            {
+                return;
+            }
             ConnectionInterrupted?.Invoke(replica);
         }
 
@@ -97,6 +121,12 @@ namespace CRDTApp.NetworkLayers
         }
         public virtual Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+
+            if (Running == false)
+            {
+                return Task.FromResult(false);
+            }
+
             if (LayerBelow == null)
             {
                 return Task.FromResult(false);

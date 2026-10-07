@@ -4,6 +4,7 @@ using Shared;
 using Simulator;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace CRDTApp.NetworkLayers.Base
@@ -12,7 +13,7 @@ namespace CRDTApp.NetworkLayers.Base
     {
         ReplicaID replicaID;
         NetworkSimulator networkSimulator;
-        
+
         public SimulatedNetworkBaseLayer(NetworkSimulator simulator, ReplicaID id)
         {
 
@@ -26,7 +27,7 @@ namespace CRDTApp.NetworkLayers.Base
 
         void OnSimulatorMessageReceived(NetworkMessage message) {
 
-            if (!Running)
+            if (Running==false)
             {
                 return;
             }
@@ -38,10 +39,11 @@ namespace CRDTApp.NetworkLayers.Base
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!Running)
+            if (Running==false)
             {
                 return false;
             }
+
             return networkSimulator.ScheduleMessageDelivery(new NetworkMessage(this.replicaID, recipient, message.Payload));
         }
 

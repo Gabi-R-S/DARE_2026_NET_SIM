@@ -86,7 +86,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public override Task Run()
         {
-            Running = true;
+            SetRunning(true);
             var t = LayerBelow.Run();
             lock (sendingTo)
             {

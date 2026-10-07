@@ -66,7 +66,7 @@ namespace CRDTApp.NetworkLayers.Base
 
         public override async Task Run()
         {
-            Running = true;
+            SetRunning(true);
        
             var tasks = new List<Task>();
             while (Running)
