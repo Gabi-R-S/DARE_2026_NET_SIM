@@ -68,6 +68,10 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
+            if (!Running)
+            {
+                return;
+            }
 
             var floodMessage = FloodMessage.FromJson(lowerLayerMessage.Payload);
 

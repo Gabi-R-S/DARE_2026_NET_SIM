@@ -42,6 +42,10 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void OnConnectionGained(ReplicaID replica)
         {
+            if (!Running)
+            {
+                return;
+            }
             lock (sendingTo)
             {
 
@@ -55,6 +59,11 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
+            if (!Running)
+            {
+                return;
+            }
+
             var message = DistanceVectorMessage.FromJson(lowerLayerMessage.Payload);
 
             if (message == null)

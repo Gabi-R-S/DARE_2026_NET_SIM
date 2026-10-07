@@ -1,3 +1,3 @@
 Maybe the distance-vector routing algorithm just need to update on certain occasions? rather than constantly sending the table as an heartbeat, which would lead to a lot of exchanged data if there were a lot of replicas.... I could have a request mechanism...
 
-- there's something wrong with the flooding algorithm. Even though the task finishes, the simulation never ends!!!
+- the distance-vector rounting algorithm stores only the nearest node, not the full distance table, which causes problems when a route is interrupted.

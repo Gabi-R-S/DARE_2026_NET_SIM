@@ -44,6 +44,10 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
+            if (!Running)
+            {
+                return;
+            }
             lock (pendingAcks)
             {
                 var pendingAckMessage = EnsureAckMessage<T>.FromJson(lowerLayerMessage.Payload);

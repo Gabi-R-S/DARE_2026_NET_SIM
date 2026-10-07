@@ -251,6 +251,10 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
+            if(!Running)
+            {
+                return;
+            }
             var linkMessage = LinkStateMessage.FromJson(message.Payload);
             if (linkMessage == null)
             {
@@ -259,22 +263,23 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
             if (linkMessage.IsProtocolMessage)
             {
-                var lsa = LSA.FromJson(linkMessage.Message.Payload);
+              
+                    var lsa = LSA.FromJson(linkMessage.Message.Payload);
 
-                if (lsa == null)
-                {
-                    throw new Exception("incorrect lsa format in link state protocol message!");
-                }
-
-                if (lsa.Replica != replicaID)
-                {
-                    if (AddLSA(lsa))
+                    if (lsa == null)
                     {
-                        FloodLSA(lsa, replica);
-                        RecalculateRoutingTable();
+                        throw new Exception("incorrect lsa format in link state protocol message!");
                     }
-                }
 
+                    if (lsa.Replica != replicaID)
+                    {
+                        if (AddLSA(lsa))
+                        {
+                            FloodLSA(lsa, replica);
+                            RecalculateRoutingTable();
+                        }
+                    }
+                
             }
             else
             {

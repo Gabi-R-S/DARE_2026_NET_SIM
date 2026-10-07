@@ -26,7 +26,8 @@ namespace CRDTApp.NetworkLayers.Composite
 
 
         void SetTime(ReplicaID replica) {
-
+            if (Running)
+            {
 
                 float timeSinceTimeout = -1;
                 var currentTime = scheduler.GetCurrentTime();
@@ -53,7 +54,7 @@ namespace CRDTApp.NetworkLayers.Composite
                         }
                     });
                 }
-            
+            }
         }
         void OnLowerLevelMessageReceived(ReplicaID sender, Message message)
         {
