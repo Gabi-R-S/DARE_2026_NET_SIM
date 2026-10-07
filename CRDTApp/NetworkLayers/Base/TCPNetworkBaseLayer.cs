@@ -37,7 +37,7 @@ namespace CRDTApp.NetworkLayers.Base
             using (socket)
             {
                 var buffer = new byte[MESSAGE_SIZE_LIMIT];
-                while (true)
+                while (Running)
                 {
                     try
                     {
@@ -98,6 +98,11 @@ namespace CRDTApp.NetworkLayers.Base
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+            if (!Running)
+            {
+                return false;
+            }
+
             if (!addressMap.TryGetValue(recipient, out var address))
             {
                 return false;

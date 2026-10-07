@@ -26,10 +26,15 @@ namespace RunSimulations
         }
         public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicNoRouteStack(NetworkSimulator simulator, ReplicaID id)
         {
+            return CreateBasicNoRouteStack(simulator, id, 0.5f);
+        }
+
+        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicNoRouteStack(NetworkSimulator simulator, ReplicaID id, float ackTimeout)
+        {
             IScheduler scheduler = new SimulationScheduler(simulator);
             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
             int i = 0;
-            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, baseLayer, scheduler, (_) => { i++; return i; });
+            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, baseLayer, scheduler, (_) => { i++; return i; }, ackTimeout);
             // CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
             return (ackLayer, scheduler, new List<ExtraMetric>());
         }
@@ -40,7 +45,8 @@ namespace RunSimulations
             float messageTimeout = 5.0f,
             float heartbeatTime = 0.1f,
             int numHops = 5,
-            float forgettingTime = 60.0f)
+            float forgettingTime = 60.0f,
+            float ackTimeout = 0.5f)
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
@@ -56,7 +62,7 @@ namespace RunSimulations
             FloodingRedirectionLayer flood = new FloodingRedirectionLayer(id, scheduler, tracker, heartbeat, numHops, forgettingTime);
 
             int i = 0;
-            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, flood, scheduler, (_) => { i++; return i; });
+            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, flood, scheduler, (_) => { i++; return i; }, ackTimeout);
 
             //    CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
 
@@ -67,7 +73,8 @@ namespace RunSimulations
             NetworkSimulator simulator,
             ReplicaID id,
             float messageTimeout = 5.0f,
-            float heartbeatTime = 1.0f)
+            float heartbeatTime = 1.0f,
+            float ackTimeout = 0.5f)
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
@@ -83,7 +90,7 @@ namespace RunSimulations
 
             DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, distanceTrackerLayer, scheduler, simulator.ConnectionMap.GetAllKnownReplicas().Count, heartbeatTime);
             int i = 0;
-            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; });
+            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; }, ackTimeout);
 
             //CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
 
@@ -94,7 +101,8 @@ namespace RunSimulations
             NetworkSimulator simulator,
             ReplicaID id,
             float messageTimeout = 5.0f,
-            float heartbeatTime = 0.1f)
+            float heartbeatTime = 0.1f,
+            float ackTimeout = 0.5f)
         {
             var set = simulator.GetAllKnownReplicas();
             set.Remove(id);
@@ -111,7 +119,7 @@ namespace RunSimulations
             int i = 0;
             LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id, heartbeat, tracker);
 
-            EnsureAckNetworkLayer<int> ack2Layer = new EnsureAckNetworkLayer<int>(id, lsLayer, scheduler, (_) => { i++; return i; }); // 
+            EnsureAckNetworkLayer<int> ack2Layer = new EnsureAckNetworkLayer<int>(id, lsLayer, scheduler, (_) => { i++; return i; }, ackTimeout);
 
             //            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ack2Layer);
 

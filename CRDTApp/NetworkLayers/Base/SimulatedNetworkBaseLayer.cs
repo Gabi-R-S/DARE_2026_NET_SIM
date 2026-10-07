@@ -25,6 +25,11 @@ namespace CRDTApp.NetworkLayers.Base
         }
 
         void OnSimulatorMessageReceived(NetworkMessage message) {
+
+            if (!Running)
+            {
+                return;
+            }
             CallMessageReceived(message.Source, new Message(message.Payload));
         }
 
@@ -32,6 +37,11 @@ namespace CRDTApp.NetworkLayers.Base
         
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
+
+            if (!Running)
+            {
+                return false;
+            }
             return networkSimulator.ScheduleMessageDelivery(new NetworkMessage(this.replicaID, recipient, message.Payload));
         }
 

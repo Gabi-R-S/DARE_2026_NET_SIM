@@ -297,6 +297,10 @@
                             <TextBox x:Name="MessageTimeoutTextBox" Text="5.0" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Timeout before assuming packet loss / connection drop (≥ 0.1s)" Style="{StaticResource FieldHint}"/>
 
+                            <TextBlock Text="ACK Retry Timeout (seconds)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="AckTimeoutTextBox" Text="5.0" Height="36" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Wait for an ACK before retrying a message (≥ 0.01s)" Style="{StaticResource FieldHint}"/>
+
                             <TextBlock Text="Max Hop Count / TTL" Style="{StaticResource FieldLabel}"/>
                             <TextBox x:Name="MaxHopsTextBox" Text="5" Height="36" Style="{StaticResource ModernTextBox}"/>
                             <TextBlock Text="Maximum network hops for flooding or distance vector (≥ 1)" Style="{StaticResource FieldHint}"/>

@@ -199,7 +199,7 @@ namespace VisualizationTest
 
             if (TopologySubtext != null)
             {
-                TopologySubtext.Text = $"{config.Topology} (Seed: {seed}) | {replicas.Count} Nodes | Delays: {config.MinimumMessageDelay:F2}s-{config.MaximumMessageDelay:F2}s | {config.RoutingProtocol} | HB: {config.HeartbeatInterval:F2}s | Timeout: {config.MessageTimeout:F2}s | Ops/Node: {config.OperationsPerReplica}";
+                TopologySubtext.Text = $"{config.Topology} (Seed: {seed}) | {replicas.Count} Nodes | Delays: {config.MinimumMessageDelay:F2}s-{config.MaximumMessageDelay:F2}s | {config.RoutingProtocol} | HB: {config.HeartbeatInterval:F2}s | Timeout: {config.MessageTimeout:F2}s | ACK: {config.AckTimeout:F2}s | Ops/Node: {config.OperationsPerReplica}";
             }
 
             // Run the RealtimeSimulator in the background
@@ -234,17 +234,19 @@ namespace VisualizationTest
                         simulator,
                         id,
                         config.MessageTimeout,
-                        config.HeartbeatInterval);
+                        config.HeartbeatInterval,
+                        config.AckTimeout);
 
                 case "Link State":
                     return NetworkCreationFunctions.CreateBasicLinkStateStack(
                         simulator,
                         id,
                         config.MessageTimeout,
-                        config.HeartbeatInterval);
+                        config.HeartbeatInterval,
+                        config.AckTimeout);
 
                 case "No-Route (Ack)":
-                    return NetworkCreationFunctions.CreateBasicNoRouteStack(simulator, id);
+                    return NetworkCreationFunctions.CreateBasicNoRouteStack(simulator, id, config.AckTimeout);
 
                 case "Base Layer Only":
                     return NetworkCreationFunctions.CreateOnlyBaseLayer(simulator, id);
@@ -256,7 +258,8 @@ namespace VisualizationTest
                         id,
                         config.MessageTimeout,
                         config.HeartbeatInterval,
-                        config.MaxHops);
+                        config.MaxHops,
+                        ackTimeout: config.AckTimeout);
             }
         }
 
@@ -566,6 +569,7 @@ namespace VisualizationTest
             SetComboBoxItem(DrawerProtocolComboBox, config.RoutingProtocol);
             DrawerHeartbeatTextBox.Text = config.HeartbeatInterval.ToString("F2", CultureInfo.InvariantCulture);
             DrawerTimeoutTextBox.Text = config.MessageTimeout.ToString("F2", CultureInfo.InvariantCulture);
+            DrawerAckTimeoutTextBox.Text = config.AckTimeout.ToString("F2", CultureInfo.InvariantCulture);
             DrawerMaxHopsTextBox.Text = config.MaxHops.ToString();
 
             DrawerOpsTextBox.Text = config.OperationsPerReplica.ToString();
@@ -661,6 +665,12 @@ namespace VisualizationTest
                 return;
             }
 
+            if (!float.TryParse(DrawerAckTimeoutTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float ackTimeout) || ackTimeout < 0.01f)
+            {
+                ShowDrawerValidation("ACK retry timeout must be ≥ 0.01s.");
+                return;
+            }
+
             if (!int.TryParse(DrawerMaxHopsTextBox.Text, out int maxHops) || maxHops < 1)
             {
                 ShowDrawerValidation("Max hops must be ≥ 1.");
@@ -696,6 +706,7 @@ namespace VisualizationTest
             _config.RoutingProtocol = routingProtocol;
             _config.HeartbeatInterval = heartbeatInterval;
             _config.MessageTimeout = messageTimeout;
+            _config.AckTimeout = ackTimeout;
             _config.MaxHops = maxHops;
             _config.OperationsPerReplica = opsPerReplica;
             _config.DelayBetweenOperations = delayBetweenOps;

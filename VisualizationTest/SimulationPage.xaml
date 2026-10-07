@@ -391,6 +391,9 @@
                             <TextBlock Text="Message Timeout (s)" Style="{StaticResource DrawerLabel}"/>
                             <TextBox x:Name="DrawerTimeoutTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
+                            <TextBlock Text="ACK Retry Timeout (s)" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerAckTimeoutTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
+
                             <TextBlock Text="Max Hop Count / TTL" Style="{StaticResource DrawerLabel}"/>
                             <TextBox x:Name="DrawerMaxHopsTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 

@@ -32,6 +32,7 @@ namespace VisualizationTest
             SetComboBoxItem(RoutingProtocolComboBox, config.RoutingProtocol);
             HeartbeatIntervalTextBox.Text = config.HeartbeatInterval.ToString("F2", CultureInfo.InvariantCulture);
             MessageTimeoutTextBox.Text = config.MessageTimeout.ToString("F2", CultureInfo.InvariantCulture);
+            AckTimeoutTextBox.Text = config.AckTimeout.ToString("F2", CultureInfo.InvariantCulture);
             MaxHopsTextBox.Text = config.MaxHops.ToString();
 
             OperationsPerReplicaTextBox.Text = config.OperationsPerReplica.ToString();
@@ -254,6 +255,12 @@ namespace VisualizationTest
                 return;
             }
 
+            if (!float.TryParse(AckTimeoutTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float ackTimeout) || ackTimeout < 0.01f)
+            {
+                ShowValidation("ACK retry timeout must be at least 0.01 seconds.");
+                return;
+            }
+
             if (!int.TryParse(MaxHopsTextBox.Text, out int maxHops) || maxHops < 1)
             {
                 ShowValidation("Max hops / TTL must be at least 1.");
@@ -292,6 +299,7 @@ namespace VisualizationTest
                 RoutingProtocol = routingProtocol,
                 HeartbeatInterval = heartbeatInterval,
                 MessageTimeout = messageTimeout,
+                AckTimeout = ackTimeout,
                 MaxHops = maxHops,
                 OperationsPerReplica = opsPerReplica,
                 DelayBetweenOperations = delayBetweenOps,

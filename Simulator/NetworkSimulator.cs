@@ -2,6 +2,7 @@ using Shared;
 using SimSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Simulator
@@ -150,7 +151,7 @@ namespace Simulator
 
         protected void DeliverMessage(NetworkMessage message)
         {
-            //Console.WriteLine("sending " +message.Payload +" from "+message.Source.ToString()+" to " + message.Recipient.ToString());
+            // Debug.WriteLine("sending " +message.Payload +" from "+message.Source.ToString()+" to " + message.Recipient.ToString());
 
             lock (ConnectionMap)
             {
