@@ -59,8 +59,8 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void RecalculateRoutingTable()
         {
-                Dictionary<ReplicaID, float> distancesTo = new();
-                Dictionary<ReplicaID, ReplicaID> previous = new();
+            Dictionary<ReplicaID, float> distancesTo = new();
+            Dictionary<ReplicaID, ReplicaID> previous = new();
 
             lock (lsaHelperLock)
             {
@@ -175,27 +175,33 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnConnect(ReplicaID replica)
         {
-            lock (mostRecentLSAs)
+            if (Running)
             {
-                foreach (var oldLSA in mostRecentLSAs.Values)
+                lock (mostRecentLSAs)
                 {
-                    if (oldLSA.Replica != replicaID && oldLSA.Replica != replica)
+                    foreach (var oldLSA in mostRecentLSAs.Values)
                     {
-                        SendLSA(replica, oldLSA);
+                        if (oldLSA.Replica != replicaID && oldLSA.Replica != replica)
+                        {
+                            SendLSA(replica, oldLSA);
+                        }
                     }
                 }
+                var lsa = CreateNextLSA();
+                FloodLSA(lsa, replicaID);
+                RecalculateRoutingTable();
+                CallConnectionRegained(replica);
             }
-            var lsa = CreateNextLSA();
-            FloodLSA(lsa, replicaID);
-            RecalculateRoutingTable();
-            CallConnectionRegained(replica);
         }
         public void OnDisconnect(ReplicaID replica)
         {
-            var lsa = CreateNextLSA();
-            FloodLSA(lsa, replicaID);
-            RecalculateRoutingTable();
-            CallConnectionInterrupted(replica);
+            if (Running)
+            {
+                var lsa = CreateNextLSA();
+                FloodLSA(lsa, replicaID);
+                RecalculateRoutingTable();
+                CallConnectionInterrupted(replica);
+            }
         }
 
         Dictionary<ReplicaID, ReplicaID> nextNodeGivenTarget = new();
@@ -278,7 +284,11 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 }
                 else
                 {
-                    LayerBelow?.SendMessage(GetNextNodeInPathTo(linkMessage.IntendedTarget), message);
+                    var intermediary = GetNextNodeInPathTo(linkMessage.IntendedTarget);
+                    if (intermediary != replica)
+                    {
+                        LayerBelow?.SendMessage(intermediary, message);
+                    }
                 }
             }
 
@@ -295,9 +305,13 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public override Task Run()
         {
             Running = true;
-            mostRecentLSAs.Clear();
-            CreateNextLSA();
+            lock(mostRecentLSAs)
+            {
+                mostRecentLSAs.Clear();
+            }
+            var nextLSA = CreateNextLSA();
             var t = base.Run();
+            FloodLSA(nextLSA, replicaID);
             return t;
         }
 

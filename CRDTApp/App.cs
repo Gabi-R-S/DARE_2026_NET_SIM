@@ -9,8 +9,6 @@ namespace CRDTApp
 {
     public class App
     {
-        SemaphoreSlim closeSem = new SemaphoreSlim(0);
-
         public IScheduler Scheduler { get; private set; }
         public Behaviour Behaviour { get; private set; }
         public NetworkLayer NetworkComponent { get; private set; }

@@ -87,7 +87,10 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 {
                     var target = table.GetNextInPathTo(message.IntendedTarget);
                     message.TTLhops--;
-                    LayerBelow?.SendMessage(target, message.AsMessage());
+                    if (message.TTLhops > 0&&target!=senderID)
+                    {
+                        LayerBelow?.SendMessage(target, message.AsMessage());
+                    }
                 }
 
             }

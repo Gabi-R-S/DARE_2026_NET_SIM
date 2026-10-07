@@ -294,7 +294,14 @@ namespace VisualizationTest
             var packetInfo = PacketClassifier.Classify(message.Payload);
 
             var connection = _simulator.ConnectionMap.GetConnection(message.Source, message.Recipient);
-            double duration = connection != null && connection.TransmissionTime > 0
+            if (connection == null || message.Source == message.Recipient)
+            {
+                // No physical connection exists between these nodes (e.g. invalid direct send attempt)
+                // or self-addressed loopback message; do not animate a particle through thin air.
+                return;
+            }
+
+            double duration = connection.TransmissionTime > 0
                 ? connection.TransmissionTime
                 : 0.2;
 
