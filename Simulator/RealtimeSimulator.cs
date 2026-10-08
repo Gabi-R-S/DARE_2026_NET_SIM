@@ -2,6 +2,7 @@ using Shared;
 using SimSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Timers;
 
@@ -12,6 +13,7 @@ namespace Simulator
         volatile bool running = false;
         public override void ForceStop()
         {
+            Debug.WriteLine("THE ULTIMATE STOP WAS CALLED!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             running = false;
         }
         DateTime start;
