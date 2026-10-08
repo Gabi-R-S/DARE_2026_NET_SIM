@@ -14,7 +14,7 @@ namespace CRDTApp.NetworkLayers.Base
         ReplicaID replicaID;
         NetworkSimulator networkSimulator;
 
-        public SimulatedNetworkBaseLayer(NetworkSimulator simulator, ReplicaID id):base("")
+        public SimulatedNetworkBaseLayer(NetworkSimulator simulator, IsRunningTracker runningTracker, ReplicaID id):base("", runningTracker)
         {
 
             this.networkSimulator = simulator;

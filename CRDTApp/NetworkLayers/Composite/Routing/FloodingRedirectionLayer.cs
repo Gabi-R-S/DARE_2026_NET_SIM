@@ -38,7 +38,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         HashSet<(uint, ReplicaID)> rememberedMessages = new();
         float forgettingTime = 60.0f;
 
-        public FloodingRedirectionLayer(ReplicaID replicaID, IScheduler scheduler, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, int numHops, float forgettingTime, string tag="") : base(tag,layerBelow)
+        public FloodingRedirectionLayer(ReplicaID replicaID, IsRunningTracker runningTracker, IScheduler scheduler, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, int numHops, float forgettingTime, string tag="") : base(tag,runningTracker,layerBelow)
         {
             this.scheduler = scheduler;
             this.connectionTracker = connectionTracker;

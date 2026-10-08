@@ -16,10 +16,11 @@ namespace CRDTApp.NetworkLayers
         protected IsRunningTracker RunningTracker { get; private set; }
 
         public NetworkLayer? LayerBelow { get; private set; }
-        public NetworkLayer(string tag, NetworkLayer? layerBelow = null, bool connectMessageReceived = false)
+        public NetworkLayer(string tag,IsRunningTracker runningTracker, NetworkLayer? layerBelow = null, bool connectMessageReceived = false)
         {
             Tag = tag;
             this.LayerBelow = layerBelow;
+            this.RunningTracker = runningTracker;
 
             if (layerBelow != null)
             {

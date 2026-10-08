@@ -104,7 +104,7 @@ namespace RunSimulations
                 {
                     case RoutingAlgorithmType.NONE:
                         {
-                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, replica);
+                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator,runningTracker, replica);
                             var insertBehaviour = new InsertBehaviour(runningTracker,
                                                                     baseLayer,
                                                                     scheduler,
@@ -122,7 +122,7 @@ namespace RunSimulations
 
                     case RoutingAlgorithmType.NONE_WITH_HEARTBEAT:
                         {
-                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, replica);
+                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, runningTracker, replica);
                             var insertBehaviour = new InsertBehaviour(runningTracker,
                                                                     baseLayer,
                                                                     scheduler,
@@ -150,9 +150,9 @@ namespace RunSimulations
 
                     case RoutingAlgorithmType.FLOODING:
                         {
-                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, replica);
+                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, runningTracker, replica);
 
-                            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(replica,
+                            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(replica, runningTracker,
                                 scheduler,
                                 connectionTracker,
                                 baseLayer,
@@ -161,7 +161,7 @@ namespace RunSimulations
                                 "flood");
 
                             int num = 0;
-                            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(replica,
+                            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(replica, runningTracker,
                                 flood,
                                 scheduler,
                                 (_) => { num++; return num; },
@@ -194,10 +194,10 @@ namespace RunSimulations
                         break;
                     case RoutingAlgorithmType.DISTANCE_VECTOR:
                         {
-                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, replica);
+                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, runningTracker, replica);
 
 
-                            DistanceVectorRoutingLayer dvRoutingLayer = new DistanceVectorRoutingLayer(replica,
+                            DistanceVectorRoutingLayer dvRoutingLayer = new DistanceVectorRoutingLayer(replica, runningTracker,
                                 connectionTracker,
                                 baseLayer,
                                 scheduler,
@@ -206,7 +206,7 @@ namespace RunSimulations
                                 "dv");
 
                             int num = 0;
-                            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(replica,
+                            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(replica, runningTracker,
                                 dvRoutingLayer,
                                 scheduler,
                                 (_) => { num++; return num; },
@@ -242,15 +242,15 @@ namespace RunSimulations
 
                     case RoutingAlgorithmType.LINK_STATE:
                         {
-                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, replica);
+                            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, runningTracker, replica);
 
 
-                            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(replica,
+                            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(replica, runningTracker,
                                 baseLayer, connectionTracker, "ls");
 
 
                             int num = 0;
-                            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(replica,
+                            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(replica, runningTracker,
                                 lsLayer,
                                 scheduler,
                                 (_) => { num++; return num; },

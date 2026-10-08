@@ -20,7 +20,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         int maxTTLHops;
         HashSet<ReplicaID> sendingTo = new();
 
-        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, int maxTTLHops, float pollTime = 15.0f, string tag = "") : base(tag,layerBelow)
+        public DistanceVectorRoutingLayer(ReplicaID replicaID, IsRunningTracker runningTracker, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, int maxTTLHops, float pollTime = 15.0f, string tag = "") : base(tag,runningTracker,layerBelow)
         {
             this.connectionTracker = connectionTracker;
             this.replicaID = replicaID;
@@ -33,7 +33,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnConnectionGained(ReplicaID replica)
         {
-            if (!!RunningTracker.IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return;
             }
@@ -50,7 +50,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (!!RunningTracker.IsRunning || lowerLayerMessage.ProtocolTag!=Tag)
+            if (!RunningTracker.IsRunning || lowerLayerMessage.ProtocolTag!=Tag)
             {
                 return;
             }

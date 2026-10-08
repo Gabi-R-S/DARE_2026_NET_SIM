@@ -18,7 +18,7 @@ namespace CRDTApp.NetworkLayers.Composite
         Dictionary<(T, ReplicaID), SemaphoreSlim> pendingAcks = new();
 
 
-        public EnsureAckNetworkLayer(ReplicaID replicaID, NetworkLayer lowerLayerNetworkManager, IScheduler scheduler, Func<ReplicaID, T> generateNextTag, float waitTime = 2.5f,string tag="") : base(tag,lowerLayerNetworkManager)
+        public EnsureAckNetworkLayer(ReplicaID replicaID,IsRunningTracker runningTracker, NetworkLayer lowerLayerNetworkManager, IScheduler scheduler, Func<ReplicaID, T> generateNextTag, float waitTime = 2.5f,string tag="") : base(tag,runningTracker,lowerLayerNetworkManager)
         {
             this.replicaID = replicaID;
             GenerateNextTag = generateNextTag;
@@ -31,7 +31,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         void OnAckReceived(T tag, ReplicaID senderID)
         {
-            if (!!RunningTracker.IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return;
             }
@@ -49,7 +49,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (!!RunningTracker.IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return;
             }
@@ -86,7 +86,7 @@ namespace CRDTApp.NetworkLayers.Composite
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!!RunningTracker.IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return false;
             }

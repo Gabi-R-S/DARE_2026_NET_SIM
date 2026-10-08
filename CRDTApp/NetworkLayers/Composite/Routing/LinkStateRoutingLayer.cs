@@ -162,7 +162,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         ReplicaID replicaID;
         ActiveConnectionTracker connectionTracker;
-        public LinkStateRoutingLayer(ReplicaID replicaID, NetworkLayer layerBelow, ActiveConnectionTracker connectionTracker, string tag="") : base(tag,layerBelow)
+        public LinkStateRoutingLayer(ReplicaID replicaID, IsRunningTracker runningTracker, NetworkLayer layerBelow, ActiveConnectionTracker connectionTracker, string tag="") : base(tag, runningTracker, layerBelow)
         {
             this.replicaID = replicaID;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLevelMessageReceived);
@@ -257,7 +257,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
-            if(!!RunningTracker.IsRunning || message.ProtocolTag!=Tag)
+            if(!RunningTracker.IsRunning || message.ProtocolTag!=Tag)
             {
                 return;
             }
@@ -308,7 +308,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!!RunningTracker.IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return Task.FromResult(false);
             }

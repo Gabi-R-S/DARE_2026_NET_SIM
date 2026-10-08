@@ -27,7 +27,7 @@ namespace CRDTApp.NetworkLayers.Base
         readonly Dictionary<ReplicaID, (IPAddress, int)> addressMap;
 
         IScheduler scheduler;
-        public TCPNetworkBaseLayer(IScheduler scheduler, Dictionary<string, ReplicaID> listenerPortMap, Dictionary<ReplicaID, (IPAddress, int)> addressMap, IPAddress localAddress, int port):base("")
+        public TCPNetworkBaseLayer(IScheduler scheduler, IsRunningTracker runningTracker, Dictionary<string, ReplicaID> listenerPortMap, Dictionary<ReplicaID, (IPAddress, int)> addressMap, IPAddress localAddress, int port):base("", runningTracker)
         {
             this.scheduler = scheduler; 
             this.listenerPortMap = new Dictionary<string, ReplicaID>(listenerPortMap);
