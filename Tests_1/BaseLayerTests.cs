@@ -87,7 +87,7 @@ namespace Tests_1
             bottomLayer.TriggerConnectionRegained(replica);
             Assert.IsTrue(connectionRegained);
 
-            await topLayer.Run();
+            await topLayer.Launch();
         }
 
         [TestMethod]
@@ -139,8 +139,8 @@ namespace Tests_1
             var layer1 = new TCPNetworkBaseLayer(listenerPortMap1, addressMap, IPAddress.Loopback, 12345);
             var layer2 = new TCPNetworkBaseLayer(listenerPortMap2, addressMap, IPAddress.Loopback, 12346);
 
-            var runTask1 = layer1.Run();
-            var runTask2 = layer2.Run();
+            var runTask1 = layer1.Launch();
+            var runTask2 = layer2.Launch();
             
             // Allow time for listeners to start
             await Task.Delay(100);

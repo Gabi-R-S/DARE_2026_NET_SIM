@@ -223,12 +223,12 @@ namespace Tests_1
                 new ReplicaID(1));
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
-            await hbLayer.Run();
+            await hbLayer.Launch();
 
             Assert.AreEqual(2, mockLower.SentMessages.Count);
             foreach (var (_, sent) in mockLower.SentMessages)
             {
-                var hb = HeartbeatMessage.FromJson(sent.Payload);
+                var hb = HeartbeatMessagePayload.Decode(sent.Payload);
                 Assert.IsNotNull(hb);
                 Assert.IsTrue(hb.HeartBeat);
                 Assert.IsNull(hb.Message);
@@ -248,7 +248,7 @@ namespace Tests_1
                 new ReplicaID(1));
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, new ReplicaID(1));
-            await hbLayer.Run();
+            await hbLayer.Launch();
             Assert.AreEqual(1, mockLower.SentMessages.Count);
 
             // Advance 0.5s -> should fire next heartbeat
@@ -277,8 +277,8 @@ namespace Tests_1
             bool delivered = false;
             hbLayer.AddOnMessageReceivedHandler((_, _) => delivered = true);
 
-            var hbMsg = new HeartbeatMessage(null, heartbeat: true);
-            mockLower.InjectReceivedMessage(new ReplicaID(2), new Message(hbMsg.ToJson()));
+            var hbMsg = new HeartbeatMessagePayload(null, heartbeat: true);
+            mockLower.InjectReceivedMessage(new ReplicaID(2), new Message(hbMsg.Encode()));
 
             Assert.IsFalse(delivered, "Heartbeat packets must not be propagated to upper layers");
         }
@@ -300,8 +300,8 @@ namespace Tests_1
                 delivered = m;
             });
 
-            var normalMsg = new HeartbeatMessage(new Message("app data"), heartbeat: false);
-            mockLower.InjectReceivedMessage(new ReplicaID(2), new Message(normalMsg.ToJson()));
+            var normalMsg = new HeartbeatMessagePayload(new Message("app data"), heartbeat: false);
+            mockLower.InjectReceivedMessage(new ReplicaID(2), new Message(normalMsg.Encode()));
 
             Assert.IsNotNull(delivered);
             Assert.AreEqual("app data", delivered.Payload);
@@ -323,7 +323,7 @@ namespace Tests_1
             var (target, msg) = mockLower.SentMessages[0];
             Assert.AreEqual(new ReplicaID(3), target);
 
-            var parsed = HeartbeatMessage.FromJson(msg.Payload);
+            var parsed = HeartbeatMessagePayload.Decode(msg.Payload);
             Assert.IsNotNull(parsed);
             Assert.IsFalse(parsed.HeartBeat);
             Assert.AreEqual("payload", parsed.Message?.Payload);
@@ -369,7 +369,7 @@ namespace Tests_1
                 return Task.FromResult(true);
             };
 
-            await remoteHbLayer.Run();
+            await remoteHbLayer.Launch();
 
             // Run for 3 seconds of simulation time: heartbeats fire every 0.3s, so timeout of 1.0s never fires!
             for (int i = 0; i < 10; i++)

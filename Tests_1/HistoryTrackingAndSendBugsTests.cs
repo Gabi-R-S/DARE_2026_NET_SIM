@@ -397,7 +397,7 @@ namespace Tests_1
                 delayBetweenSends: 0.1f,
                 delayBetweenOps: 0.1f);
 
-            await insertBehaviour.Run();
+            await insertBehaviour.Launch();
 
             // Advance scheduler to allow all operations to trigger
             for (int step = 0; step < 10; step++)
@@ -482,8 +482,8 @@ namespace Tests_1
                 return Task.FromResult(true);
             };
 
-            await b1.Run();
-            await b2.Run();
+            await b1.Launch();
+            await b2.Launch();
 
             // Run simulation steps
             for (int i = 0; i < 20; i++)

@@ -7,11 +7,26 @@ namespace CRDTApp.Schedulers
     public interface IScheduler
     {
         public void ExecuteAfter(float time, Action action);
-        public Task<(bool, T)> ExecuteTaskOrTimeout<T>(Task<T> task, float time, T defaultValue);
-        public Task<bool> ExecuteTaskOrTimeout(Task task, float time);
+
+
+        public Task<(bool, T)> ExecuteTaskOrTimeout<T>(
+            Func<CancellationToken, Task<T>> operation,
+            float time,
+            T defaultValue);
+
+        public Task<bool> ExecuteTaskOrTimeout(
+           Func<CancellationToken, Task> operation,
+           float time);
+
+
+        public Task<bool> ExecuteTaskOrTimeout(
+           Func<CancellationToken, Task> operation,
+           float time,
+           Action timeoutAction);
 
         public DateTime GetCurrentTime();
-        public TimeSpan GetTimeElapsedSince(DateTime date) {
+        public TimeSpan GetTimeElapsedSince(DateTime date)
+        {
             return GetCurrentTime() - date;
         }
     }

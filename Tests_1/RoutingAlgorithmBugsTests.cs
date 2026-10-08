@@ -62,15 +62,15 @@ namespace Tests_1
                 Timestamp = scheduler.GetCurrentTime()
             });
 
-            var updateMsg = new DistanceVectorMessage(r1, r2, new Message(updatePayload), isProtocolMessage: true, 5);
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(updateMsg.ToJson()));
+            var updateMsg = new DistanceVectorMessagePayload(r1, r2, new Message(updatePayload), isProtocolMessage: true, 5);
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(updateMsg.Encode()));
             
             mockLower.SentMessages.Clear();
-            await dvLayer.Run();
+            await dvLayer.Launch();
             scheduler.AdvanceSeconds(1.1f);
             
             var sentProtoMsg = mockLower.SentMessages
-                .Select(m => DistanceVectorMessage.FromJson(m.Message.Payload))
+                .Select(m => DistanceVectorMessagePayload.Decode(m.Message.Payload))
                 .FirstOrDefault(m => m != null && m.IsProtocolMessage && m.IntendedTarget==r5);
 
             Assert.IsNotNull(sentProtoMsg, "Heartbeat protocol message should have been sent");
@@ -124,7 +124,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)r3.ID, 4.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update1), true, 5).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessagePayload(r1, r2, new Message(update1), true, 5).Encode()));
 
             // Now Neighbor 2 sends an updated distance metric (e.g. link degraded to cost 6)
             var update2 = JsonConvert.SerializeObject(new
@@ -132,7 +132,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)r3.ID, 6.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update2), true, 5).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessagePayload(r1, r2, new Message(update2), true, 5).Encode()));
 
             mockLower.SentMessages.Clear();
             dvLayer.SendMessage(r3, new Message("data for 3"));
@@ -175,7 +175,7 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)r3.ID, 2.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update), true, 5).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessagePayload(r1, r2, new Message(update), true, 5).Encode()));
 
             // Connection to R2 is interrupted
             mockLower.InjectConnectionInterrupted(r2);
@@ -221,15 +221,15 @@ namespace Tests_1
 
             // Feed self LSA
             var lsaA = new LSA(rA, 0, new List<(ReplicaID, float)> { (rB, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rA, new Message(new LinkStateMessage(rA, rA, new Message(lsaA.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rA, new Message(new LinkStateMessagePayload(rA, rA, new Message(lsaA.Encode()), true).Encode()));
 
             // LSA #1: B connects to A and C
             var lsaB1 = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rC, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB1.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rB, new Message(lsaB1.Encode()), true).Encode()));
 
             // Now C disconnects! B sends LSA #2 stating it is only connected to A
             var lsaB2 = new LSA(rB, 2, new List<(ReplicaID, float)> { (rA, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB2.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rB, new Message(lsaB2.Encode()), true).Encode()));
 
             mockLower.SentMessages.Clear();
             lsLayer.SendMessage(rC, new Message("msg to disconnected C"));
@@ -271,7 +271,7 @@ namespace Tests_1
 
             Assert.IsTrue(mockLower.SentMessages.Count > 0);
             var lsaNetworkMsg = mockLower.SentMessages[0].Message;
-            var parsed = LinkStateMessage.FromJson(lsaNetworkMsg.Payload);
+            var parsed = LinkStateMessagePayload.Decode(lsaNetworkMsg.Payload);
 
             Assert.IsNotNull(parsed);
             // Assert CORRECT behavior:
@@ -313,13 +313,13 @@ namespace Tests_1
             floodLayer.AddOnMessageReceivedHandler((_, _) => deliveryCount++);
 
             var originalMsg = new Message("payload123");
-            var floodMsg = new FloodMessage(rSelf, rSender, 0u, originalMsg, numberOfHops: 3);
+            var floodMsg = new FloodMessagePayload(rSelf, rSender, 0u, originalMsg, numberOfHops: 3);
 
             // Message arrives via Path 1
-            floodLayer.OnLowerLayerMessageReceived(rPath1, new Message(floodMsg.ToJson()));
+            floodLayer.OnLowerLayerMessageReceived(rPath1, new Message(floodMsg.Encode()));
 
             // Duplicate copy arrives via Path 2
-            floodLayer.OnLowerLayerMessageReceived(rPath2, new Message(floodMsg.ToJson()));
+            floodLayer.OnLowerLayerMessageReceived(rPath2, new Message(floodMsg.Encode()));
 
             // Assert CORRECT behavior: Must only deliver once
             Assert.AreEqual(1, deliveryCount, 
@@ -354,8 +354,8 @@ namespace Tests_1
             floodLayer.SetRunning(true);
 
             // Packet originated by rSelf circles back from neighbor B
-            var loopedPacket = new FloodMessage(rTarget, rSelf, 0u, new Message("loop"), numberOfHops: 3);
-            floodLayer.OnLowerLayerMessageReceived(rNeighbourB, new Message(loopedPacket.ToJson()));
+            var loopedPacket = new FloodMessagePayload(rTarget, rSelf, 0u, new Message("loop"), numberOfHops: 3);
+            floodLayer.OnLowerLayerMessageReceived(rNeighbourB, new Message(loopedPacket.Encode()));
 
             // Assert CORRECT behavior: Must drop packet originated by self
             Assert.AreEqual(0, mockLower.SentMessages.Count,

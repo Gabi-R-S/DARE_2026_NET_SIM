@@ -42,7 +42,7 @@ namespace CRDTApp.NetworkLayers.Composite
             {
                 return;
             }
-            var message = DistanceTrackerMessage.FromJson(lowerLayerMessage.Payload);
+            var message = DistanceTrackerMessage.Decode(lowerLayerMessage.Payload);
             if (message == null)
             {
                 throw new Exception("Unexpected message format in distance tracker layer");

@@ -67,11 +67,11 @@ namespace Tests_1
                 rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
-            await floodLayer.Run();
+            await floodLayer.Launch();
 
             // First arrival: transit node forwards the packet normally.
-            var packet = new FloodMessage(rTarget, new ReplicaID(10), 0u, new Message("hello"), numberOfHops: 4);
-            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(packet.ToJson()));
+            var packet = new FloodMessagePayload(rTarget, new ReplicaID(10), 0u, new Message("hello"), numberOfHops: 4);
+            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(packet.Encode()));
 
             int forwardsOnFirstArival = mockLower.SendCount;
             Assert.IsTrue(forwardsOnFirstArival > 0, "Transit node should forward the packet at least once.");
@@ -79,7 +79,7 @@ namespace Tests_1
             // Reset counter then deliver an IDENTICAL echo (same content, same hop count)
             // simulating what happens when one of the downstream peers re-floods back.
             mockLower.ResetCount();
-            floodLayer.OnLowerLayerMessageReceived(rPeerA, new Message(packet.ToJson()));
+            floodLayer.OnLowerLayerMessageReceived(rPeerA, new Message(packet.Encode()));
 
             // CORRECT behavior: already-seen packet must be silently dropped → 0 new sends.
             Assert.AreEqual(0, mockLower.SendCount,
@@ -123,11 +123,11 @@ namespace Tests_1
                 new HashSet<ReplicaID> { rB, rC }, new HashSet<ReplicaID>(), rA);
 
             var floodA = new FloodingRedirectionLayer(rA, new ControllableTestScheduler(), trackerA, counterA, numHops: 5, forgettingTime: 60.0f);
-            await floodA.Run();
+            await floodA.Launch();
 
             // Step 1: A receives the original packet from the external sender.
-            var original = new FloodMessage(rTarget, rExternal, 0u, new Message("data"), numberOfHops: 3);
-            floodA.OnLowerLayerMessageReceived(rExternal, new Message(original.ToJson()));
+            var original = new FloodMessagePayload(rTarget, rExternal, 0u, new Message("data"), numberOfHops: 3);
+            floodA.OnLowerLayerMessageReceived(rExternal, new Message(original.Encode()));
             Assert.IsTrue(counterA.SendCount > 0, "Node A must forward the original packet.");
 
             // Step 2: Simulate the echo — rC delivers a copy of the same wave to A.
@@ -135,9 +135,9 @@ namespace Tests_1
             // The packet's hop count is decremented (as a transit node would do), so it's now 2.
             // Without deduplication, A sees this as a NEW packet (different hops, different
             // immediate sender) and re-forwards it — starting the storm.
-            var echoFromC = new FloodMessage(rTarget, rExternal, 0u, new Message("data"), numberOfHops: 2);
+            var echoFromC = new FloodMessagePayload(rTarget, rExternal, 0u, new Message("data"), numberOfHops: 2);
             counterA.ResetCount();
-            floodA.OnLowerLayerMessageReceived(rC, new Message(echoFromC.ToJson()));
+            floodA.OnLowerLayerMessageReceived(rC, new Message(echoFromC.Encode()));
 
             Assert.AreEqual(0, counterA.SendCount,
                 $"BUG: Node A re-forwarded the echo from C ({counterA.SendCount} send(s)). " +
@@ -185,14 +185,14 @@ namespace Tests_1
             var floodB = new FloodingRedirectionLayer(rB, new ControllableTestScheduler(), trackerB, counter, numHops: 2, forgettingTime: 60.0f);
             var floodC = new FloodingRedirectionLayer(rC, new ControllableTestScheduler(), trackerC, counter, numHops: 2, forgettingTime: 60.0f);
 
-            await floodA.Run();
-            await floodB.Run();
-            await floodC.Run();
+            await floodA.Launch();
+            await floodB.Launch();
+            await floodC.Launch();
 
             // Original sender is not in the ring; inject into A.
             var rOriginal = new ReplicaID(10);
-            var packet = new FloodMessage(rTarget, rOriginal, 0u, new Message("payload"), numberOfHops: 2);
-            string json = packet.ToJson();
+            var packet = new FloodMessagePayload(rTarget, rOriginal, 0u, new Message("payload"), numberOfHops: 2);
+            string json = packet.Encode();
 
             // Step 1 – A receives from external and forwards to B and C (2 sends, hops→1).
             floodA.OnLowerLayerMessageReceived(rOriginal, new Message(json));
@@ -213,8 +213,8 @@ namespace Tests_1
             // Now simulate B echoing the same packet back to A (as it would in the real system).
             // A correct implementation drops it; a buggy one re-forwards it.
             // The packet B would forward is identical except hops decremented by 1.
-            var echo = new FloodMessage(rTarget, rOriginal, 0u, new Message("payload"), numberOfHops: 1);
-            floodA.OnLowerLayerMessageReceived(rB, new Message(echo.ToJson()));
+            var echo = new FloodMessagePayload(rTarget, rOriginal, 0u, new Message("payload"), numberOfHops: 1);
+            floodA.OnLowerLayerMessageReceived(rB, new Message(echo.Encode()));
 
             // Without a seen-set keyed on message ID, A cannot tell this is the same flood
             // wave (the hop count is different now), so it forwards again → storm starts.
@@ -257,10 +257,10 @@ namespace Tests_1
                 rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
-            await floodLayer.Run();
+            await floodLayer.Launch();
 
-            var packet = new FloodMessage(rTarget, new ReplicaID(50), 0u, new Message("msg"), numberOfHops: 3);
-            string packetJson = packet.ToJson();
+            var packet = new FloodMessagePayload(rTarget, new ReplicaID(50), 0u, new Message("msg"), numberOfHops: 3);
+            string packetJson = packet.Encode();
 
             // First arrival from Peer1 — normal forwarding to Peer2 and Peer3.
             floodLayer.OnLowerLayerMessageReceived(rPeer1, new Message(packetJson));
@@ -308,14 +308,14 @@ namespace Tests_1
                 rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
-            await floodLayer.Run();
+            await floodLayer.Launch();
 
             int deliveryCount = 0;
             floodLayer.AddOnMessageReceivedHandler((_, _) => deliveryCount++);
 
             // Wave 1 — first arrival
-            var wave1 = new FloodMessage(rTarget, rSender, 0u, new Message("identical"), numberOfHops: 2);
-            string wave1Json = wave1.ToJson();
+            var wave1 = new FloodMessagePayload(rTarget, rSender, 0u, new Message("identical"), numberOfHops: 2);
+            string wave1Json = wave1.Encode();
             floodLayer.OnLowerLayerMessageReceived(rSender, new Message(wave1Json));
 
             // Exact duplicate of wave 1 arrives via a different path (rPath2).
@@ -329,8 +329,8 @@ namespace Tests_1
 
             // Wave 2 — genuinely different wave with identical payload (different tag).
             // CORRECT behavior: new tag → not in seen-set → deliver → count becomes 2.
-            var wave2 = new FloodMessage(rTarget, rSender, 1u, new Message("identical"), numberOfHops: 2);
-            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(wave2.ToJson()));
+            var wave2 = new FloodMessagePayload(rTarget, rSender, 1u, new Message("identical"), numberOfHops: 2);
+            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(wave2.Encode()));
 
             // Both distinct waves delivered, duplicate suppressed: total = 2.
             Assert.AreEqual(2, deliveryCount,

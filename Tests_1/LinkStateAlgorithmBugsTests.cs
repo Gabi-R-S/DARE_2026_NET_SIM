@@ -20,15 +20,15 @@ namespace Tests_1
     [DoNotParallelize]
     public class LinkStateAlgorithmBugsTests
     {
-        private static (LinkStateMessage? LinkMsg, LSA? Lsa) ParseSentProtocolMessage(Message msg)
+        private static (LinkStateMessagePayload? LinkMsg, LSA? Lsa) ParseSentProtocolMessage(Message msg)
         {
-            var linkMsg = LinkStateMessage.FromJson(msg.Payload);
+            var linkMsg = LinkStateMessagePayload.Decode(msg.Payload);
             if (linkMsg == null || !linkMsg.IsProtocolMessage || linkMsg.Message == null)
             {
                 return (linkMsg, null);
             }
 
-            var lsa = LSA.FromJson(linkMsg.Message.Payload);
+            var lsa = LSA.Decode(linkMsg.Message.Payload);
             return (linkMsg, lsa);
         }
 
@@ -59,10 +59,10 @@ namespace Tests_1
             // Node D advertises its connectivity
             var rD = new ReplicaID(4);
             var lsaD = new LSA(rD, 1, new List<(ReplicaID, float)> { (rB, 1f) });
-            var msgD = new LinkStateMessage(rA, rB, new Message(lsaD.ToJson()), isProtocolMessage: true);
+            var msgD = new LinkStateMessagePayload(rA, rB, new Message(lsaD.Encode()), isProtocolMessage: true);
 
             mockLower.SentMessages.Clear();
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(msgD.ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(msgD.Encode()));
 
             // Assert: LSA must be flooded to other neighbor C, but MUST NOT be echoed back to sender B
             var sentToB = mockLower.SentMessages.Any(m => m.Recipient == rB);
@@ -100,10 +100,10 @@ namespace Tests_1
 
             // Neighbor B sends an LSA claiming Node A is connected only to B (excluding C)
             var spoofedSelfLsa = new LSA(rA, 10, new List<(ReplicaID, float)> { (rB, 1f) });
-            var msg = new LinkStateMessage(rA, rB, new Message(spoofedSelfLsa.ToJson()), isProtocolMessage: true);
+            var msg = new LinkStateMessagePayload(rA, rB, new Message(spoofedSelfLsa.Encode()), isProtocolMessage: true);
 
             mockLower.SentMessages.Clear();
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(msg.ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(msg.Encode()));
 
             // Assert: Node A must not re-flood a received LSA that claims to be from Node A
             var refloodedSelfLsa = mockLower.SentMessages
@@ -178,8 +178,8 @@ namespace Tests_1
             // Prior to reconnection, Node A has stored an LSA from Node B and Node C
             var oldLsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f) });
             var oldLsaC = new LSA(rC, 1, new List<(ReplicaID, float)> { (rA, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(oldLsaB.ToJson()), true).ToJson()));
-            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rC, new Message(oldLsaC.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rB, new Message(oldLsaB.Encode()), true).Encode()));
+            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessagePayload(rA, rC, new Message(oldLsaC.Encode()), true).Encode()));
 
             mockLower.SentMessages.Clear();
             lsLayer.OnConnect(rB);
@@ -221,10 +221,10 @@ namespace Tests_1
             lsLayer.OnConnect(rB);
 
             var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rB, new Message(lsaB.Encode()), true).Encode()));
 
             var lsaD = new LSA(rD, 1, new List<(ReplicaID, float)> { (rB, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rD, new Message(lsaD.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rD, new Message(lsaD.Encode()), true).Encode()));
 
             // Verify initial route to D is via B
             mockLower.SentMessages.Clear();
@@ -278,15 +278,15 @@ namespace Tests_1
 
             // Node B claims: connected to A and D
             var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rB, new Message(lsaB.Encode()), true).Encode()));
 
             // Node C claims: connected to A and D
             var lsaC = new LSA(rC, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rC, new Message(lsaC.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessagePayload(rA, rC, new Message(lsaC.Encode()), true).Encode()));
 
             // Node D claims: connected ONLY to C (D does NOT have a link to B!)
             var lsaD = new LSA(rD, 1, new List<(ReplicaID, float)> { (rC, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rD, new Message(lsaD.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessagePayload(rA, rD, new Message(lsaD.Encode()), true).Encode()));
 
             mockLower.SentMessages.Clear();
             lsLayer.SendMessage(rD, new Message("data for D"));
@@ -323,16 +323,16 @@ namespace Tests_1
 
             // Topology: A connected to B, B connected to D
             var lsaA = new LSA(rA, 0, new List<(ReplicaID, float)> { (rB, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rA, new Message(new LinkStateMessage(rA, rA, new Message(lsaA.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rA, new Message(new LinkStateMessagePayload(rA, rA, new Message(lsaA.Encode()), true).Encode()));
 
             var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rB, new Message(lsaB.Encode()), true).Encode()));
 
             // Transit packet arrives from B intended for D (where A's route to D points back to B)
-            var transitMsg = new LinkStateMessage(rD, new ReplicaID(99), new Message("loop payload"), isProtocolMessage: false);
+            var transitMsg = new LinkStateMessagePayload(rD, new ReplicaID(99), new Message("loop payload"), isProtocolMessage: false);
 
             mockLower.SentMessages.Clear();
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(transitMsg.ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(transitMsg.Encode()));
 
             // Assert: Must not reflect transit packet back to sender B
             var echoedBackToB = mockLower.SentMessages.Any(m => m.Recipient == rB);

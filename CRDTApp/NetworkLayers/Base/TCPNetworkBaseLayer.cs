@@ -1,4 +1,5 @@
 ﻿using CRDTApp.Messages;
+using CRDTApp.Schedulers;
 using Shared;
 using Simulator;
 using System;
@@ -25,8 +26,10 @@ namespace CRDTApp.NetworkLayers.Base
         readonly Dictionary<string, ReplicaID> listenerPortMap;
         readonly Dictionary<ReplicaID, (IPAddress, int)> addressMap;
 
-        public TCPNetworkBaseLayer(Dictionary<string, ReplicaID> listenerPortMap, Dictionary<ReplicaID, (IPAddress, int)> addressMap, IPAddress localAddress, int port)
+        IScheduler scheduler;
+        public TCPNetworkBaseLayer(IScheduler scheduler, Dictionary<string, ReplicaID> listenerPortMap, Dictionary<ReplicaID, (IPAddress, int)> addressMap, IPAddress localAddress, int port)
         {
+            this.scheduler = scheduler; 
             this.listenerPortMap = new Dictionary<string, ReplicaID>(listenerPortMap);
             this.addressMap = new Dictionary<ReplicaID, (IPAddress, int)>(addressMap);
             listener = new TcpListener(localAddress, port);
@@ -45,30 +48,29 @@ namespace CRDTApp.NetworkLayers.Base
 
                         if (numBytes == 0)
                         {
-                            CallConnectionInterrupted(id);
+                            //connection interrupted
                             break;
                         }
 
                         var message = Encoding.UTF8.GetString(buffer, 0, numBytes);
 
-                        var messageObj = new Message(message);
+                        var messageObj = Message.Decode(message);
                         CallMessageReceived(id, messageObj);
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
-                        CallConnectionInterrupted(id);
+                        // connection Interrupted
                         break;
                     }
                 }
             }
         }
 
-        public override async Task Run()
-        {
-            SetRunning(true);
-       
-            var tasks = new List<Task>();
+
+
+        int POLLTIME = 10000;
+        async Task Run() {
             while (IsRunning)
             {
                 try
@@ -77,23 +79,28 @@ namespace CRDTApp.NetworkLayers.Base
                     var endpoint = socket.RemoteEndPoint?.ToString();
                     if (endpoint != null && listenerPortMap.TryGetValue(endpoint, out var replicaID))
                     {
-                        tasks.Add(RunInputSocket(replicaID, socket));
+                        Task.Run( async ()=> { await RunInputSocket(replicaID, socket)});
                     }
                     else
                     {
                         socket.Dispose(); // unknown peer
                     }
 
-                    tasks.RemoveAll(t => t.IsCompleted);
+
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    break;
                 }
             }
+        }
 
-            await Task.WhenAll(tasks);
+    
+
+        public override void Launch()
+        {
+            IsRunning = true;
+            Task.Run(Run);
         }
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)

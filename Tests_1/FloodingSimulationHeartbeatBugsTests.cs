@@ -197,7 +197,7 @@ namespace Tests_1
                 rSelf);
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, rSelf);
-            await hbLayer.Run();
+            await hbLayer.Launch();
 
             var selfHeartbeats = mockLower.SentMessages
                 .Where(m => m.Recipient == rSelf)
@@ -244,7 +244,7 @@ namespace Tests_1
                 r1);
 
             var hbLayer = new HeartbeatLayer(tracker, mockLower, scheduler, 0.5f, r1);
-            await hbLayer.Run();
+            await hbLayer.Launch();
 
             var sentToNode0 = mockLower.SentMessages
                 .Count(m => m.Recipient == r0);
@@ -327,7 +327,7 @@ namespace Tests_1
     {
         public bool IsRunning { get; private set; }
 
-        public override Task Run()
+        public override Task Launch()
         {
             IsRunning = true;
             return Task.CompletedTask;

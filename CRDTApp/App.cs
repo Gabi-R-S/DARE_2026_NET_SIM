@@ -1,6 +1,7 @@
 ﻿using CRDTApp.Behaviours;
 using CRDTApp.NetworkLayers;
 using CRDTApp.Schedulers;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,25 +10,46 @@ namespace CRDTApp
 {
     public class App
     {
+        SemaphoreSlim? sem;
         public IScheduler Scheduler { get; private set; }
-        public Behaviour Behaviour { get; private set; }
-        public NetworkLayer NetworkComponent { get; private set; }
-        public void Close() {
-            Behaviour.Stop();
-            NetworkComponent.Stop();
+        public List<Behaviour> Behaviours { get; private set; }
+        public List<NetworkLayer> NetworkLayer { get; private set; }
+
+        IsRunningTracker running;
+        public void Close()
+        {
+            running.IsRunning = false;
+            sem.Release();
+            
         }
-        public App(Behaviour behaviour, IScheduler scheduler, NetworkLayer networkComponent)
+        public App(IsRunningTracker running,List<Behaviour> behaviours, IScheduler scheduler, List<NetworkLayer> networkComponents)
         {
             this.Scheduler = scheduler;
-            this.Behaviour = behaviour;
-            this.NetworkComponent = networkComponent;
+            this.Behaviours = behaviours;
+            this.NetworkLayer = networkComponents;
         }
 
-        public async Task Run(float executionTime =-1)
+        public async void Run(float executionTime = -1)
         {
-            var t1 = Behaviour.Run();
-            var t2 =NetworkComponent.Run();
-            await Task.WhenAll(t1, t2);
+            running.IsRunning = true;
+            sem = new SemaphoreSlim(0);
+            foreach (var behaviour in Behaviours)
+            {
+                behaviour.Launch();
+            }
+            foreach (var networkLayer in NetworkLayer)
+            {
+                networkLayer.Launch();
+            }
+        }
+
+        public void Wait(){
+            sem?.Wait();
+        }
+
+        public bool IsRunning()
+        {
+            return running.IsRunning ;
         }
     }
 }

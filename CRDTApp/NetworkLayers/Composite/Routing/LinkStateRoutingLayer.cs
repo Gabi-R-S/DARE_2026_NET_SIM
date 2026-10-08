@@ -8,7 +8,6 @@ using System.Text;
 
 namespace CRDTApp.NetworkLayers.Composite.Routing
 {
-    //TODO: dynamically adjust distances/link cost based on latency
     public class LinkStateRoutingLayer : NetworkLayer
     {
         const bool ALLOW_SINGLE_CONNETIONS = false;
@@ -163,19 +162,17 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         ReplicaID replicaID;
         ActiveConnectionTracker connectionTracker;
-        public LinkStateRoutingLayer(ReplicaID replicaID, NetworkLayer layerBelow, ActiveConnectionTracker connectionTracker) : base(layerBelow)
+        public LinkStateRoutingLayer(ReplicaID replicaID, NetworkLayer layerBelow, ActiveConnectionTracker connectionTracker, string tag="") : base(tag,layerBelow)
         {
             this.replicaID = replicaID;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLevelMessageReceived);
-            layerBelow.AddOnConnectionInterruptedHandler(OnDisconnect);
-            layerBelow.AddOnConnectionRegainedHandler(OnConnect);
             this.connectionTracker = connectionTracker;
             CreateNextLSA();
         }
 
         public void OnConnect(ReplicaID replica)
         {
-            if (IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 lock (mostRecentLSAs)
                 {
@@ -190,17 +187,15 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 var lsa = CreateNextLSA();
                 FloodLSA(lsa, replicaID);
                 RecalculateRoutingTable();
-                CallConnectionRegained(replica);
             }
         }
         public void OnDisconnect(ReplicaID replica)
         {
-            if (IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 var lsa = CreateNextLSA();
                 FloodLSA(lsa, replicaID);
                 RecalculateRoutingTable();
-                CallConnectionInterrupted(replica);
             }
         }
 
@@ -230,15 +225,15 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         void SendLSA(ReplicaID target, LSA lsa)
         {
 
-            if (!IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return;
             }
-            LayerBelow.SendMessage(target,
-                new Message(
-                    new LinkStateMessage(target, replicaID,
-                        new Message(lsa.ToJson())
-                        , true).ToJson()
+            LayerBelow?.SendMessage(target,
+                new Message(Tag,
+                    new LinkStateMessagePayload(target, replicaID,
+                        lsa.Encode()
+                        , true).Encode()
                     )
                 );
         }
@@ -246,7 +241,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         void FloodLSA(LSA lsa, ReplicaID sender)
         {
 
-            if (!IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return;
             }
@@ -262,11 +257,11 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLevelMessageReceived(ReplicaID replica, Message message)
         {
-            if(!IsRunning)
+            if(!!RunningTracker.IsRunning || message.ProtocolTag!=Tag)
             {
                 return;
             }
-            var linkMessage = LinkStateMessage.FromJson(message.Payload);
+            var linkMessage = LinkStateMessagePayload.Decode(message.Payload);
             if (linkMessage == null)
             {
                 throw new Exception("Incorrect message format error in link state layer!");
@@ -275,7 +270,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             if (linkMessage.IsProtocolMessage)
             {
               
-                    var lsa = LSA.FromJson(linkMessage.Message.Payload);
+                    var lsa = LSA.Decode(linkMessage.Message);
 
                     if (lsa == null)
                     {
@@ -296,7 +291,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             {
                 if (linkMessage.IntendedTarget == replicaID)
                 {
-                    CallMessageReceived(linkMessage.OriginalSender, linkMessage.Message);
+                    CallMessageReceived(linkMessage.OriginalSender, Message.Decode(linkMessage.Message));
                 }
                 else
                 {
@@ -313,27 +308,28 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!IsRunning)
+            if (!!RunningTracker.IsRunning)
             {
                 return Task.FromResult(false);
             }
-            var newMessage = new LinkStateMessage(recipient, replicaID, message).AsMessage();
+            var newMessage = new Message(Tag,new LinkStateMessagePayload(recipient, replicaID, message).Encode());
 
-            return LayerBelow.SendMessage(GetNextNodeInPathTo(recipient), newMessage);
+            return LayerBelow?.SendMessage(GetNextNodeInPathTo(recipient), newMessage);
         }
 
 
-        public override Task Run()
+        public override void Launch()
         {
-            SetRunning(true);
             lock(mostRecentLSAs)
             {
                 mostRecentLSAs.Clear();
             }
             var nextLSA = CreateNextLSA();
-            var t = base.Run();
+            
+            base.Launch();
+            
             FloodLSA(nextLSA, replicaID);
-            return t;
+
         }
 
     }

@@ -9,14 +9,15 @@ namespace CRDTs
 {
     public class CausalHistoryTracker
     {
+        string tag;
 
-        event Action<ReplicaID, Message?, VersionVector>? MessageIssued;
+        event Action<ReplicaID, string?, VersionVector>? MessageIssued;
 
-        public void AddMessageIssuedHandler(Action<ReplicaID, Message?, VersionVector> handler)
+        public void AddMessageIssuedHandler(Action<ReplicaID, string?, VersionVector> handler)
         {
                 MessageIssued += handler;
         }
-        public void RemoveMessageIssuedHandler(Action<ReplicaID, Message?, VersionVector> handler)
+        public void RemoveMessageIssuedHandler(Action<ReplicaID, string?, VersionVector> handler)
         {
                 MessageIssued -= handler;
         }
@@ -24,17 +25,18 @@ namespace CRDTs
 
         ReplicaID replicaID;
 
-        public HistoryTrackedMessage TagMessage(Message message)
+        public HistoryTrackedMessage TagMessage(string message)
         {
             var version = IncrementVersion();
             return new HistoryTrackedMessage(message, version);
         }
 
-        public CausalHistoryTracker(ReplicaID replicaID, VersionVector? latest = null)
+        public CausalHistoryTracker(ReplicaID replicaID, VersionVector? latest = null, string tag="causal history")
         {
             this.replicaID = replicaID;
             this.Latest = latest?.Clone() ?? new VersionVector();
             pendingReceivedMessages = new();
+            this.tag = tag;
 
         }
 
@@ -54,7 +56,11 @@ namespace CRDTs
 
         public void OnMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            var trackerMessage = HistoryTrackedMessage.FromJson(lowerLayerMessage.Payload);
+            if (lowerLayerMessage.ProtocolTag != tag) {
+                return;
+            }
+
+            var trackerMessage = HistoryTrackedMessage.Decode(lowerLayerMessage.Payload);
 
             if (trackerMessage == null)
             {

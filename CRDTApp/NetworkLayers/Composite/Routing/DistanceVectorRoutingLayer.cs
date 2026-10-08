@@ -1,12 +1,11 @@
 using CRDTApp.Messages;
 using CRDTApp.Messages.LayerMessages;
-using CRDTApp.NetworkLayers.Composite.Routing.Helper;
 using CRDTApp.Schedulers;
 using Shared;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static CRDTApp.NetworkLayers.Composite.HeartbeatLayer;
+using static CRDTApp.Behaviours.HeartbeatHelpers.HeartbeatLayer;
 using static CRDTApp.NetworkLayers.NetworkLayer;
 
 namespace CRDTApp.NetworkLayers.Composite.Routing
@@ -14,7 +13,6 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
     public class DistanceVectorRoutingLayer : NetworkLayer
     {
-
         ReplicaID replicaID;
         ActiveConnectionTracker connectionTracker;
         IScheduler scheduler;
@@ -23,44 +21,47 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         int maxTTLHops;
         HashSet<ReplicaID> sendingTo = new();
 
-        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, int maxTTLHops, float heartbeatTime = 1.0f) : base(layerBelow, false, true, true)
+        public DistanceVectorRoutingLayer(ReplicaID replicaID, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, IScheduler scheduler, int maxTTLHops, float pollTime = 15.0f, string tag = "") : base(tag,layerBelow)
         {
             this.connectionTracker = connectionTracker;
             this.replicaID = replicaID;
             this.scheduler = scheduler;
             table = new DistanceTable(replicaID);
             this.maxTTLHops = maxTTLHops;
-            this.heartbeatTime = heartbeatTime;
+            this.pollTime = pollTime;
             layerBelow.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
-            AddOnConnectionInterruptedHandler(table.ResetConnection);
-            AddOnConnectionRegainedHandler(OnConnectionGained);
         }
 
-        void OnConnectionGained(ReplicaID replica)
+        public void OnConnectionGained(ReplicaID replica)
         {
-            if (!IsRunning)
+            if (!!RunningTracker.IsRunning)
             {
                 return;
             }
             lock (sendingTo)
             {
 
-                if (replica != replicaID && !sendingTo.Contains(replica) && IsRunning)
+                if (replica != replicaID && !sendingTo.Contains(replica) && !RunningTracker.IsRunning)
                 {
                     sendingTo.Add(replica);
-                    Task.Run(() => Hearbeat(replica));
+                    Task.Run(() => Poll(replica));
                 }
             }
         }
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (!IsRunning)
+            if (!!RunningTracker.IsRunning || lowerLayerMessage.ProtocolTag!=Tag)
             {
                 return;
             }
 
-            var message = DistanceVectorMessage.FromJson(lowerLayerMessage.Payload);
+            if(lowerLayerMessage.ProtocolTag != Tag)
+            {
+                return;
+            }
+
+            var message = DistanceVectorMessagePayload.Decode(lowerLayerMessage.Payload);
 
             if (message == null)
             {
@@ -72,7 +73,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
             if (message.IsProtocolMessage)
             {
-                var distanceTableUpdate = DistanceTableUpdateMessage.FromJson(message.Message.Payload);
+                var distanceTableUpdate = DistanceTableUpdateMessagePayload.Decode(message.Message);
                 if (distanceTableUpdate == null)
                 {
                     throw new Exception("WRONG MESSAGE FORMAT IN DISTANCE VECTOR ROUTING UPDATE MESSAGE");
@@ -85,7 +86,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             {
                 if (message.IntendedTarget == replicaID)
                 {
-                    CallMessageReceived(message.OriginalSender, message.Message);
+                    CallMessageReceived(message.OriginalSender, Message.Decode(message.Message));
 
                 }
                 else
@@ -94,7 +95,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     message.TTLhops--;
                     if (message.TTLhops > 0 && target!=senderID)
                     {
-                        LayerBelow?.SendMessage(target, message.AsMessage());
+                        base.SendMessage(target, new Message(Tag, message.Encode()));
                     }
                 }
 
@@ -107,54 +108,54 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public override Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return Task.FromResult(false);
             }           
 
-            var newMessage = new DistanceVectorMessage(recipient, replicaID, message, false, maxTTLHops).AsMessage();
+            var newMessage = new Message(Tag, new DistanceVectorMessagePayload(recipient, replicaID, message, false, maxTTLHops).Encode());
 
             if (recipient == replicaID)
             {
-                return LayerBelow?.SendMessage(recipient, newMessage);
+                return base.SendMessage(recipient, newMessage);
             }
 
 
             var target = table.GetNextInPathTo(recipient);
 
 
-            return LayerBelow?.SendMessage(target, newMessage);
+            return base.SendMessage(target, newMessage);
 
         }
 
 
-        float heartbeatTime = 1.0f;
+        float pollTime = 15.0f;
 
-        async Task Hearbeat(ReplicaID replica)
+        void Poll(ReplicaID replica)
         {
-            if (IsRunning)
+            if (!RunningTracker.IsRunning)
             {
-                DistanceTableUpdateMessage message = table.GetUpdate(scheduler, replica);
-                Message messg = new Message(message.ToJson());
+                DistanceTableUpdateMessagePayload message = table.GetUpdate(scheduler, replica);
+                
+                DistanceVectorMessagePayload mes = new DistanceVectorMessagePayload(replica, replicaID, message.Encode(), true, 1);
 
-                DistanceVectorMessage mes = new DistanceVectorMessage(replica, replicaID, messg, true, 1);
+                scheduler.ExecuteTaskOrTimeout(async (_) => { await base.SendMessage(replica, new Message(Tag,mes.Encode())); },pollTime);
 
-                LayerBelow.SendMessage(replica, new Message(mes.ToJson()));
-
-                scheduler.ExecuteAfter(heartbeatTime, () =>
+                scheduler.ExecuteAfter(pollTime, () =>
                 {
-                    if (IsRunning)
+                    if (!RunningTracker.IsRunning)
                     {
-                        Hearbeat(replica);
+                        Poll(replica);
                     }
                 });
             }
         }
 
-        public override Task Run()
+        public override void Launch()
         {
-            SetRunning(true);
-            var t = base.Run();
+            
+            base.Launch();
+            
             lock (sendingTo)
             {
                 sendingTo.Clear();
@@ -164,11 +165,11 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     if (replica != replicaID)
                     {
                         sendingTo.Add(replica);
-                        Hearbeat(replica);
+                        Poll(replica);
                     }
                 }
             }
-            return t;
+            return;
         }
 
 

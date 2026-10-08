@@ -129,12 +129,12 @@ namespace Tests_1
             var layer = new EnsureAckNetworkLayer<int>(replicaId, mockLayer, scheduler, _ => ++tagCounter);
 
             var sender = new ReplicaID(2);
-            var msg = new EnsureAckMessage<int>(123, new Message("payload"), false);
+            var msg = new AckMessagePayload<int>(123, new Message("payload"), false);
             
             Message? delivered = null;
             layer.AddOnMessageReceivedHandler((r, m) => delivered = m);
 
-            mockLayer.ReceiveMessage(sender, new Message(msg.ToJson()));
+            mockLayer.ReceiveMessage(sender, new Message(msg.Encode()));
 
             Assert.IsNotNull(delivered);
             Assert.AreEqual("payload", delivered.Payload);
@@ -144,7 +144,7 @@ namespace Tests_1
             var (rec, ackMsg) = mockLayer.MessagesSent.Dequeue();
             Assert.AreEqual(sender.ID, rec.ID);
             
-            var ackObj = EnsureAckMessage<int>.FromJson(ackMsg.Payload);
+            var ackObj = AckMessagePayload<int>.Decode(ackMsg.Payload);
             Assert.IsTrue(ackObj.IsAck);
             Assert.AreEqual(123, ackObj.Tag);
         }
@@ -162,13 +162,13 @@ namespace Tests_1
             layer.AddOnMessageReceivedHandler((r, m) => deliveredCount++);
 
             var sender = new ReplicaID(2);
-            var hbMsg = new HeartbeatMessage(null, true);
+            var hbMsg = new HeartbeatMessagePayload(null, true);
             
-            mockLayer.ReceiveMessage(sender, new Message(hbMsg.ToJson()));
+            mockLayer.ReceiveMessage(sender, new Message(hbMsg.Encode()));
             Assert.AreEqual(0, deliveredCount, "Heartbeats should not be passed up");
 
-            var normalMsg = new HeartbeatMessage(new Message("payload"), false);
-            mockLayer.ReceiveMessage(sender, new Message(normalMsg.ToJson()));
+            var normalMsg = new HeartbeatMessagePayload(new Message("payload"), false);
+            mockLayer.ReceiveMessage(sender, new Message(normalMsg.Encode()));
             Assert.AreEqual(1, deliveredCount, "Normal messages should be passed up");
         }
 

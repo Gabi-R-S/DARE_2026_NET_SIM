@@ -33,12 +33,12 @@ namespace Tests_1
                 rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
-            await floodLayer.Run();
+            await floodLayer.Launch();
 
             var transitPayload = new Message("payload");
-            var inboundFlood = new FloodMessage(rTarget, rSender, 0u, transitPayload, numberOfHops: 3);
+            var inboundFlood = new FloodMessagePayload(rTarget, rSender, 0u, transitPayload, numberOfHops: 3);
             
-            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.ToJson()));
+            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.Encode()));
 
             // Should forward to rNeighbour1 and rNeighbour2, but NOT to rSender or rSelf
             Assert.AreEqual(2, mockLower.SentMessages.Count);
@@ -49,7 +49,7 @@ namespace Tests_1
             CollectionAssert.DoesNotContain(forwardedTargets, rSelf);
 
             // Verify hops decremented from 3 to 2
-            var forwardedMsg = FloodMessage.FromJson(mockLower.SentMessages[0].Message.Payload);
+            var forwardedMsg = FloodMessagePayload.Decode(mockLower.SentMessages[0].Message.Payload);
             Assert.IsNotNull(forwardedMsg);
             Assert.AreEqual(2, forwardedMsg.NumberOfHops);
             Assert.AreEqual(rTarget, forwardedMsg.IntendedTarget);
@@ -71,11 +71,11 @@ namespace Tests_1
                 rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
-            await floodLayer.Run();
+            await floodLayer.Launch();
 
-            var inboundFlood = new FloodMessage(rTarget, rSender, 0u, new Message("data"), numberOfHops: 0);
+            var inboundFlood = new FloodMessagePayload(rTarget, rSender, 0u, new Message("data"), numberOfHops: 0);
 
-            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.ToJson()));
+            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.Encode()));
 
             Assert.AreEqual(0, mockLower.SentMessages.Count, "Message with 0 hops must not be forwarded further");
         }
@@ -96,10 +96,10 @@ namespace Tests_1
                 rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
-            await floodLayer.Run();
+            await floodLayer.Launch();
 
-            var inboundFlood = new FloodMessage(rTarget, rSender, 0u, new Message("data"), numberOfHops: 2);
-            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.ToJson()));
+            var inboundFlood = new FloodMessagePayload(rTarget, rSender, 0u, new Message("data"), numberOfHops: 2);
+            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.Encode()));
 
             Assert.AreEqual(1, mockLower.SentMessages.Count);
             Assert.AreEqual(rActive, mockLower.SentMessages[0].Recipient);
@@ -121,8 +121,8 @@ namespace Tests_1
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
             // Notice: floodLayer.Run() is NOT called, so Running == false
 
-            var inboundFlood = new FloodMessage(new ReplicaID(99), rSender, 0u, new Message("data"), numberOfHops: 2);
-            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.ToJson()));
+            var inboundFlood = new FloodMessagePayload(new ReplicaID(99), rSender, 0u, new Message("data"), numberOfHops: 2);
+            floodLayer.OnLowerLayerMessageReceived(rSender, new Message(inboundFlood.Encode()));
 
             Assert.AreEqual(0, mockLower.SentMessages.Count, "When layer is not running, transit messages must not be forwarded");
         }
@@ -135,7 +135,7 @@ namespace Tests_1
             var tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>(), rSelf);
 
             var floodLayer = new FloodingRedirectionLayer(rSelf, new ControllableTestScheduler(), tracker, mockLower, numHops: 5, forgettingTime: 60.0f);
-            await floodLayer.Run();
+            await floodLayer.Launch();
 
             var result = await floodLayer.SendMessage(rSelf, new Message("self msg"));
 
@@ -143,7 +143,7 @@ namespace Tests_1
             Assert.AreEqual(1, mockLower.SentMessages.Count);
             Assert.AreEqual(rSelf, mockLower.SentMessages[0].Recipient);
 
-            var parsed = FloodMessage.FromJson(mockLower.SentMessages[0].Message.Payload);
+            var parsed = FloodMessagePayload.Decode(mockLower.SentMessages[0].Message.Payload);
             Assert.IsNotNull(parsed);
             Assert.AreEqual(rSelf, parsed.IntendedTarget);
             Assert.AreEqual(rSelf, parsed.OriginalSender);
@@ -176,13 +176,13 @@ namespace Tests_1
                 Timestamp = scheduler.GetCurrentTime()
             });
 
-            var dvm = new DistanceVectorMessage(
+            var dvm = new DistanceVectorMessagePayload(
                 rSelf,
                 rNeighborB,
                 new Message(updatePayload),
                 isProtocolMessage: true, 10);
 
-            dvLayer.OnLowerLayerMessageReceived(rNeighborB, new Message(dvm.ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(rNeighborB, new Message(dvm.Encode()));
 
             // Verify active status updated
             Assert.IsTrue(tracker.IsActive(rNeighborB));
@@ -193,7 +193,7 @@ namespace Tests_1
             Assert.AreEqual(1, mockLower.SentMessages.Count);
             Assert.AreEqual(rNeighborB, mockLower.SentMessages[0].Recipient, "Should route message for C via next-hop B");
             
-            var sentDv = DistanceVectorMessage.FromJson(mockLower.SentMessages[0].Message.Payload);
+            var sentDv = DistanceVectorMessagePayload.Decode(mockLower.SentMessages[0].Message.Payload);
             Assert.IsNotNull(sentDv);
             Assert.AreEqual(rDestinationC, sentDv.IntendedTarget);
             Assert.AreEqual(rSelf, sentDv.OriginalSender);
@@ -222,12 +222,12 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)rDestinationC.ID, 1.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            var protoMsg = new DistanceVectorMessage(rSelf, rNeighborB, new Message(updatePayload), true, 5);
-            dvLayer.OnLowerLayerMessageReceived(rNeighborB, new Message(protoMsg.ToJson()));
+            var protoMsg = new DistanceVectorMessagePayload(rSelf, rNeighborB, new Message(updatePayload), true, 5);
+            dvLayer.OnLowerLayerMessageReceived(rNeighborB, new Message(protoMsg.Encode()));
 
             // Now a data message from Origin A addressed to Destination C arrives at Self
-            var dataMsg = new DistanceVectorMessage(rDestinationC, rOriginA, new Message("transit payload"), false, 10);
-            var networkMsg = new Message(dataMsg.ToJson());
+            var dataMsg = new DistanceVectorMessagePayload(rDestinationC, rOriginA, new Message("transit payload"), false, 10);
+            var networkMsg = new Message(dataMsg.Encode());
 
             dvLayer.OnLowerLayerMessageReceived(rOriginA, networkMsg);
 
@@ -259,8 +259,8 @@ namespace Tests_1
                 delivered = m;
             });
 
-            var dataMsg = new DistanceVectorMessage(rSelf, rSender, new Message("for you"), false, 10);
-            dvLayer.OnLowerLayerMessageReceived(rSender, new Message(dataMsg.ToJson()));
+            var dataMsg = new DistanceVectorMessagePayload(rSelf, rSender, new Message("for you"), false, 10);
+            dvLayer.OnLowerLayerMessageReceived(rSender, new Message(dataMsg.Encode()));
 
             Assert.IsNotNull(delivered);
             Assert.AreEqual("for you", delivered.Payload);
@@ -290,8 +290,8 @@ namespace Tests_1
                 Distances = new Dictionary<int, float> { { (int)rDestinationC.ID, 1.0f } },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            var protoMsg = new DistanceVectorMessage(rSelf, rNeighborB, new Message(updatePayload), true, 10);
-            dvLayer.OnLowerLayerMessageReceived(rNeighborB, new Message(protoMsg.ToJson()));
+            var protoMsg = new DistanceVectorMessagePayload(rSelf, rNeighborB, new Message(updatePayload), true, 10);
+            dvLayer.OnLowerLayerMessageReceived(rNeighborB, new Message(protoMsg.Encode()));
 
             // Neighbor B connection breaks
             mockLower.InjectConnectionInterrupted(rNeighborB);
@@ -324,20 +324,20 @@ namespace Tests_1
 
             // Inject LSA #5 from Node C
             var lsa5 = new LSA(rNodeC, 5, new List<(ReplicaID, float)> { (rNeighborB, 1f) });
-            var msg5 = new LinkStateMessage(rSelf, rNeighborB, new Message(lsa5.ToJson()), true);
-            lsLayer.OnLowerLevelMessageReceived(rNeighborB, new Message(msg5.ToJson()));
+            var msg5 = new LinkStateMessagePayload(rSelf, rNeighborB, new Message(lsa5.Encode()), true);
+            lsLayer.OnLowerLevelMessageReceived(rNeighborB, new Message(msg5.Encode()));
 
             // Now inject stale LSA #3 and #5 from Node C
             mockLower.SentMessages.Clear();
             var lsa3 = new LSA(rNodeC, 3, new List<(ReplicaID, float)> { (rNeighborB, 1f) });
-            var msg3 = new LinkStateMessage(rSelf, rNeighborB, new Message(lsa3.ToJson()), true);
-            lsLayer.OnLowerLevelMessageReceived(rNeighborB, new Message(msg3.ToJson()));
+            var msg3 = new LinkStateMessagePayload(rSelf, rNeighborB, new Message(lsa3.Encode()), true);
+            lsLayer.OnLowerLevelMessageReceived(rNeighborB, new Message(msg3.Encode()));
 
             Assert.AreEqual(0, mockLower.SentMessages.Count, "Stale LSA must not be flooded");
 
             var lsa5dup = new LSA(rNodeC, 5, new List<(ReplicaID, float)> { (rNeighborB, 1f) });
-            var msg5dup = new LinkStateMessage(rSelf, rNeighborB, new Message(lsa5dup.ToJson()), true);
-            lsLayer.OnLowerLevelMessageReceived(rNeighborB, new Message(msg5dup.ToJson()));
+            var msg5dup = new LinkStateMessagePayload(rSelf, rNeighborB, new Message(lsa5dup.Encode()), true);
+            lsLayer.OnLowerLevelMessageReceived(rNeighborB, new Message(msg5dup.Encode()));
 
             Assert.AreEqual(0, mockLower.SentMessages.Count, "Duplicate LSA number must not be flooded");
         }
@@ -368,9 +368,9 @@ namespace Tests_1
             var lsaC = new LSA(rC, 1, new List<(ReplicaID, float)> { (rA, 1f), (rD, 1f) });
             var lsaD = new LSA(rD, 1, new List<(ReplicaID, float)> { (rB, 1f), (rC, 1f) });
 
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
-            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rC, new Message(lsaC.ToJson()), true).ToJson()));
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rD, new Message(lsaD.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rB, new Message(lsaB.Encode()), true).Encode()));
+            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessagePayload(rA, rC, new Message(lsaC.Encode()), true).Encode()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rD, new Message(lsaD.Encode()), true).Encode()));
 
             mockLower.SentMessages.Clear();
 
@@ -401,16 +401,16 @@ namespace Tests_1
 
             // B connects to C
             var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rC, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(new LinkStateMessagePayload(rA, rB, new Message(lsaB.Encode()), true).Encode()));
 
             var lsaC = new LSA(rC, 1, new List<(ReplicaID, float)> { (rB, 1f) });
-            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessage(rA, rC, new Message(lsaC.ToJson()), true).ToJson()));
+            lsLayer.OnLowerLevelMessageReceived(rC, new Message(new LinkStateMessagePayload(rA, rC, new Message(lsaC.Encode()), true).Encode()));
 
             mockLower.SentMessages.Clear();
 
             // A receives transit data message intended for C
-            var transitData = new LinkStateMessage(rC, rOrigin, new Message("transit body"), false);
-            lsLayer.OnLowerLevelMessageReceived(rOrigin, new Message(transitData.ToJson()));
+            var transitData = new LinkStateMessagePayload(rC, rOrigin, new Message("transit body"), false);
+            lsLayer.OnLowerLevelMessageReceived(rOrigin, new Message(transitData.Encode()));
 
             Console.WriteLine(rB.ToString()+" "+ mockLower.SentMessages[0].Recipient.ToString());
             Assert.AreEqual(rB, mockLower.SentMessages[0].Recipient, "Transit message for C should be forwarded to next-hop B");

@@ -7,24 +7,25 @@ using System.Text;
 
 namespace CRDTApp.Messages
 {
-    public class HistoryTrackedMessage:NetworkLayerMessage<HistoryTrackedMessage>
+    public class HistoryTrackedMessage : Parseable<HistoryTrackedMessage>
     {
 
-        public Message? Message { get; set; }
+        public string Message { get; set; }
 
         public VersionVector CausalityTracker { get; set; }
 
-        HistoryTrackedMessage()
+        public HistoryTrackedMessage()
         {
         }
-        public HistoryTrackedMessage(Message? message, VersionVector causalityTracker)
+        
+        public HistoryTrackedMessage(string message, VersionVector causalityTracker)
         {
 
             Message = message;
             CausalityTracker = causalityTracker;
 
-
         }
+
 
     }
 }

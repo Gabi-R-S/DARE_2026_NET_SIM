@@ -7,7 +7,7 @@ namespace CRDTApp.Messages.LayerMessages
 {
 
 
-    public class LSA : NetworkLayerMessage<LSA>
+    public class LSA : Parseable<LSA>
     {
         public ReplicaID Replica { get; set; }
         public int Number { get; set; }

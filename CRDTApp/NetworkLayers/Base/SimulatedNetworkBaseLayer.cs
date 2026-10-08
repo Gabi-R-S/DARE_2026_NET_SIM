@@ -20,7 +20,6 @@ namespace CRDTApp.NetworkLayers.Base
             this.networkSimulator = simulator;
             this.replicaID = id;
 
-            networkSimulator.AddConnectionInterruptedHandler(replicaID, CallConnectionInterrupted);
             networkSimulator.AddMessageDeliveredHandler(replicaID, OnSimulatorMessageReceived);
 
         }

@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
+namespace CRDTApp.NetworkLayers.Composite.Routing
 {
     class DistanceTable
     {
@@ -47,7 +47,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
             return reps;
         }
 
-        public void Update(ReplicaID us, ReplicaID sender, DistanceTableUpdateMessage update, ActiveConnectionTracker tracker)
+        public void Update(ReplicaID us, ReplicaID sender, DistanceTableUpdateMessagePayload update, ActiveConnectionTracker tracker)
         {
             lock (lockObj)
             {
@@ -109,7 +109,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
             }
         }
 
-        public DistanceTableUpdateMessage GetUpdate(IScheduler scheduler, ReplicaID target)
+        public DistanceTableUpdateMessagePayload GetUpdate(IScheduler scheduler, ReplicaID target)
         {
             Dictionary<int, float> messgDistances = new();
             var timestamp = scheduler.GetCurrentTime();
@@ -126,7 +126,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing.Helper
             }
 
 
-            return new DistanceTableUpdateMessage(messgDistances, timestamp);
+            return new DistanceTableUpdateMessagePayload(messgDistances, timestamp);
         }
     }
 }

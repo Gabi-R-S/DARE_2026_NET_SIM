@@ -54,9 +54,9 @@ namespace Tests_1
             floodLayer.AddOnMessageReceivedHandler((sender, msg) => { delivered = true; });
 
             var payload = new Message("test payload");
-            var floodMessage = new FloodMessage(replica1, new ReplicaID(2), 0u, payload, 3);
+            var floodMessage = new FloodMessagePayload(replica1, new ReplicaID(2), 0u, payload, 3);
             
-            floodLayer.OnLowerLayerMessageReceived(new ReplicaID(2), new Message(floodMessage.ToJson()));
+            floodLayer.OnLowerLayerMessageReceived(new ReplicaID(2), new Message(floodMessage.Encode()));
 
             Assert.IsTrue(delivered, "Message should be delivered locally.");
         }
@@ -80,9 +80,9 @@ namespace Tests_1
             
             var payload = new Message("test payload");
             var target = new ReplicaID(99);
-            var floodMessage = new FloodMessage(target, new ReplicaID(2), 0u, payload, 3);
+            var floodMessage = new FloodMessagePayload(target, new ReplicaID(2), 0u, payload, 3);
             
-            floodLayer.OnLowerLayerMessageReceived(new ReplicaID(2), new Message(floodMessage.ToJson()));
+            floodLayer.OnLowerLayerMessageReceived(new ReplicaID(2), new Message(floodMessage.Encode()));
 
             Assert.IsFalse(deliveredLocal, "Message should not be delivered locally.");
         }
@@ -124,8 +124,8 @@ namespace Tests_1
             // Mock LSAs being received.
             // A gets an LSA from B saying B is connected to A and C.
             var lsaB = new LSA(rB, 1, new List<(ReplicaID, float)> { (rA, 1f), (rC, 1f) });
-            var lsMsgB = new LinkStateMessage(rA, rB, new Message(lsaB.ToJson()), true);
-            lsLayer.OnLowerLevelMessageReceived(rB, new Message(lsMsgB.ToJson()));
+            var lsMsgB = new LinkStateMessagePayload(rA, rB, new Message(lsaB.Encode()), true);
+            lsLayer.OnLowerLevelMessageReceived(rB, new Message(lsMsgB.Encode()));
 
             // The routing table should be recalculated.
             // Route to C should be via B.
@@ -141,7 +141,7 @@ namespace Tests_1
                 });
 
             var lsLayer2 = new LinkStateRoutingLayer(rA, captureLayer, tracker);
-            lsLayer2.OnLowerLevelMessageReceived(rB, new Message(lsMsgB.ToJson()));
+            lsLayer2.OnLowerLevelMessageReceived(rB, new Message(lsMsgB.Encode()));
             
             // Try to send to C
             lsLayer2.SendMessage(rC, new Message("hello"));

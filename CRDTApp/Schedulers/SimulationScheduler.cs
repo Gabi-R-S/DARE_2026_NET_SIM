@@ -1,64 +1,95 @@
 ﻿using Simulator;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CRDTApp.Schedulers
 {
-    public class SimulationScheduler:IScheduler
+    public class SimulationScheduler : IScheduler
     {
-        NetworkSimulator sim;
-        public SimulationScheduler(NetworkSimulator sim) {
+        private readonly NetworkSimulator sim;
+
+        public SimulationScheduler(NetworkSimulator sim)
+        {
             this.sim = sim;
         }
 
         public void ExecuteAfter(float time, Action action)
         {
-            sim.ExecuteAfter(time,action);
+            sim.ExecuteAfter(time, action);
         }
 
+        public async Task<(bool, T)> ExecuteTaskOrTimeout<T>(
+            Func<CancellationToken, Task<T>> operation,
+            float time,
+            T defaultValue)
+        {
+            using var cts = new CancellationTokenSource();
 
+            // The simulation controls when cancellation happens.
+            sim.ExecuteAfter(time, () => cts.Cancel());
 
-        public async Task<(bool, T)> ExecuteTaskOrTimeout<T>(Task<T> task, float time, T defaultValue) {
-            SemaphoreSlim sem = new SemaphoreSlim(0);
+            try
+            {
+                T result = await operation(cts.Token);
 
-            sim.ExecuteAfter(time, () => { sem.Release(); });
-
-            var t = sem.WaitAsync();
-            var ind = await Task.WhenAny(t,task);
-
-            if (ind == t) {
+                return (true, result);
+            }
+            catch (OperationCanceledException)
+            {
                 return (false, defaultValue);
             }
-
-            return (true, task.Result);
-
         }
 
-        public async Task<bool> ExecuteTaskOrTimeout(Task task, float time)
+        public async Task<bool> ExecuteTaskOrTimeout(
+            Func<CancellationToken, Task> operation,
+            float time)
         {
-            SemaphoreSlim sem = new SemaphoreSlim(0);
+            using var cts = new CancellationTokenSource();
 
-            sim.ExecuteAfter(time, () => { sem.Release(); });
+            // The simulation controls when cancellation happens.
+            sim.ExecuteAfter(time, () => cts.Cancel());
 
-            var t = sem.WaitAsync();
-            var ind = await Task.WhenAny(t, task);
+            try
+            {
+                await operation(cts.Token);
 
-            if (ind == t)
+                return true;
+            }
+            catch (OperationCanceledException)
             {
                 return false;
             }
-
-            return true;
-
         }
 
+        public async Task<bool> ExecuteTaskOrTimeout(
+            Func<CancellationToken, Task> operation,
+            float time,
+            Action timeoutAction)
+        {
+            using var cts = new CancellationTokenSource();
 
+            sim.ExecuteAfter(time, () =>
+            {
+                cts.Cancel();
+            });
+
+            try
+            {
+                await operation(cts.Token);
+
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                timeoutAction();
+                return false;
+            }
+        }
 
         public DateTime GetCurrentTime()
         {
             return sim.GetCurrentTime();
         }
-
     }
 }

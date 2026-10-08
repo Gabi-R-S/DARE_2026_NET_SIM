@@ -1,4 +1,5 @@
 using CRDTApp;
+using CRDTApp.Behaviours.HeartbeatHelpers;
 using CRDTApp.Messages;
 using CRDTApp.NetworkLayers;
 using CRDTApp.NetworkLayers.Base;

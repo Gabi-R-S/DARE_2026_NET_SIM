@@ -57,7 +57,7 @@ namespace Tests_1
                 },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update1), true,5).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessagePayload(r1, r2, new Message(update1), true,5).Encode()));
 
             // Verify route was learned via r2
             mockLower.SentMessages.Clear();
@@ -75,7 +75,7 @@ namespace Tests_1
                 },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update2), true,5).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessagePayload(r1, r2, new Message(update2), true,5).Encode()));
 
             // Now send to 3 again. Because r2 no longer advertises 3, the stale route via r2 MUST NOT be used!
             mockLower.SentMessages.Clear();
@@ -124,17 +124,17 @@ namespace Tests_1
                 },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(update), true,5).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessagePayload(r1, r2, new Message(update), true,5).Encode()));
 
             // Run layer and advance scheduler to trigger heartbeat to neighbor 2
             mockLower.SentMessages.Clear();
-            await dvLayer.Run();
+            await dvLayer.Launch();
             scheduler.AdvanceSeconds(1.1f);
 
             // Find the protocol heartbeat sent to neighbor 2
             var sentToR2 = mockLower.SentMessages
                 .Where(m => m.Recipient == r2)
-                .Select(m => DistanceVectorMessage.FromJson(m.Message.Payload))
+                .Select(m => DistanceVectorMessagePayload.Decode(m.Message.Payload))
                 .FirstOrDefault(m => m != null && m.IsProtocolMessage);
 
             Assert.IsNotNull(sentToR2, "Heartbeat protocol message should have been sent to neighbor 2");
@@ -190,8 +190,8 @@ namespace Tests_1
                 Timestamp = scheduler.GetCurrentTime()
             });
 
-            var protoMsg = new DistanceVectorMessage(r1, rOrigin, new Message(updatePayload), true,5);
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(protoMsg.ToJson()));
+            var protoMsg = new DistanceVectorMessagePayload(r1, rOrigin, new Message(updatePayload), true,5);
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(protoMsg.Encode()));
 
             mockLower.SentMessages.Clear();
             dvLayer.SendMessage(rTarget, new Message("data packet"));
@@ -227,7 +227,7 @@ namespace Tests_1
                 r1);
 
             var dvLayer = new DistanceVectorRoutingLayer(r1, tracker, mockLower, scheduler, 10);
-            await dvLayer.Run();
+            await dvLayer.Launch();
 
             // Neighbor 9 connects after startup
             mockLower.InjectConnectionRegained(rNewNeighbor);
@@ -238,7 +238,7 @@ namespace Tests_1
 
             bool sentHeartbeatToNewNeighbor = mockLower.SentMessages.Any(m =>
                 m.Recipient == rNewNeighbor &&
-                DistanceVectorMessage.FromJson(m.Message.Payload)?.IsProtocolMessage == true);
+                DistanceVectorMessagePayload.Decode(m.Message.Payload)?.IsProtocolMessage == true);
 
             Assert.IsTrue(sentHeartbeatToNewNeighbor,
                 "BUG: DistanceVectorRoutingLayer never initiated heartbeats to neighbor 9 connected after startup!");
@@ -285,7 +285,7 @@ namespace Tests_1
                 },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r3, new Message(new DistanceVectorMessage(r1, r3, new Message(updateR3), true, 5).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r3, new Message(new DistanceVectorMessagePayload(r1, r3, new Message(updateR3), true, 5).Encode()));
 
             // Neighbor 2 advertises shorter path to rDest with cost 2.0
             var updateR2_fast = JsonConvert.SerializeObject(new
@@ -297,7 +297,7 @@ namespace Tests_1
                 },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(updateR2_fast), true, 5).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessagePayload(r1, r2, new Message(updateR2_fast), true, 5).Encode()));
 
             // Verify route is currently through r2 (cost 2 < 5)
             mockLower.SentMessages.Clear();
@@ -315,7 +315,7 @@ namespace Tests_1
                 },
                 Timestamp = scheduler.GetCurrentTime()
             });
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessage(r1, r2, new Message(updateR2_degraded), true, 5).ToJson()));
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(new DistanceVectorMessagePayload(r1, r2, new Message(updateR2_degraded), true, 5).Encode()));
 
             // Now send packet to rDest: it should switch to neighbor r3 (cost 5), NOT stay on degraded r2 (cost 30)!
             mockLower.SentMessages.Clear();
@@ -362,16 +362,16 @@ namespace Tests_1
                 Timestamp = scheduler.GetCurrentTime().AddSeconds(1.5)
             });
 
-            var protoMsg = new DistanceVectorMessage(r1, r2, new Message(updatePayload), true, 5);
-            dvLayer.OnLowerLayerMessageReceived(r2, new Message(protoMsg.ToJson()));
+            var protoMsg = new DistanceVectorMessagePayload(r1, r2, new Message(updatePayload), true, 5);
+            dvLayer.OnLowerLayerMessageReceived(r2, new Message(protoMsg.Encode()));
 
             // Trigger heartbeat to inspect advertised distance
             mockLower.SentMessages.Clear();
-            await dvLayer.Run();
+            await dvLayer.Launch();
             scheduler.AdvanceSeconds(1.1f);
 
             var sentProto = mockLower.SentMessages
-                .Select(m => DistanceVectorMessage.FromJson(m.Message.Payload))
+                .Select(m => DistanceVectorMessagePayload.Decode(m.Message.Payload))
                 .FirstOrDefault(m => m != null && m.IsProtocolMessage && m.IntendedTarget==r3);
 
             Assert.IsNotNull(sentProto);

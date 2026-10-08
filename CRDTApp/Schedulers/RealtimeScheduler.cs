@@ -1,53 +1,81 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Timers;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CRDTApp.Schedulers
 {
-    // TODO: make sure things only execute after everything that should logically happen before actually happens before
     public class RealtimeScheduler : IScheduler
     {
-            
-        public void ExecuteAfter(float time, Action action) {
-            System.Timers.Timer timer = new System.Timers.Timer(time*1000);
-            timer.AutoReset = false;
-            timer.Elapsed += (_,_) => action();
-            timer.Start();
+        public void ExecuteAfter(float time, Action action)
+        {
+            _ = Task.Delay(TimeSpan.FromSeconds(time))
+                .ContinueWith(
+                    _ => action(),
+                    TaskScheduler.Default);
         }
 
+        public async Task<(bool, T)> ExecuteTaskOrTimeout<T>(
+            Func<CancellationToken, Task<T>> operation,
+            float time,
+            T defaultValue)
+        {
+            using var cts = new CancellationTokenSource(
+                TimeSpan.FromSeconds(time));
 
-        public async Task<(bool,T)> ExecuteTaskOrTimeout<T>(Task<T> task, float time, T defaultValue) {
+            try
+            {
+                T result = await operation(cts.Token);
 
-            var t = Task.Delay((int)time*1000);
-
-            var res = await Task.WhenAny(t,task);
-
-            if (res == t) {
+                return (true, result);
+            }
+            catch (OperationCanceledException)
+            {
                 return (false, defaultValue);
             }
-
-            return (true, task.Result);
-
         }
 
-        public async Task<bool> ExecuteTaskOrTimeout(Task task, float time)
+        public async Task<bool> ExecuteTaskOrTimeout(
+            Func<CancellationToken, Task> operation,
+            float time)
         {
+            using var cts = new CancellationTokenSource(
+                TimeSpan.FromSeconds(time));
 
-            var t = Task.Delay((int)time * 1000);
+            try
+            {
+                await operation(cts.Token);
 
-            var res = await Task.WhenAny(t, task);
-
-            if (res == t)
+                return true;
+            }
+            catch (OperationCanceledException)
             {
                 return false;
             }
-
-            return true;
-
         }
 
-        public DateTime GetCurrentTime() {
+        public async Task<bool> ExecuteTaskOrTimeout(
+            Func<CancellationToken, Task> operation,
+            float time,
+            Action timeoutAction)
+        {
+            using var cts = new CancellationTokenSource(
+                TimeSpan.FromSeconds(time));
+
+            try
+            {
+                await operation(cts.Token);
+
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                timeoutAction();
+                return false;
+            }
+        }
+
+        public DateTime GetCurrentTime()
+        {
             return DateTime.Now;
         }
     }

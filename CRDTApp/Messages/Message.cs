@@ -1,15 +1,19 @@
-﻿using System;
+﻿using Shared;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CRDTApp.Messages
 {
-    public class Message
+    public class Message:Parseable<Message>
     {
+
+        public string ProtocolTag { get; set; }
         public string Payload { get; private set; }
 
-        public Message(string payload)
+        public Message(string tag, string payload)
         {
+            ProtocolTag = payload;
             Payload = payload;
         }
 

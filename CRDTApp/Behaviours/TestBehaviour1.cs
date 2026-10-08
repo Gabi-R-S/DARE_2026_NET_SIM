@@ -53,7 +53,7 @@ namespace CRDTApp.Behaviours
                 });
             }
         }
-        public override async Task Run()
+        public override void Launch()
         {
             Send();
 
