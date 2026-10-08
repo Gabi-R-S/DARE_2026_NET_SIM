@@ -59,9 +59,5 @@ namespace CRDTApp.Behaviours
 
         }
 
-        public override void Stop()
-        {
-            keepSending = false;
-        }
     }
 }

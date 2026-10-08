@@ -7,6 +7,7 @@ using CRDTApp.NetworkLayers.Composite;
 using CRDTApp.NetworkLayers.Composite.Routing;
 using CRDTApp.Schedulers;
 using Microsoft.VisualStudio.CodeCoverage;
+using Newtonsoft.Json.Linq;
 using Shared;
 using Simulator;
 using System;
@@ -27,13 +28,51 @@ namespace RunSimulations
             DISTANCE_VECTOR,
             LINK_STATE
         }
+
+        public class InsertionExperimentParams
+        {
+
+            public int opsPerReplica;
+            public float delayBetweenSends;
+            public float delayBetweenOps;
+            public float heartbeatTime;
+            public float timeoutTime;
+            public int numHops;
+            public float forgetingTime;
+            public float ackTimeout;
+            public float dvPollTime;
+
+            public InsertionExperimentParams(
+            int opsPerReplica = 100,
+            float delayBetweenSends = 10.0f,
+            float delayBetweenOps = 2.0f,
+            float heartbeatTime = 1.0f,
+            float timeoutTime = 15.0f,
+            int numHops = 10,
+            float forgetingTime = 60.0f,
+            float ackTimeout = 5.0f,
+            float dvPollTime = 10.0f)
+            {
+                this.opsPerReplica = opsPerReplica;
+                this.delayBetweenSends = delayBetweenSends;
+                this.delayBetweenOps = delayBetweenOps;
+                this.heartbeatTime = heartbeatTime;
+                this.timeoutTime = timeoutTime;
+                this.numHops = numHops;
+                this.forgetingTime = forgetingTime;
+                this.ackTimeout = ackTimeout;
+                this.dvPollTime = dvPollTime;
+
+            }
+        }
+
         public ExperimentResults RunIndividualFillArraySimulation(string name,
             Func<(ConnectionMap map, List<ReplicaID> replicas)> createNetwork,
             RoutingAlgorithmType algorithm,
             Func<ConnectionMap, NetworkSimulator> simulatorCreator,
             float maxExperimentDuration,
             Func<NetworkSimulator, List<App>, List<ExtraMetric>> generalMetricsCreator,
-            Dictionary<string, object> extraParams)
+            InsertionExperimentParams extraParams)
         {
             return RunSimulation(name, createNetwork, (sim) => { return CreateSimulatedInsertApps(sim, algorithm, generalMetricsCreator, extraParams); }, simulatorCreator, maxExperimentDuration);
         }
@@ -42,7 +81,7 @@ namespace RunSimulations
         public (List<App>, List<ExtraMetric>) CreateSimulatedInsertApps(NetworkSimulator simulator,
             RoutingAlgorithmType algorithm,
             Func<NetworkSimulator, List<App>, List<ExtraMetric>> generalMetricsCreator,
-            Dictionary<string, object> extraParams)
+            InsertionExperimentParams extraParams)
         {
 
             List<App> apps = new List<App>();
@@ -58,42 +97,6 @@ namespace RunSimulations
 
 
 
-                int opsPerReplica = extraParams.TryGetValue("opsPerReplica", out var value)
-                                                                                            ? (int)value
-                                                                                            : 100;
-
-                float delayBetweenSends = extraParams.TryGetValue("delayBetweenSends", out var value2)
-                                                                                            ? (float)value2
-                                                                                            : 5.0f;
-
-                float delayBetweenOps = extraParams.TryGetValue("delayBetweenOps", out value2)
-                                                                                            ? (float)value2
-                                                                                            : 5.0f;
-
-                float heartbeatTime= extraParams.TryGetValue("heartbeatTime", out value2)
-                                                                                            ? (float)value2
-                                                                                            : 1.0f;
-
-                float timeoutTime = extraParams.TryGetValue("timeoutTime", out value2)
-                                                                                            ? (float)value2
-                                                                                            : 10.0f;
-
-                int numHops = extraParams.TryGetValue("numHops", out value)
-                                                                                            ? (int)value
-                                                                                            : 5;
-
-                float forgetingTime = extraParams.TryGetValue("forgetingTime", out value2)
-                                                                                            ? (float)value2
-                                                                                            : 30.0f;
-
-                float ackTimeout = extraParams.TryGetValue("ackTimeout", out value2)
-                                                                                            ? (float)value2
-                                                                                            : 10.0f;
-
-                float dvPollTime = extraParams.TryGetValue("dvPollTime", out value2)
-                                                                                            ? (float)value2
-                                                                                            : 10.0f;
-
                 List<Behaviour> behaviours = new();
                 List<NetworkLayer> layers = new List<NetworkLayer>();
 
@@ -107,11 +110,11 @@ namespace RunSimulations
                                                                     scheduler,
                                                                     replica,
                                                                     replicas.ToArray(),
-                                                                    i * opsPerReplica,
-                                                                    (i + 1) * opsPerReplica - 1,
+                                                                    i * extraParams.opsPerReplica,
+                                                                    (i + 1) * extraParams.opsPerReplica - 1,
                                                                     i * replicas.Count,
-                                                                    delayBetweenSends,
-                                                                    delayBetweenOps);
+                                                                    extraParams.delayBetweenSends,
+                                                                    extraParams.delayBetweenOps);
 
                             behaviours.Add(insertBehaviour);
                         }
@@ -125,11 +128,11 @@ namespace RunSimulations
                                                                     scheduler,
                                                                     replica,
                                                                     replicas.ToArray(),
-                                                                    i * opsPerReplica,
-                                                                    (i + 1) * opsPerReplica - 1,
+                                                                    i * extraParams.opsPerReplica,
+                                                                    (i + 1) * extraParams.opsPerReplica - 1,
                                                                     i * replicas.Count,
-                                                                    delayBetweenSends,
-                                                                    delayBetweenOps);
+                                                                    extraParams.delayBetweenSends,
+                                                                    extraParams.delayBetweenOps);
 
 
                             var hearbeatBehaviour = new HeartbeatBehaviour(replica,
@@ -137,8 +140,8 @@ namespace RunSimulations
                                 runningTracker,
                                 scheduler,
                                 connectionTracker,
-                                heartbeatTime,
-                                timeoutTime);
+                                extraParams.heartbeatTime,
+                                extraParams.timeoutTime);
 
                             behaviours.Add(insertBehaviour);
                             behaviours.Add(hearbeatBehaviour);
@@ -148,21 +151,21 @@ namespace RunSimulations
                     case RoutingAlgorithmType.FLOODING:
                         {
                             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, replica);
-                            
-                            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(replica, 
-                                scheduler, 
-                                connectionTracker, 
-                                baseLayer, 
-                                numHops, 
-                                forgetingTime,
+
+                            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(replica,
+                                scheduler,
+                                connectionTracker,
+                                baseLayer,
+                                extraParams.numHops,
+                                extraParams.forgetingTime,
                                 "flood");
 
                             int num = 0;
-                            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(replica, 
-                                flood, 
-                                scheduler, 
-                                (_) => { num++; return num; }, 
-                                ackTimeout,
+                            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(replica,
+                                flood,
+                                scheduler,
+                                (_) => { num++; return num; },
+                                extraParams.ackTimeout,
                                 "ack");
 
                             var insertBehaviour = new InsertBehaviour(runningTracker,
@@ -170,11 +173,11 @@ namespace RunSimulations
                                                                     scheduler,
                                                                     replica,
                                                                     replicas.ToArray(),
-                                                                    i * opsPerReplica,
-                                                                    (i + 1) * opsPerReplica - 1,
+                                                                    i * extraParams.opsPerReplica,
+                                                                    (i + 1) * extraParams.opsPerReplica - 1,
                                                                     i * replicas.Count,
-                                                                    delayBetweenSends,
-                                                                    delayBetweenOps);
+                                                                    extraParams.delayBetweenSends,
+                                                                    extraParams.delayBetweenOps);
 
 
                             var hearbeatBehaviour = new HeartbeatBehaviour(replica,
@@ -182,8 +185,8 @@ namespace RunSimulations
                                 runningTracker,
                                 scheduler,
                                 connectionTracker,
-                                heartbeatTime,
-                                timeoutTime);
+                                extraParams.heartbeatTime,
+                                extraParams.timeoutTime);
 
                             behaviours.Add(insertBehaviour);
                             behaviours.Add(hearbeatBehaviour);
@@ -194,20 +197,20 @@ namespace RunSimulations
                             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, replica);
 
 
-                            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(replica, 
-                                connectionTracker, 
-                                baseLayer, 
-                                scheduler, 
-                                numHops, 
-                                dvPollTime,
+                            DistanceVectorRoutingLayer dvRoutingLayer = new DistanceVectorRoutingLayer(replica,
+                                connectionTracker,
+                                baseLayer,
+                                scheduler,
+                                extraParams.numHops,
+                                extraParams.dvPollTime,
                                 "dv");
 
                             int num = 0;
                             EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(replica,
-                                distanceVectorRoutingLayer,
+                                dvRoutingLayer,
                                 scheduler,
                                 (_) => { num++; return num; },
-                                ackTimeout,
+                                extraParams.ackTimeout,
                                 "ack");
 
                             var insertBehaviour = new InsertBehaviour(runningTracker,
@@ -215,11 +218,11 @@ namespace RunSimulations
                                                                     scheduler,
                                                                     replica,
                                                                     replicas.ToArray(),
-                                                                    i * opsPerReplica,
-                                                                    (i + 1) * opsPerReplica - 1,
+                                                                    i * extraParams.opsPerReplica,
+                                                                    (i + 1) * extraParams.opsPerReplica - 1,
                                                                     i * replicas.Count,
-                                                                    delayBetweenSends,
-                                                                    delayBetweenOps);
+                                                                    extraParams.delayBetweenSends,
+                                                                    extraParams.delayBetweenOps);
 
 
                             var hearbeatBehaviour = new HeartbeatBehaviour(replica,
@@ -227,8 +230,10 @@ namespace RunSimulations
                                 runningTracker,
                                 scheduler,
                                 connectionTracker,
-                                heartbeatTime,
-                                timeoutTime);
+                                extraParams.heartbeatTime,
+                                extraParams.timeoutTime);
+
+                            hearbeatBehaviour.AddConnectionRegainedHandler(dvRoutingLayer.OnConnectionGained);
 
                             behaviours.Add(insertBehaviour);
                             behaviours.Add(hearbeatBehaviour);
@@ -240,8 +245,8 @@ namespace RunSimulations
                             SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, replica);
 
 
-                            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(replica, 
-                                baseLayer, connectionTracker,"ls");
+                            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(replica,
+                                baseLayer, connectionTracker, "ls");
 
 
                             int num = 0;
@@ -249,7 +254,7 @@ namespace RunSimulations
                                 lsLayer,
                                 scheduler,
                                 (_) => { num++; return num; },
-                                ackTimeout,
+                                extraParams.ackTimeout,
                                 "ack");
 
                             var insertBehaviour = new InsertBehaviour(runningTracker,
@@ -257,11 +262,11 @@ namespace RunSimulations
                                                                     scheduler,
                                                                     replica,
                                                                     replicas.ToArray(),
-                                                                    i * opsPerReplica,
-                                                                    (i + 1) * opsPerReplica - 1,
+                                                                    i * extraParams.opsPerReplica,
+                                                                    (i + 1) * extraParams.opsPerReplica - 1,
                                                                     i * replicas.Count,
-                                                                    delayBetweenSends,
-                                                                    delayBetweenOps);
+                                                                    extraParams.delayBetweenSends,
+                                                                    extraParams.delayBetweenOps);
 
 
                             var hearbeatBehaviour = new HeartbeatBehaviour(replica,
@@ -269,8 +274,11 @@ namespace RunSimulations
                                 runningTracker,
                                 scheduler,
                                 connectionTracker,
-                                heartbeatTime,
-                                timeoutTime);
+                                extraParams.heartbeatTime,
+                                extraParams.timeoutTime);
+
+                            hearbeatBehaviour.AddConnectionInterruptedHandler(lsLayer.OnDisconnect);
+                            hearbeatBehaviour.AddConnectionRegainedHandler(lsLayer.OnConnect);
 
                             behaviours.Add(insertBehaviour);
                             behaviours.Add(hearbeatBehaviour);
@@ -279,7 +287,7 @@ namespace RunSimulations
 
                     default:
                         throw new NotImplementedException();
-                        
+
                 }
 
 

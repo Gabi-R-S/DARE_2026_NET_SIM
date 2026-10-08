@@ -5,7 +5,6 @@ using Shared;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using static CRDTApp.Behaviours.HeartbeatHelpers.HeartbeatLayer;
 using static CRDTApp.NetworkLayers.NetworkLayer;
 
 namespace CRDTApp.NetworkLayers.Composite.Routing
