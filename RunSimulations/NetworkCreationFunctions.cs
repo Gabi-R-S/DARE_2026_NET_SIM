@@ -1,5 +1,5 @@
 using CRDTApp;
-using CRDTApp.Behaviours.HeartbeatHelpers;
+using CRDTApp.Behaviours;
 using CRDTApp.Messages;
 using CRDTApp.NetworkLayers;
 using CRDTApp.NetworkLayers.Base;
@@ -16,118 +16,8 @@ namespace RunSimulations
 {
     public static class NetworkCreationFunctions
     {
-        public static float HEARTBEAT_TIME = 0.1f;
-        public static float MESSAGE_TIMEOUT = 5.0f;
-        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateOnlyBaseLayer(NetworkSimulator simulator, ReplicaID id)
-        {
-            IScheduler scheduler = new SimulationScheduler(simulator);
-            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
-            return (baseLayer, scheduler, new List<ExtraMetric>());
 
-        }
-        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicNoRouteStack(NetworkSimulator simulator, ReplicaID id)
-        {
-            return CreateBasicNoRouteStack(simulator, id, 0.5f);
-        }
-
-        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicNoRouteStack(NetworkSimulator simulator, ReplicaID id, float ackTimeout)
-        {
-            IScheduler scheduler = new SimulationScheduler(simulator);
-            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
-            int i = 0;
-            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, baseLayer, scheduler, (_) => { i++; return i; }, ackTimeout);
-            // CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
-            return (ackLayer, scheduler, new List<ExtraMetric>());
-        }
-
-        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicFloodRoutingStack(
-            NetworkSimulator simulator,
-            ReplicaID id,
-            float messageTimeout = 5.0f,
-            float heartbeatTime = 0.1f,
-            int numHops = 5,
-            float forgettingTime = 60.0f,
-            float ackTimeout = 0.5f)
-        {
-            var set = simulator.GetAllKnownReplicas();
-            set.Remove(id);
-            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set, id);
-            IScheduler scheduler = new SimulationScheduler(simulator);
-            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
-
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, messageTimeout, scheduler, baseLayer, false);
-
-            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker, id);
-            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, trackerLayer, scheduler, heartbeatTime, id);
-
-            FloodingRedirectionLayer flood = new FloodingRedirectionLayer(id, scheduler, tracker, heartbeat, numHops, forgettingTime);
-
-            int i = 0;
-            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, flood, scheduler, (_) => { i++; return i; }, ackTimeout);
-
-            //    CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
-
-            return (ackLayer, scheduler, new List<ExtraMetric>());
-
-        }
-        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicDistanceVectorStack(
-            NetworkSimulator simulator,
-            ReplicaID id,
-            float messageTimeout = 5.0f,
-            float heartbeatTime = 1.0f,
-            float ackTimeout = 0.5f)
-        {
-            var set = simulator.GetAllKnownReplicas();
-            set.Remove(id);
-            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set, id);
-            IScheduler scheduler = new SimulationScheduler(simulator);
-            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
-
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, messageTimeout, scheduler, baseLayer, false);
-
-            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker, id);
-
-            DistanceTrackerLayer distanceTrackerLayer = new DistanceTrackerLayer(trackerLayer, tracker, id, scheduler);
-
-            DistanceVectorRoutingLayer distanceVectorRoutingLayer = new DistanceVectorRoutingLayer(id, tracker, distanceTrackerLayer, scheduler, simulator.ConnectionMap.GetAllKnownReplicas().Count, heartbeatTime);
-            int i = 0;
-            EnsureAckNetworkLayer<int> ackLayer = new EnsureAckNetworkLayer<int>(id, distanceVectorRoutingLayer, scheduler, (_) => { i++; return i; }, ackTimeout);
-
-            //CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ackLayer);
-
-            return (ackLayer, scheduler, new List<ExtraMetric>());
-
-        }
-        public static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateBasicLinkStateStack(
-            NetworkSimulator simulator,
-            ReplicaID id,
-            float messageTimeout = 5.0f,
-            float heartbeatTime = 0.1f,
-            float ackTimeout = 0.5f)
-        {
-            var set = simulator.GetAllKnownReplicas();
-            set.Remove(id);
-            ActiveConnectionTracker tracker = new ActiveConnectionTracker(new HashSet<ReplicaID>() { id }, set, id);
-            IScheduler scheduler = new SimulationScheduler(simulator);
-            SimulatedNetworkBaseLayer baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
-
-            TrackMessageReceptionTimeoutLayer timeoutLayer = new TrackMessageReceptionTimeoutLayer(id, messageTimeout, scheduler, baseLayer, false);
-
-            TrackActiveConnectionsLayer trackerLayer = new TrackActiveConnectionsLayer(timeoutLayer, tracker, id);
-            DistanceTrackerLayer distanceTrackerLayer = new DistanceTrackerLayer(trackerLayer, tracker, id, scheduler);
-            HeartbeatLayer heartbeat = new HeartbeatLayer(tracker, distanceTrackerLayer, scheduler, heartbeatTime, id);
-
-            int i = 0;
-            LinkStateRoutingLayer lsLayer = new LinkStateRoutingLayer(id, heartbeat, tracker);
-
-            EnsureAckNetworkLayer<int> ack2Layer = new EnsureAckNetworkLayer<int>(id, lsLayer, scheduler, (_) => { i++; return i; }, ackTimeout);
-
-            //            CausalHistoryTrackerLayer historyTrackerLayer = new CausalHistoryTrackerLayer(id, ack2Layer);
-
-            return (ack2Layer, scheduler, new List<ExtraMetric>());
-
-        }
-
+   
 
         public static (ConnectionMap, List<ReplicaID>) CreateFullyConectedNetwork(int numReplicas, float delay = 0.0f)
         {
@@ -241,20 +131,28 @@ namespace RunSimulations
             int count = 0;
             foreach (var app in apps)
             {
-                app.Behaviour.AddBehaviourEndedHandler(() =>
+                foreach (var item in app.Behaviours)
                 {
-                    count++;
-                    if (count == apps.Count)
-                    {
-                        Console.WriteLine("Task ended!");
-                        endedSuccessfully.Value = true;
-                        executionTime.Value = (float)(sim.GetCurrentTime() - sim.GetRunStartTime()).TotalSeconds;
-                        foreach (var a in apps)
+                    if (item is InsertBehaviour) {
+                        var behaviour = item as InsertBehaviour;
+                        
+                        behaviour.AddBehaviourEndedHandler(() =>
                         {
-                            a.Close();
-                        }
+                            count++;
+                            if (count == apps.Count)
+                            {
+                                Console.WriteLine("Task ended!");
+                                endedSuccessfully.Value = true;
+                                executionTime.Value = (float)(sim.GetCurrentTime() - sim.GetRunStartTime()).TotalSeconds;
+                                foreach (var a in apps)
+                                {
+                                    a.Close();
+                                }
+                            }
+                        });
                     }
-                });
+                }
+                
             }
 
             metrics.Add(endedSuccessfully);

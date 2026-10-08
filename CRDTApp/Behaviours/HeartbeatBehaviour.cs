@@ -11,7 +11,7 @@ using System.Text;
 
 namespace CRDTApp.Behaviours
 {
-    internal class HeartbeatBehaviour : Behaviour
+    public class HeartbeatBehaviour : Behaviour
     {
         event Action<ReplicaID>? ConnectionInterrupted;
         event Action<ReplicaID>? ConnectionRegained;

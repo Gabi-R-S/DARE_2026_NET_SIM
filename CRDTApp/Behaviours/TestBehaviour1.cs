@@ -41,7 +41,7 @@ namespace CRDTApp.Behaviours
                 {
                     if (keepSending)
                     {
-                        var t = manager.SendMessage(otherReplica, new Message("HI"));
+                        var t = manager.SendMessage(otherReplica, new Message("app","HI"));
                         await t;
 
                         if (!t.Result)

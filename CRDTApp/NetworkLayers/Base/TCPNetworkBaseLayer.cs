@@ -27,7 +27,7 @@ namespace CRDTApp.NetworkLayers.Base
         readonly Dictionary<ReplicaID, (IPAddress, int)> addressMap;
 
         IScheduler scheduler;
-        public TCPNetworkBaseLayer(IScheduler scheduler, Dictionary<string, ReplicaID> listenerPortMap, Dictionary<ReplicaID, (IPAddress, int)> addressMap, IPAddress localAddress, int port)
+        public TCPNetworkBaseLayer(IScheduler scheduler, Dictionary<string, ReplicaID> listenerPortMap, Dictionary<ReplicaID, (IPAddress, int)> addressMap, IPAddress localAddress, int port):base("")
         {
             this.scheduler = scheduler; 
             this.listenerPortMap = new Dictionary<string, ReplicaID>(listenerPortMap);
@@ -40,7 +40,7 @@ namespace CRDTApp.NetworkLayers.Base
             using (socket)
             {
                 var buffer = new byte[MESSAGE_SIZE_LIMIT];
-                while (IsRunning)
+                while (RunningTracker.IsRunning)
                 {
                     try
                     {
@@ -71,7 +71,7 @@ namespace CRDTApp.NetworkLayers.Base
 
         int POLLTIME = 10000;
         async Task Run() {
-            while (IsRunning)
+            while (RunningTracker.IsRunning)
             {
                 try
                 {
@@ -79,7 +79,7 @@ namespace CRDTApp.NetworkLayers.Base
                     var endpoint = socket.RemoteEndPoint?.ToString();
                     if (endpoint != null && listenerPortMap.TryGetValue(endpoint, out var replicaID))
                     {
-                        Task.Run( async ()=> { await RunInputSocket(replicaID, socket)});
+                        var _ = Task.Run( async ()=> { await RunInputSocket(replicaID, socket); });
                     }
                     else
                     {
@@ -99,13 +99,12 @@ namespace CRDTApp.NetworkLayers.Base
 
         public override void Launch()
         {
-            IsRunning = true;
             Task.Run(Run);
         }
 
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
-            if (!IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return false;
             }

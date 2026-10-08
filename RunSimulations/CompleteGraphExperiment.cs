@@ -37,7 +37,7 @@ namespace RunSimulations
 
         int numReplicas = 10;
 
-        public async override Task<List<ExperimentResults>> Run()
+        public  override List<ExperimentResults> Run()
         {
             List<ExperimentResults> results = new();
 
@@ -51,7 +51,13 @@ namespace RunSimulations
 
             var CreateMap = () => { return NetworkCreationFunctions.CreateFullyConectedNetwork(numReplicas, delay); };
             // Control case: no network stack.
-            results.Add(await RunIndividualFillArraySimulation(prefix + "fully-connected-no-stack", CreateMap, NetworkCreationFunctions.CreateOnlyBaseLayer, CreateDiscreteSim,maxExperimentDuration,opsPerReplica,delayBetweenSends,delayBetweenOps, NetworkCreationFunctions.BasicMetricCreator));
+            results.Add(RunIndividualFillArraySimulation(
+                prefix + "fully-connected-no-stack", 
+                CreateMap, 
+                RoutingAlgorithmType.NONE,
+                CreateDiscreteSim,maxExperimentDuration, 
+                NetworkCreationFunctions.BasicMetricCreator,
+                new Dictionary<string, object>()));
 
 
             // Simple Case: full stack, no routing
