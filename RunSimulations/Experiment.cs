@@ -112,7 +112,7 @@ namespace RunSimulations
                                                                     replicas.ToArray(),
                                                                     i * extraParams.opsPerReplica,
                                                                     (i + 1) * extraParams.opsPerReplica - 1,
-                                                                    i * replicas.Count,
+                                                                    extraParams.opsPerReplica * replicas.Count,
                                                                     extraParams.delayBetweenSends,
                                                                     extraParams.delayBetweenOps);
 
@@ -130,7 +130,7 @@ namespace RunSimulations
                                                                     replicas.ToArray(),
                                                                     i * extraParams.opsPerReplica,
                                                                     (i + 1) * extraParams.opsPerReplica - 1,
-                                                                    i * replicas.Count,
+                                                                    extraParams.opsPerReplica * replicas.Count,
                                                                     extraParams.delayBetweenSends,
                                                                     extraParams.delayBetweenOps);
 
@@ -175,7 +175,7 @@ namespace RunSimulations
                                                                     replicas.ToArray(),
                                                                     i * extraParams.opsPerReplica,
                                                                     (i + 1) * extraParams.opsPerReplica - 1,
-                                                                    i * replicas.Count,
+                                                                    extraParams.opsPerReplica * replicas.Count,
                                                                     extraParams.delayBetweenSends,
                                                                     extraParams.delayBetweenOps);
 
@@ -220,7 +220,7 @@ namespace RunSimulations
                                                                     replicas.ToArray(),
                                                                     i * extraParams.opsPerReplica,
                                                                     (i + 1) * extraParams.opsPerReplica - 1,
-                                                                    i * replicas.Count,
+                                                                    extraParams.opsPerReplica * replicas.Count,
                                                                     extraParams.delayBetweenSends,
                                                                     extraParams.delayBetweenOps);
 
@@ -264,7 +264,7 @@ namespace RunSimulations
                                                                     replicas.ToArray(),
                                                                     i * extraParams.opsPerReplica,
                                                                     (i + 1) * extraParams.opsPerReplica - 1,
-                                                                    i * replicas.Count,
+                                                                    extraParams.opsPerReplica * replicas.Count,
                                                                     extraParams.delayBetweenSends,
                                                                     extraParams.delayBetweenOps);
 
