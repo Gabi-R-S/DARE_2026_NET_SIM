@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CRDTApp.Schedulers
@@ -15,63 +14,53 @@ namespace CRDTApp.Schedulers
         }
 
         public async Task<(bool, T)> ExecuteTaskOrTimeout<T>(
-            Func<CancellationToken, Task<T>> operation,
+            Func<Task<T>> operation,
             float time,
             T defaultValue)
         {
-            using var cts = new CancellationTokenSource(
-                TimeSpan.FromSeconds(time));
+            Task<T> operationTask = operation();
+            Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(time));
 
-            try
-            {
-                T result = await operation(cts.Token);
-
-                return (true, result);
-            }
-            catch (OperationCanceledException)
+            if (await Task.WhenAny(operationTask, timeoutTask) != operationTask)
             {
                 return (false, defaultValue);
             }
+
+            return (true, await operationTask);
         }
 
         public async Task<bool> ExecuteTaskOrTimeout(
-            Func<CancellationToken, Task> operation,
+            Func<Task> operation,
             float time)
         {
-            using var cts = new CancellationTokenSource(
-                TimeSpan.FromSeconds(time));
+            Task operationTask = operation();
+            Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(time));
 
-            try
-            {
-                await operation(cts.Token);
-
-                return true;
-            }
-            catch (OperationCanceledException)
+            if (await Task.WhenAny(operationTask, timeoutTask) != operationTask)
             {
                 return false;
             }
+
+            await operationTask;
+            return true;
         }
 
         public async Task<bool> ExecuteTaskOrTimeout(
-            Func<CancellationToken, Task> operation,
+            Func<Task> operation,
             float time,
             Action timeoutAction)
         {
-            using var cts = new CancellationTokenSource(
-                TimeSpan.FromSeconds(time));
+            Task operationTask = operation();
+            Task timeoutTask = Task.Delay(TimeSpan.FromSeconds(time));
 
-            try
-            {
-                await operation(cts.Token);
-
-                return true;
-            }
-            catch (OperationCanceledException)
+            if (await Task.WhenAny(operationTask, timeoutTask) != operationTask)
             {
                 timeoutAction();
                 return false;
             }
+
+            await operationTask;
+            return true;
         }
 
         public DateTime GetCurrentTime()

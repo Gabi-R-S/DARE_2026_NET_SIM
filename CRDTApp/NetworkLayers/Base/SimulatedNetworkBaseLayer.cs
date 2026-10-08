@@ -43,7 +43,7 @@ namespace CRDTApp.NetworkLayers.Base
                 return false;
             }
 
-            return networkSimulator.ScheduleMessageDelivery(new NetworkMessage(this.replicaID, recipient, message.Payload));
+            return networkSimulator.ScheduleMessageDelivery(new NetworkMessage(this.replicaID, recipient, message.Encode()));
         }
 
 

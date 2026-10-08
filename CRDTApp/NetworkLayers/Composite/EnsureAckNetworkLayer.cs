@@ -97,7 +97,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
             var networkMessage = new Message(Tag,trackerMessage.Encode());
 
-            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT && !RunningTracker.IsRunning; i++)
+            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT && RunningTracker.IsRunning; i++)
             {
                 var semaphore = new SemaphoreSlim(0);
                 lock (pendingAcks)
@@ -110,7 +110,7 @@ namespace CRDTApp.NetworkLayers.Composite
                     return false;
                 }
 
-                if (await scheduler.ExecuteTaskOrTimeout(async (_) => { await semaphore.WaitAsync(); }, waitTime))
+                if (await scheduler.ExecuteTaskOrTimeout(async () => { await semaphore.WaitAsync(); }, waitTime))
                 {
                     return true;
                 }

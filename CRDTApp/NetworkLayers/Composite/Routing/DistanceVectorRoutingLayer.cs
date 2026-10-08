@@ -40,7 +40,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             lock (sendingTo)
             {
 
-                if (replica != replicaID && !sendingTo.Contains(replica) && !RunningTracker.IsRunning)
+                if (replica != replicaID && !sendingTo.Contains(replica) && RunningTracker.IsRunning)
                 {
                     sendingTo.Add(replica);
                     Task.Run(() => Poll(replica));
@@ -132,17 +132,17 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         void Poll(ReplicaID replica)
         {
-            if (!RunningTracker.IsRunning)
+            if (RunningTracker.IsRunning)
             {
                 DistanceTableUpdateMessagePayload message = table.GetUpdate(scheduler, replica);
                 
                 DistanceVectorMessagePayload mes = new DistanceVectorMessagePayload(replica, replicaID, message.Encode(), true, 1);
 
-                scheduler.ExecuteTaskOrTimeout(async (_) => { await base.SendMessage(replica, new Message(Tag,mes.Encode())); },pollTime);
+                scheduler.ExecuteTaskOrTimeout(async () => { await base.SendMessage(replica, new Message(Tag,mes.Encode())); },pollTime);
 
                 scheduler.ExecuteAfter(pollTime, () =>
                 {
-                    if (!RunningTracker.IsRunning)
+                    if (RunningTracker.IsRunning)
                     {
                         Poll(replica);
                     }
@@ -152,7 +152,10 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override void Launch()
         {
-            
+            if (!RunningTracker.IsRunning)
+            {
+                return;
+            }
             base.Launch();
             
             lock (sendingTo)

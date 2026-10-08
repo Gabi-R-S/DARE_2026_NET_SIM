@@ -99,6 +99,10 @@ namespace CRDTApp.NetworkLayers.Base
 
         public override void Launch()
         {
+            if (!RunningTracker.IsRunning)
+            {
+                return;
+            }
             Task.Run(Run);
         }
 
@@ -137,7 +141,7 @@ namespace CRDTApp.NetworkLayers.Base
 
                 try
                 {
-                    byte[] bytes = Encoding.UTF8.GetBytes(message.Payload);
+                    byte[] bytes = Encoding.UTF8.GetBytes(message.Encode());
                     await client.GetStream().WriteAsync(bytes);
                     return true;
                 }

@@ -172,7 +172,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnConnect(ReplicaID replica)
         {
-            if (!RunningTracker.IsRunning)
+            if (RunningTracker.IsRunning)
             {
                 lock (mostRecentLSAs)
                 {
@@ -191,7 +191,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         }
         public void OnDisconnect(ReplicaID replica)
         {
-            if (!RunningTracker.IsRunning)
+            if (RunningTracker.IsRunning)
             {
                 var lsa = CreateNextLSA();
                 FloodLSA(lsa, replicaID);
@@ -320,7 +320,11 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public override void Launch()
         {
-            lock(mostRecentLSAs)
+            if (!RunningTracker.IsRunning)
+            {
+                return;
+            }
+            lock (mostRecentLSAs)
             {
                 mostRecentLSAs.Clear();
             }

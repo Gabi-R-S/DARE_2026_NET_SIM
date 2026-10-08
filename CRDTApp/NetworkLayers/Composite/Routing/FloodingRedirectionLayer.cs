@@ -123,7 +123,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!RunningTracker.IsRunning || message.ProtocolTag!=Tag)
+            if (!RunningTracker.IsRunning)
             {
                 return false;
             }

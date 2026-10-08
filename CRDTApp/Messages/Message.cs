@@ -13,7 +13,7 @@ namespace CRDTApp.Messages
 
         public Message(string tag, string payload)
         {
-            ProtocolTag = payload;
+            ProtocolTag = tag;
             Payload = payload;
         }
 

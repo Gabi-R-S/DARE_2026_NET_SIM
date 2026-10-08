@@ -26,7 +26,7 @@ namespace CRDTApp.Behaviours
 
         public InsertBehaviour(IsRunningTracker runningTracker,NetworkLayer network, IScheduler scheduler, ReplicaID ourID, ReplicaID[] otherIDs, int minNumber, int maxNumberInclusive, int expectedCount, float delayBetweenSends, float delayBetweenOps)
         {
-            historyTracker = new CausalHistoryTracker(ourID);
+            historyTracker = new CausalHistoryTracker(ourID, tag: "app");
             this.replicaID = ourID;
             this.otherReplicas = otherIDs;
             this.network = network;
@@ -37,9 +37,16 @@ namespace CRDTApp.Behaviours
             this.delayBetweenSends = delayBetweenSends;
             this.scheduler = scheduler;
             this.runningTracker = runningTracker;
-            network.AddOnMessageReceivedHandler(historyTracker.OnMessageReceived);
+            network.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
             historyTracker.AddMessageIssuedHandler(OnMessageReceivedInSequence);
         }
+
+        void OnLowerLayerMessageReceived(ReplicaID sender, Message message) {
+            if (message.ProtocolTag == "app") {
+                historyTracker.OnMessageReceived(sender, message);
+            }
+        }
+
 
         public int CurrentCount => ints.GetValues().Count;
         public int ExpectedCount => expectedCount;

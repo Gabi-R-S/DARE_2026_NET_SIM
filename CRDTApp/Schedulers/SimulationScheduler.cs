@@ -1,6 +1,5 @@
 ﻿using Simulator;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CRDTApp.Schedulers
@@ -20,71 +19,56 @@ namespace CRDTApp.Schedulers
         }
 
         public async Task<(bool, T)> ExecuteTaskOrTimeout<T>(
-            Func<CancellationToken, Task<T>> operation,
+            Func<Task<T>> operation,
             float time,
             T defaultValue)
         {
-            using var cts = new CancellationTokenSource();
+            var timeout = new TaskCompletionSource<bool>();
+            sim.ExecuteAfter(time, () => timeout.TrySetResult(true));
 
-            // The simulation controls when cancellation happens.
-            sim.ExecuteAfter(time, () => cts.Cancel());
-
-            try
-            {
-                T result = await operation(cts.Token);
-
-                return (true, result);
-            }
-            catch (OperationCanceledException)
+            Task<T> operationTask = operation();
+            if (await Task.WhenAny(operationTask, timeout.Task) != operationTask)
             {
                 return (false, defaultValue);
             }
+
+            return (true, await operationTask);
         }
 
         public async Task<bool> ExecuteTaskOrTimeout(
-            Func<CancellationToken, Task> operation,
+            Func<Task> operation,
             float time)
         {
-            using var cts = new CancellationTokenSource();
+            var timeout = new TaskCompletionSource<bool>();
+            sim.ExecuteAfter(time, () => timeout.TrySetResult(true));
 
-            // The simulation controls when cancellation happens.
-            sim.ExecuteAfter(time, () => cts.Cancel());
-
-            try
-            {
-                await operation(cts.Token);
-
-                return true;
-            }
-            catch (OperationCanceledException)
+            Task operationTask = operation();
+            if (await Task.WhenAny(operationTask, timeout.Task) != operationTask)
             {
                 return false;
             }
+
+            await operationTask;
+            return true;
         }
 
         public async Task<bool> ExecuteTaskOrTimeout(
-            Func<CancellationToken, Task> operation,
+            Func<Task> operation,
             float time,
             Action timeoutAction)
         {
-            using var cts = new CancellationTokenSource();
+            var timeout = new TaskCompletionSource<bool>();
+            sim.ExecuteAfter(time, () => timeout.TrySetResult(true));
 
-            sim.ExecuteAfter(time, () =>
-            {
-                cts.Cancel();
-            });
-
-            try
-            {
-                await operation(cts.Token);
-
-                return true;
-            }
-            catch (OperationCanceledException)
+            Task operationTask = operation();
+            if (await Task.WhenAny(operationTask, timeout.Task) != operationTask)
             {
                 timeoutAction();
                 return false;
             }
+
+            await operationTask;
+            return true;
         }
 
         public DateTime GetCurrentTime()

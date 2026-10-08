@@ -117,6 +117,7 @@ namespace RunSimulations
                                                                     extraParams.delayBetweenOps);
 
                             behaviours.Add(insertBehaviour);
+                            layers.Add(baseLayer);
                         }
                         break;
 
@@ -145,6 +146,8 @@ namespace RunSimulations
 
                             behaviours.Add(insertBehaviour);
                             behaviours.Add(hearbeatBehaviour);
+                            layers.Add(baseLayer);
+                            
                         }
                         break;
 
@@ -190,6 +193,9 @@ namespace RunSimulations
 
                             behaviours.Add(insertBehaviour);
                             behaviours.Add(hearbeatBehaviour);
+                            layers.Add(ackLayer);
+                            layers.Add(baseLayer);
+                            layers.Add(flood);
                         }
                         break;
                     case RoutingAlgorithmType.DISTANCE_VECTOR:
@@ -237,6 +243,10 @@ namespace RunSimulations
 
                             behaviours.Add(insertBehaviour);
                             behaviours.Add(hearbeatBehaviour);
+
+                            layers.Add(ackLayer);
+                            layers.Add(baseLayer);
+                            layers.Add(dvRoutingLayer);
                         }
                         break;
 
@@ -282,6 +292,10 @@ namespace RunSimulations
 
                             behaviours.Add(insertBehaviour);
                             behaviours.Add(hearbeatBehaviour);
+
+                            layers.Add(ackLayer);
+                            layers.Add(baseLayer);
+                            layers.Add(lsLayer);
                         }
                         break;
 

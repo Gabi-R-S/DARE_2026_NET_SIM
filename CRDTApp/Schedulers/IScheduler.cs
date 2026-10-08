@@ -10,17 +10,17 @@ namespace CRDTApp.Schedulers
 
 
         public Task<(bool, T)> ExecuteTaskOrTimeout<T>(
-            Func<CancellationToken, Task<T>> operation,
+            Func<Task<T>> operation,
             float time,
             T defaultValue);
 
         public Task<bool> ExecuteTaskOrTimeout(
-           Func<CancellationToken, Task> operation,
+           Func<Task> operation,
            float time);
 
 
         public Task<bool> ExecuteTaskOrTimeout(
-           Func<CancellationToken, Task> operation,
+           Func<Task> operation,
            float time,
            Action timeoutAction);
 
