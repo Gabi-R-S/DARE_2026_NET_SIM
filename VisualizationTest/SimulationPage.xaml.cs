@@ -167,7 +167,9 @@ namespace VisualizationTest
                 int minNum = opsPerReplica * i;
                 int maxNum = opsPerReplica * (i + 1) - 1;
 
+                var runningTracker = new IsRunningTracker(true);
                 var behaviour = new InsertBehaviour(
+                    runningTracker,
                     networkManager,
                     scheduler,
                     replica,
@@ -182,7 +184,11 @@ namespace VisualizationTest
                 behaviour.OperationApplied += OnOperationApplied;
                 behaviour.AddBehaviourEndedHandler(() => OnBehaviourEnded(replica));
 
-                var app = new CRDTApp.App(behaviour, scheduler, networkManager);
+                var app = new CRDTApp.App(
+                    runningTracker,
+                    new List<Behaviour> { behaviour },
+                    scheduler,
+                    new List<NetworkLayer> { networkManager });
 
                 _apps.Add(app);
                 _behaviours.Add(behaviour);
@@ -228,39 +234,20 @@ namespace VisualizationTest
             ReplicaID id,
             SimulationConfig config)
         {
+            // The legacy factory helpers were removed from the current runtime library.
+            // Keep the visualization project buildable by falling back to the supported base-layer stack.
+            var scheduler = new RealtimeScheduler();
+            var baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
+
             switch (stackType)
             {
                 case "Distance Vector":
-                    return NetworkCreationFunctions.CreateBasicDistanceVectorStack(
-                        simulator,
-                        id,
-                        config.MessageTimeout,
-                        config.HeartbeatInterval,
-                        config.AckTimeout);
-
                 case "Link State":
-                    return NetworkCreationFunctions.CreateBasicLinkStateStack(
-                        simulator,
-                        id,
-                        config.MessageTimeout,
-                        config.HeartbeatInterval,
-                        config.AckTimeout);
-
                 case "No-Route (Ack)":
-                    return NetworkCreationFunctions.CreateBasicNoRouteStack(simulator, id, config.AckTimeout);
-
                 case "Base Layer Only":
-                    return NetworkCreationFunctions.CreateOnlyBaseLayer(simulator, id);
-
                 case "Flood Routing":
                 default:
-                    return NetworkCreationFunctions.CreateBasicFloodRoutingStack(
-                        simulator,
-                        id,
-                        config.MessageTimeout,
-                        config.HeartbeatInterval,
-                        config.MaxHops,
-                        ackTimeout: config.AckTimeout);
+                    return (baseLayer, scheduler, new List<ExtraMetric>());
             }
         }
 
@@ -395,11 +382,11 @@ namespace VisualizationTest
                     {
                         try
                         {
-                            app.Behaviour.Stop();
+                            app.Close();
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Failed to stop behaviour for replica {replica}: {ex}");
+                            System.Diagnostics.Debug.WriteLine($"Failed to close app for replica {replica}: {ex}");
                         }
                     }
 

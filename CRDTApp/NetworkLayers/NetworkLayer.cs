@@ -32,7 +32,6 @@ namespace CRDTApp.NetworkLayers
         }
         public virtual void Launch()
         {
-            IsRunning = true;
             if (LayerBelow == null)
             {
                 return;
@@ -43,7 +42,7 @@ namespace CRDTApp.NetworkLayers
         event Action<ReplicaID, Message?>? MessageReceived;
         protected void CallMessageReceived(ReplicaID replica, Message? message)
         {
-            if (IsRunning == false)
+            if (!RunningTracker.IsRunning)
             {
                 return;
             }
@@ -62,7 +61,7 @@ namespace CRDTApp.NetworkLayers
         public virtual Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (IsRunning == false)
+            if (!RunningTracker.IsRunning)
             {
                 return Task.FromResult(false);
             }

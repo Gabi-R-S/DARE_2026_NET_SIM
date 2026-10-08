@@ -20,7 +20,6 @@ namespace RunSimulations
             this.maxExperimentDuration = maxExperimentDuration;
             this.numReplicas = numReplicas;
             this.prefix = prefix;
-
             this.extraParams = extraParams ?? new InsertionExperimentParams();
         }
         string prefix;

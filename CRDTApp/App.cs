@@ -15,11 +15,11 @@ namespace CRDTApp
         public List<Behaviour> Behaviours { get; private set; }
         public List<NetworkLayer> NetworkLayer { get; private set; }
 
-        IsRunningTracker running;
+        IsRunningTracker? running;
         public void Close()
         {
-            running.IsRunning = false;
-            sem.Release();
+            running?.IsRunning = false;
+            sem?.Release();
             
         }
         public App(IsRunningTracker running,List<Behaviour> behaviours, IScheduler scheduler, List<NetworkLayer> networkComponents)
@@ -31,6 +31,7 @@ namespace CRDTApp
 
         public async void Run(float executionTime = -1)
         {
+            running = new IsRunningTracker();
             running.IsRunning = true;
             sem = new SemaphoreSlim(0);
             foreach (var behaviour in Behaviours)
@@ -49,7 +50,7 @@ namespace CRDTApp
 
         public bool IsRunning()
         {
-            return running.IsRunning ;
+            return running?.IsRunning ?? false;
         }
     }
 }

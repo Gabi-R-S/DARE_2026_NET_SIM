@@ -314,7 +314,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             }
             var newMessage = new Message(Tag,new LinkStateMessagePayload(recipient, replicaID, message).Encode());
 
-            return LayerBelow?.SendMessage(GetNextNodeInPathTo(recipient), newMessage);
+            return base.SendMessage(GetNextNodeInPathTo(recipient), newMessage);
         }
 
 

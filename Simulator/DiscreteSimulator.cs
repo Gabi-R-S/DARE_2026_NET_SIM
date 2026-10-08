@@ -25,7 +25,9 @@ namespace Simulator
             await Task.Run(() => { env.RunD(simulationTimeLimit); });
 
             tasks.Clear();
+
             CallRunEvents();
+            
             await Task.WhenAll(tasks);
         }
 
