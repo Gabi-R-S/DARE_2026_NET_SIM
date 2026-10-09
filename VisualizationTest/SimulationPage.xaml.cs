@@ -413,7 +413,7 @@ namespace VisualizationTest
             }
 
             _behaviours.Clear();
-            //_simulator?.ForceStop();
+            _simulator?.ForceStop();
             _simulator = null;
         }
 
