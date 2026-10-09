@@ -282,6 +282,16 @@
                                     BackgroundBrush="#0B0F19"
                                     ShowGrid="True"/>
 
+            <TextBlock Grid.Column="0"
+                       Text="Drag nodes to reposition • Click a connection to toggle it • Drag empty space to pan"
+                       Foreground="#94A3B8"
+                       Background="#CC0F172A"
+                       Padding="10,6"
+                       Margin="12"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Bottom"
+                       IsHitTestVisible="False"/>
+
             <!-- Collapsible Live Parameters Drawer -->
             <Border x:Name="ParametersDrawer"
                     Grid.Column="1"

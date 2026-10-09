@@ -57,6 +57,7 @@ namespace VisualizationTest
         public SimulationPage(SimulationConfig? config = null)
         {
             InitializeComponent();
+            GraphViewControl.EdgeToggled += OnGraphEdgeToggled;
 
             _config = config?.Clone() ?? SimulationConfig.Current.Clone();
 
@@ -69,6 +70,23 @@ namespace VisualizationTest
 
             Loaded += OnPageLoaded;
             Unloaded += OnPageUnloaded;
+        }
+
+        private void OnGraphEdgeToggled(GraphEdge edge)
+        {
+            if (_simulator == null) return;
+
+            var source = new ReplicaID(Convert.ToUInt64(edge.SourceId));
+            var target = new ReplicaID(Convert.ToUInt64(edge.TargetId));
+
+            if (edge.IsActive)
+            {
+                _simulator.TurnOnConnection(source, target);
+            }
+            else
+            {
+                _simulator.TurnOffConnection(source, target);
+            }
         }
 
         // Backward-compatible constructor

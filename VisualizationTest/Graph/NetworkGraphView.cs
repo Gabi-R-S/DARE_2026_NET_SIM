@@ -9,7 +9,7 @@ using System.Windows.Media;
 namespace VisualizationTest.Graph
 {
     /// <summary>
-    /// High-performance, read-only WPF visualization control for network graphs
+    /// High-performance interactive WPF visualization control for network graphs
     /// with animated particles traveling along edges.
     /// </summary>
     public class NetworkGraphView : FrameworkElement
@@ -83,6 +83,7 @@ namespace VisualizationTest.Graph
         #region Events
 
         public event EventHandler<GraphParticle>? ParticleArrived;
+        public event Action<GraphEdge>? EdgeToggled;
 
         #endregion
 
@@ -115,8 +116,11 @@ namespace VisualizationTest.Graph
         public double MaxZoom { get; set; } = 25.0;
 
         private bool _isPanning;
+        private GraphNode? _draggedNode;
+        private GraphEdge? _edgeClickCandidate;
         private Point _lastMousePosition;
         private Point _currentMousePosition;
+        private Point _pointerDownPosition;
 
         // Hover inspection
         private GraphNode? _hoveredNode;
@@ -559,13 +563,38 @@ namespace VisualizationTest.Graph
 
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Read-only: Any drag with Left, Middle, or Right pans the viewport
+            Point mousePosition = e.GetPosition(this);
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                Focus();
+                _pointerDownPosition = mousePosition;
+                _lastMousePosition = mousePosition;
+
+                Point worldPosition = ScreenToWorld(mousePosition);
+                _draggedNode = FindNodeAt(worldPosition);
+                if (_draggedNode != null)
+                {
+                    CaptureMouse();
+                    Cursor = Cursors.SizeAll;
+                    e.Handled = true;
+                    return;
+                }
+
+                _edgeClickCandidate = FindEdgeAt(worldPosition);
+                if (_edgeClickCandidate != null)
+                {
+                    CaptureMouse();
+                    Cursor = Cursors.Hand;
+                    e.Handled = true;
+                    return;
+                }
+            }
+
             if (e.ChangedButton == MouseButton.Left ||
                 e.ChangedButton == MouseButton.Middle ||
                 e.ChangedButton == MouseButton.Right)
             {
                 _isPanning = true;
-                _lastMousePosition = e.GetPosition(this);
                 CaptureMouse();
                 Cursor = Cursors.SizeAll;
                 e.Handled = true;
@@ -575,6 +604,28 @@ namespace VisualizationTest.Graph
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
             _currentMousePosition = e.GetPosition(this);
+
+            if (_draggedNode != null)
+            {
+                State?.MoveNode(_draggedNode.Id, ScreenToWorld(_currentMousePosition));
+                InvalidateVisual();
+                return;
+            }
+
+            if (_edgeClickCandidate != null)
+            {
+                Vector dragDistance = _currentMousePosition - _pointerDownPosition;
+                if (dragDistance.Length >= 4.0)
+                {
+                    _edgeClickCandidate = null;
+                    _isPanning = true;
+                    _lastMousePosition = _pointerDownPosition;
+                }
+                else
+                {
+                    return;
+                }
+            }
 
             if (_isPanning)
             {
@@ -591,7 +642,26 @@ namespace VisualizationTest.Graph
 
         private void OnMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (_isPanning)
+            if (_draggedNode != null)
+            {
+                _draggedNode = null;
+                ReleaseMouseCapture();
+                UpdateHoveredNode(e.GetPosition(this));
+                e.Handled = true;
+            }
+            else if (_edgeClickCandidate != null)
+            {
+                if (State?.ToggleEdgeActive(_edgeClickCandidate) == true)
+                {
+                    EdgeToggled?.Invoke(_edgeClickCandidate);
+                }
+                _edgeClickCandidate = null;
+                ReleaseMouseCapture();
+                InvalidateVisual();
+                UpdateHoveredNode(e.GetPosition(this));
+                e.Handled = true;
+            }
+            else if (_isPanning)
             {
                 _isPanning = false;
                 ReleaseMouseCapture();
@@ -614,23 +684,66 @@ namespace VisualizationTest.Graph
             if (State == null) return;
 
             Point worldPos = ScreenToWorld(mouseScreen);
-            GraphNode? found = null;
-
-            foreach (var node in State.Nodes.Values)
-            {
-                Vector d = node.Position - worldPos;
-                if (d.LengthSquared <= (node.Radius + 4) * (node.Radius + 4))
-                {
-                    found = node;
-                    break;
-                }
-            }
+            GraphNode? found = FindNodeAt(worldPos);
 
             if (!ReferenceEquals(_hoveredNode, found))
             {
                 _hoveredNode = found;
                 InvalidateVisual();
             }
+
+            Cursor = found != null || FindEdgeAt(worldPos) != null ? Cursors.Hand : Cursors.Arrow;
+        }
+
+        private GraphNode? FindNodeAt(Point worldPosition)
+        {
+            if (State == null) return null;
+
+            foreach (var node in State.Nodes.Values)
+            {
+                Vector distance = node.Position - worldPosition;
+                if (distance.LengthSquared <= (node.Radius + 4) * (node.Radius + 4))
+                {
+                    return node;
+                }
+            }
+
+            return null;
+        }
+
+        private GraphEdge? FindEdgeAt(Point worldPosition)
+        {
+            if (State == null) return null;
+
+            double hitRadius = 8.0 / _zoom;
+            double closestDistanceSquared = hitRadius * hitRadius;
+            GraphEdge? closestEdge = null;
+
+            foreach (var edge in State.Edges)
+            {
+                if (!State.TryGetNode(edge.SourceId, out var source) || source == null ||
+                    !State.TryGetNode(edge.TargetId, out var target) || target == null)
+                {
+                    continue;
+                }
+
+                Vector line = target.Position - source.Position;
+                double lengthSquared = line.LengthSquared;
+                double t = lengthSquared > 0
+                    ? Math.Clamp(Vector.Multiply(worldPosition - source.Position, line) / lengthSquared, 0.0, 1.0)
+                    : 0.0;
+                Point closestPoint = source.Position + t * line;
+                Vector distance = worldPosition - closestPoint;
+                double distanceSquared = distance.LengthSquared;
+
+                if (distanceSquared <= closestDistanceSquared)
+                {
+                    closestDistanceSquared = distanceSquared;
+                    closestEdge = edge;
+                }
+            }
+
+            return closestEdge;
         }
 
         #endregion

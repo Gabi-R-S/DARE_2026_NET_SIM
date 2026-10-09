@@ -7,7 +7,7 @@ using System.Windows.Media;
 namespace VisualizationTest.Graph
 {
     /// <summary>
-    /// Represents a node in the graph visualization. Read-only to the user (no dragging/editing).
+    /// Represents a node in the graph visualization.
     /// </summary>
     public sealed class GraphNode
     {
@@ -204,6 +204,28 @@ namespace VisualizationTest.Graph
             lock (_syncLock)
             {
                 _edges.Add(edge);
+            }
+        }
+
+        public bool MoveNode(object id, Point position)
+        {
+            lock (_syncLock)
+            {
+                if (!TryGetNode(id, out var node) || node == null) return false;
+
+                node.Position = position;
+                return true;
+            }
+        }
+
+        public bool ToggleEdgeActive(GraphEdge edge)
+        {
+            lock (_syncLock)
+            {
+                if (!_edges.Contains(edge)) return false;
+
+                edge.IsActive = !edge.IsActive;
+                return true;
             }
         }
 
