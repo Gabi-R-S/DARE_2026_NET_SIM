@@ -127,6 +127,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -189,18 +190,27 @@
                         <ComboBoxItem Content="Base Layer Only"/>
                     </ComboBox>
 
+                    <Button x:Name="StartSimulationButton"
+                            Style="{StaticResource AccentButton}"
+                            Content="▶ Start"
+                            ToolTip="Start the simulation with the graph as currently edited"
+                            Click="StartSimulationButton_Click"
+                            Margin="0,0,6,0"/>
 
                     <!-- Restart current config -->
                     <Button Style="{StaticResource ModernButton}"
+                            x:Name="RestartSimulationButton"
+                            Visibility="Collapsed"
                             Content="🔄 Restart"
-                            ToolTip="Restarts the simulation using current parameters"
+                            ToolTip="Restarts the simulation using the current graph"
                             Click="RestartSimulation_Click"
                             Margin="0,0,6,0"/>
 
-                    <!-- New Random Seed & Restart -->
+                    <!-- New Random Seed -->
                     <Button Style="{StaticResource ModernButton}"
-                            Content="🎲 New Seed"
-                            ToolTip="Picks a new random seed and restarts the simulation"
+                            x:Name="NewSeedButton"
+                            Content="🎲 New Graph"
+                            ToolTip="Regenerates the configured starting topology and returns to graph editing"
                             Click="NewSeedRestart_Click"
                             Margin="0,0,6,0"/>
 
@@ -227,6 +237,28 @@
                             Click="FitView_Click"/>
                 </StackPanel>
             </Grid>
+        </Border>
+
+        <Border x:Name="GraphEditToolbar"
+                Grid.Row="2"
+                Background="#0B0F19"
+                BorderBrush="#1E293B"
+                BorderThickness="0,0,0,1"
+                Padding="12,7">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Edit graph:" Foreground="#94A3B8" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <Button x:Name="MoveNodesButton" Style="{StaticResource ModernButton}" Content="Move Nodes" Tag="None" Click="GraphEditMode_Click" Margin="0,0,5,0"/>
+                <Button x:Name="AddNodeButton" Style="{StaticResource ModernButton}" Content="Add Node" Tag="AddNode" Click="GraphEditMode_Click" Margin="0,0,5,0"/>
+                <Button x:Name="ConnectNodesButton" Style="{StaticResource ModernButton}" Content="Connect Nodes" Tag="ConnectNodes" Click="GraphEditMode_Click" Margin="0,0,5,0"/>
+                <Button x:Name="RemoveGraphItemButton" Style="{StaticResource ModernButton}" Content="Remove" Tag="Remove" Click="GraphEditMode_Click" Margin="0,0,10,0"/>
+                <TextBlock Text="Link latency (s):" Foreground="#CBD5E1" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox x:Name="LinkLatencyTextBox" Text="0.50" Width="70" Height="30" Style="{StaticResource DrawerTextBox}" Margin="0,0,5,0"/>
+                <Button x:Name="SetLatencyButton" Style="{StaticResource ModernButton}" Content="Set Latency" Tag="SetLatency" Click="GraphEditMode_Click" Margin="0,0,12,0"/>
+                <TextBlock x:Name="GraphEditStatusTextBlock"
+                           Text="Move nodes or choose an edit mode"
+                           Foreground="#94A3B8"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
         </Border>
 
         <!-- Packet Color Legend Strip -->
@@ -268,7 +300,7 @@
         </Border>
 
         <!-- Main Content Area: Graph Canvas + Collapsible Parameters Drawer -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -283,7 +315,7 @@
                                     ShowGrid="True"/>
 
             <TextBlock Grid.Column="0"
-                       Text="Drag nodes to reposition • Click a connection to toggle it • Drag empty space to pan"
+                       Text="Drag nodes to reposition • Use the edit tools above • After start, click a connection to toggle it"
                        Foreground="#94A3B8"
                        Background="#CC0F172A"
                        Padding="10,6"
@@ -338,6 +370,7 @@
                             <TextBlock Text="Topology" Style="{StaticResource DrawerLabel}"/>
                             <ComboBox x:Name="DrawerTopologyComboBox" Height="34" VerticalContentAlignment="Center" SelectionChanged="DrawerTopologyComboBox_SelectionChanged">
                                 <ComboBoxItem Content="Random Mesh"/>
+                                <ComboBoxItem Content="Scale-Free"/>
                                 <ComboBoxItem Content="Fully Connected"/>
                                 <ComboBoxItem Content="Ring"/>
                                 <ComboBoxItem Content="Star"/>
@@ -434,7 +467,7 @@
                                    Visibility="Collapsed"
                                    Margin="0,0,0,6"/>
                         <Button Style="{StaticResource AccentButton}"
-                                Content="Apply &amp; Restart Simulation"
+                                Content="Apply &amp; Edit Graph"
                                 HorizontalAlignment="Stretch"
                                 Click="DrawerApply_Click"/>
                     </StackPanel>
@@ -443,7 +476,7 @@
         </Grid>
 
         <!-- Bottom Status Bar -->
-        <Border Grid.Row="3"
+        <Border Grid.Row="4"
                 Background="#0F172A"
                 BorderBrush="#1E293B"
                 BorderThickness="0,1,0,0"

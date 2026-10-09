@@ -11,14 +11,28 @@ namespace Simulator
 
         public HashSet<ReplicaID> GetAllKnownReplicas()
         {
-            HashSet<ReplicaID> set = new HashSet<ReplicaID>();
-            foreach (var (k, v) in connectionMap) {
-                set.Add(k);
-                foreach (var (k2, _) in v) {
-                    set.Add(k2);
-                }
+            return new HashSet<ReplicaID>(connectionMap.Keys);
+        }
+
+        public void AddReplica(ReplicaID replica)
+        {
+            if (!connectionMap.ContainsKey(replica))
+            {
+                connectionMap[replica] = new Dictionary<ReplicaID, NetworkConnection>();
             }
-            return set;
+        }
+
+        public bool RemoveReplica(ReplicaID replica)
+        {
+            if (!connectionMap.TryGetValue(replica, out var connections)) return false;
+
+            foreach (var neighbor in new List<ReplicaID>(connections.Keys))
+            {
+                connectionMap[neighbor].Remove(replica);
+            }
+
+            connectionMap.Remove(replica);
+            return true;
         }
 
         public void SetConnection(ReplicaID source, ReplicaID destination, NetworkConnection connection) {
@@ -32,6 +46,20 @@ namespace Simulator
             connectionMap[source][destination] = connection;
             connectionMap[destination][source] = connection;
         }
+
+        public bool RemoveConnection(ReplicaID source, ReplicaID destination)
+        {
+            bool removed = connectionMap.TryGetValue(source, out var sourceConnections) &&
+                sourceConnections.Remove(destination);
+
+            if (connectionMap.TryGetValue(destination, out var destinationConnections))
+            {
+                removed |= destinationConnections.Remove(source);
+            }
+
+            return removed;
+        }
+
         public NetworkConnection? GetConnection(ReplicaID source, ReplicaID destination) {
             if (!connectionMap.ContainsKey(source)) {
                 return null;

@@ -6,6 +6,15 @@ using System.Windows.Media;
 
 namespace VisualizationTest.Graph
 {
+    public enum GraphEditMode
+    {
+        None,
+        AddNode,
+        ConnectNodes,
+        Remove,
+        SetLatency
+    }
+
     /// <summary>
     /// Represents a node in the graph visualization.
     /// </summary>
@@ -207,6 +216,36 @@ namespace VisualizationTest.Graph
             }
         }
 
+        public bool RemoveNode(object id)
+        {
+            lock (_syncLock)
+            {
+                if (!_nodes.Remove(id)) return false;
+
+                _edges.RemoveAll(edge => Equals(edge.SourceId, id) || Equals(edge.TargetId, id));
+                _particles.RemoveAll(particle => Equals(particle.SourceId, id) || Equals(particle.TargetId, id));
+                return true;
+            }
+        }
+
+        public bool RemoveEdge(GraphEdge edge)
+        {
+            lock (_syncLock)
+            {
+                return _edges.Remove(edge);
+            }
+        }
+
+        public bool HasEdge(object sourceId, object targetId)
+        {
+            lock (_syncLock)
+            {
+                return _edges.Exists(edge =>
+                    (Equals(edge.SourceId, sourceId) && Equals(edge.TargetId, targetId)) ||
+                    (!edge.IsDirected && Equals(edge.SourceId, targetId) && Equals(edge.TargetId, sourceId)));
+            }
+        }
+
         public bool MoveNode(object id, Point position)
         {
             lock (_syncLock)
@@ -235,6 +274,15 @@ namespace VisualizationTest.Graph
             {
                 _nodes.Clear();
                 _edges.Clear();
+                _particles.Clear();
+                while (_pendingParticles.TryDequeue(out _)) { }
+            }
+        }
+
+        public void ClearParticles()
+        {
+            lock (_syncLock)
+            {
                 _particles.Clear();
                 while (_pendingParticles.TryDequeue(out _)) { }
             }

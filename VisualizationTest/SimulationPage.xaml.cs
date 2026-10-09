@@ -34,7 +34,11 @@ namespace VisualizationTest
         private readonly List<InsertBehaviour> _behaviours = new();
         private readonly Dictionary<ReplicaID, CRDTApp.App> _appsByReplica = new();
         private readonly HashSet<ReplicaID> _completedReplicas = new();
+        private ConnectionMap _connectionMap = new();
         private GraphState? _graphState;
+        private bool _graphInitialized;
+        private bool _simulationStarted;
+        private bool _isApplyingConfiguration;
         private DateTime _simulationStartTime;
 
         // Statistics
@@ -58,6 +62,11 @@ namespace VisualizationTest
         {
             InitializeComponent();
             GraphViewControl.EdgeToggled += OnGraphEdgeToggled;
+            GraphViewControl.NodeAddRequested += OnGraphNodeAddRequested;
+            GraphViewControl.ConnectionRequested += OnGraphConnectionRequested;
+            GraphViewControl.NodeRemoveRequested += OnGraphNodeRemoveRequested;
+            GraphViewControl.EdgeRemoveRequested += OnGraphEdgeRemoveRequested;
+            GraphViewControl.EdgeLatencyRequested += OnGraphEdgeLatencyRequested;
 
             _config = config?.Clone() ?? SimulationConfig.Current.Clone();
 
@@ -89,6 +98,140 @@ namespace VisualizationTest
             }
         }
 
+        private void OnGraphNodeAddRequested(Point position)
+        {
+            if (_graphState == null || _simulationStarted) return;
+            if (_graphState.NodeCount >= 50)
+            {
+                SetGraphEditStatus("A graph can have at most 50 nodes.", true);
+                return;
+            }
+
+            ulong nextId = 0;
+            foreach (var node in _graphState.Nodes.Values)
+            {
+                ulong currentId = Convert.ToUInt64(node.Id);
+                if (currentId >= nextId)
+                {
+                    if (currentId == ulong.MaxValue)
+                    {
+                        SetGraphEditStatus("No more replica IDs are available.", true);
+                        return;
+                    }
+                    nextId = currentId + 1;
+                }
+            }
+
+            var replica = new ReplicaID(nextId);
+            _connectionMap.AddReplica(replica);
+            _graphState.AddNode(new GraphNode(nextId, position, $"R{nextId}")
+            {
+                Fill = new SolidColorBrush(Color.FromRgb(30, 41, 59)),
+                Stroke = new SolidColorBrush(Color.FromRgb(56, 189, 248))
+            });
+            UpdateEditableGraphStatus($"Added replica {nextId}.");
+        }
+
+        private void OnGraphConnectionRequested(GraphNode source, GraphNode target)
+        {
+            if (_graphState == null || _simulationStarted) return;
+
+            if (!TryGetEditorLatency(out float latency)) return;
+            if (_graphState.HasEdge(source.Id, target.Id))
+            {
+                SetGraphEditStatus("Those nodes are already connected.", true);
+                return;
+            }
+
+            var sourceId = new ReplicaID(Convert.ToUInt64(source.Id));
+            var targetId = new ReplicaID(Convert.ToUInt64(target.Id));
+            var connection = new NetworkConnection(latency);
+            _connectionMap.SetConnection(sourceId, targetId, connection);
+            _graphState.AddEdge(new GraphEdge(source.Id, target.Id, latency)
+            {
+                Tag = connection,
+                Stroke = new SolidColorBrush(Color.FromArgb(160, 100, 116, 139)),
+                Thickness = 2.0
+            });
+            UpdateEditableGraphStatus($"Connected R{sourceId.ID} and R{targetId.ID} ({latency:F2}s).");
+        }
+
+        private void OnGraphNodeRemoveRequested(GraphNode node)
+        {
+            if (_graphState == null || _simulationStarted) return;
+
+            ulong id = Convert.ToUInt64(node.Id);
+            _connectionMap.RemoveReplica(new ReplicaID(id));
+            _graphState.RemoveNode(node.Id);
+            UpdateEditableGraphStatus($"Removed replica {id} and its connections.");
+        }
+
+        private void OnGraphEdgeRemoveRequested(GraphEdge edge)
+        {
+            if (_graphState == null || _simulationStarted) return;
+
+            _connectionMap.RemoveConnection(
+                new ReplicaID(Convert.ToUInt64(edge.SourceId)),
+                new ReplicaID(Convert.ToUInt64(edge.TargetId)));
+            _graphState.RemoveEdge(edge);
+            UpdateEditableGraphStatus("Removed connection.");
+        }
+
+        private void OnGraphEdgeLatencyRequested(GraphEdge edge)
+        {
+            if (_simulationStarted || !TryGetEditorLatency(out float latency)) return;
+
+            var connection = _connectionMap.GetConnection(
+                new ReplicaID(Convert.ToUInt64(edge.SourceId)),
+                new ReplicaID(Convert.ToUInt64(edge.TargetId)));
+            if (connection == null)
+            {
+                SetGraphEditStatus("Could not find the selected connection.", true);
+                return;
+            }
+
+            connection.TransmissionTime = latency;
+            edge.TransmissionTime = latency;
+            UpdateEditableGraphStatus($"Connection latency set to {latency:F2}s.");
+        }
+
+        private bool TryGetEditorLatency(out float latency)
+        {
+            if (float.TryParse(LinkLatencyTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out latency) &&
+                float.IsFinite(latency) && latency >= 0)
+            {
+                return true;
+            }
+
+            SetGraphEditStatus("Enter a finite, non-negative latency.", true);
+            return false;
+        }
+
+        private void UpdateEditableGraphStatus(string message)
+        {
+            if (_graphState != null)
+            {
+                _config.NumberOfNodes = _graphState.NodeCount;
+                GraphViewControl.RefreshGraph();
+            }
+            SetGraphEditStatus($"{message} Nodes: {_config.NumberOfNodes}, connections: {_graphState?.EdgeCount ?? 0}.", false);
+        }
+
+        private void SetGraphEditStatus(string message, bool isError)
+        {
+            GraphEditStatusTextBlock.Text = message;
+            GraphEditStatusTextBlock.Foreground = isError ? Brushes.OrangeRed : Brushes.LightGray;
+        }
+
+        private void SetEditingControlsEnabled(bool enabled)
+        {
+            GraphEditToolbar.IsEnabled = enabled;
+            StartSimulationButton.IsEnabled = enabled;
+            RestartSimulationButton.IsEnabled = !enabled;
+            StartSimulationButton.Visibility = enabled ? Visibility.Visible : Visibility.Collapsed;
+            RestartSimulationButton.Visibility = enabled ? Visibility.Collapsed : Visibility.Visible;
+        }
+
         // Backward-compatible constructor
         public SimulationPage(int numberOfNodes, float minimumMessageDelay, float maximumMessageDelay, string initialProtocol = "Flood Routing")
             : this(new SimulationConfig
@@ -106,7 +249,7 @@ namespace VisualizationTest
             SetComboBoxItem(ProtocolComboBox, _config.RoutingProtocol);
             PopulateDrawerFromConfig(_config);
 
-            StartSimulation(_config);
+            InitializeEditableGraph(_config);
 
             Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
             {
@@ -123,48 +266,74 @@ namespace VisualizationTest
             GraphViewControl.StopAnimationLoop();
         }
 
-        /// <summary>
-        /// Initializes the network configuration based on SimulationConfig
-        /// and hooks the GraphView to the RealtimeSimulator and App events.
-        /// </summary>
-        private void StartSimulation(SimulationConfig config, bool forceNewSeed = false)
+        private void InitializeEditableGraph(SimulationConfig config, bool forceNewSeed = false)
         {
             StopSimulation();
+            _simulationStarted = false;
+            GraphViewControl.EdgeToggleEnabled = false;
+            GraphViewControl.EditMode = GraphEditMode.None;
+            UpdateGraphEditModeButtons(GraphEditMode.None);
 
             int seed = config.ResolveSeed(_random, forceNewSeed);
-            if (SeedBadgeTextBlock != null)
+            _connectionMap = SimulationConfig.CreateNetwork(config, seed).Item1;
+
+            double canvasWidth = Math.Max(600, GraphViewControl.ActualWidth > 0 ? GraphViewControl.ActualWidth : 800);
+            double canvasHeight = Math.Max(400, GraphViewControl.ActualHeight > 0 ? GraphViewControl.ActualHeight : 600);
+            Point center = new(canvasWidth / 2.0, canvasHeight / 2.0);
+            double radius = Math.Min(canvasWidth, canvasHeight) * 0.38;
+
+            _graphState = GraphLayoutHelper.FromConnectionMap(_connectionMap, radius, center);
+
+            foreach (var node in _graphState.Nodes.Values)
             {
-                SeedBadgeTextBlock.Text = $"Seed: {seed}";
+                node.Tag = $"Replica {node.Id}\nReady to start";
             }
 
-            // Reset statistics counters
+            GraphViewControl.State = _graphState;
+            _graphInitialized = true;
+            _config.NumberOfNodes = _graphState.NodeCount;
+            SeedBadgeTextBlock.Text = $"Seed: {seed}";
+            TopologySubtext.Text = $"{config.Topology} | {_graphState.NodeCount} Nodes | Edit the graph, then start the simulation";
+            GraphEditStatusTextBlock.Text = $"Graph ready. Nodes: {_graphState.NodeCount}, connections: {_graphState.EdgeCount}.";
+            GraphEditStatusTextBlock.Foreground = Brushes.LightGray;
+
             Interlocked.Exchange(ref _totalPacketsScheduled, 0);
             Interlocked.Exchange(ref _totalPacketsDelivered, 0);
             Interlocked.Exchange(ref _appPacketsScheduled, 0);
             Interlocked.Exchange(ref _protocolPacketsScheduled, 0);
             Interlocked.Exchange(ref _convergedCount, 0);
 
-            // Generate the network configuration based on selected topology
-            (ConnectionMap map, List<ReplicaID> replicas) = SimulationConfig.CreateNetwork(config, seed);
+            SetEditingControlsEnabled(true);
+            UpdateStats();
+        }
 
-            // Compute canvas center and radius for circular node layout
-            double canvasWidth = Math.Max(600, GraphViewControl.ActualWidth > 0 ? GraphViewControl.ActualWidth : 800);
-            double canvasHeight = Math.Max(400, GraphViewControl.ActualHeight > 0 ? GraphViewControl.ActualHeight : 600);
-            Point center = new(canvasWidth / 2.0, canvasHeight / 2.0);
-            double radius = Math.Min(canvasWidth, canvasHeight) * 0.38;
+        private void StartSimulation(SimulationConfig config)
+        {
+            if (_graphState == null) return;
 
-            // Build initial GraphState representing network nodes and their connections
-            _graphState = GraphLayoutHelper.FromConnectionMap(map, radius, center);
+            List<ReplicaID> replicas = new(_connectionMap.GetAllKnownReplicas());
+            replicas.Sort((left, right) => left.ID.CompareTo(right.ID));
+            if (replicas.Count < 2)
+            {
+                GraphEditStatusTextBlock.Text = "Add at least two nodes before starting.";
+                GraphEditStatusTextBlock.Foreground = Brushes.OrangeRed;
+                return;
+            }
+
+            StopSimulation();
+            _graphState.ClearParticles();
+            _simulationStarted = true;
+            config.NumberOfNodes = replicas.Count;
 
             foreach (var node in _graphState.Nodes.Values)
             {
                 node.Tag = $"Replica {node.Id}\nStatus: Initializing\nWaiting for operations...";
+                node.Fill = new SolidColorBrush(Color.FromRgb(30, 41, 59));
+                node.Stroke = new SolidColorBrush(Color.FromRgb(56, 189, 248));
+                node.StrokeThickness = 2.0;
             }
 
-            // Create the RealtimeSimulator
-            _simulator = new RealtimeSimulator(map);
-
-            // Hook simulator events to represent packets passing between nodes
+            _simulator = new RealtimeSimulator(_connectionMap);
             _simulator.AddMessageSendScheduledHandler(OnMessageSendScheduled);
             _simulator.AddMessageDeliveredHandler(OnMessageDelivered);
 
@@ -224,25 +393,27 @@ namespace VisualizationTest
                 i++;
             }
 
-            // Assign state to graph control and start animation
-            GraphViewControl.State = _graphState;
+            GraphViewControl.EditMode = GraphEditMode.None;
+            UpdateGraphEditModeButtons(GraphEditMode.None);
+            GraphViewControl.EdgeToggleEnabled = true;
+            SetEditingControlsEnabled(false);
+            GraphEditStatusTextBlock.Text = "Simulation running. Click connections to interrupt or restore them.";
+            GraphEditStatusTextBlock.Foreground = Brushes.LightGray;
             _simulationStartTime = DateTime.Now;
 
             if (TopologySubtext != null)
             {
                 string dvSub = config.RoutingProtocol == "Distance Vector" ? $" | DV HB: {config.DistanceVectorHeartbeatInterval:F2}s" : "";
-                TopologySubtext.Text = $"{config.Topology} (Seed: {seed}) | {replicas.Count} Nodes | Delays: {config.MinimumMessageDelay:F2}s-{config.MaximumMessageDelay:F2}s | {config.RoutingProtocol} | HB: {config.HeartbeatInterval:F2}s{dvSub} | Timeout: {config.MessageTimeout:F2}s | ACK: {config.AckTimeout:F2}s | Ops/Node: {config.OperationsPerReplica}";
+                TopologySubtext.Text = $"{config.Topology} (Seed: {config.ActiveSeed}) | {replicas.Count} Nodes | {config.RoutingProtocol} | HB: {config.HeartbeatInterval:F2}s{dvSub} | Timeout: {config.MessageTimeout:F2}s | ACK: {config.AckTimeout:F2}s | Ops/Node: {config.OperationsPerReplica}";
             }
 
             // Run the RealtimeSimulator in the background
+            RealtimeSimulator simulator = _simulator;
             Task.Run(async () =>
             {
                 try
                 {
-                    if (_simulator != null)
-                    {
-                        await _simulator.Run(3600);
-                    }
+                    await simulator.Run(3600);
                 }
                 catch (Exception ex)
                 {
@@ -592,6 +763,16 @@ namespace VisualizationTest
             var state = GraphViewControl.State;
             if (state == null) return;
 
+            if (!_simulationStarted)
+            {
+                StatsTextBlock.Text = $"Nodes: {state.NodeCount} | Connections: {state.EdgeCount}";
+                ConvergenceTextBlock.Text = "Edit the graph before starting";
+                ConvergenceTextBlock.Foreground = Brushes.LightGray;
+                SimTimeTextBlock.Text = "Not started";
+                FpsTextBlock.Text = $"FPS: {GraphViewControl.CurrentFps:F0}";
+                return;
+            }
+
             int totalPackets = _totalPacketsScheduled;
             int appPackets = _appPacketsScheduled;
             int protocolPackets = _protocolPacketsScheduled;
@@ -628,30 +809,82 @@ namespace VisualizationTest
 
         private void ProtocolComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (IsLoaded)
+            if (IsLoaded && _graphInitialized && !_isApplyingConfiguration)
             {
                 string protocol = (ProtocolComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Flood Routing";
                 _config.RoutingProtocol = protocol;
                 SetComboBoxItem(DrawerProtocolComboBox, protocol);
-                StartSimulation(_config, forceNewSeed: false);
-                GraphViewControl.FitToView();
+                if (_simulationStarted)
+                {
+                    StartSimulation(_config);
+                }
             }
+        }
+
+        private void StartSimulationButton_Click(object sender, RoutedEventArgs e)
+        {
+            StartSimulation(_config);
         }
 
         private void RestartSimulation_Click(object sender, RoutedEventArgs e)
         {
-            StartSimulation(_config, forceNewSeed: false);
-            GraphViewControl.FitToView();
+            StartSimulation(_config);
         }
 
         private void NewSeedRestart_Click(object sender, RoutedEventArgs e)
         {
-            StartSimulation(_config, forceNewSeed: true);
+            InitializeEditableGraph(_config, forceNewSeed: true);
             if (DrawerSeedTextBox != null)
             {
                 DrawerSeedTextBox.Text = _config.ActiveSeed.ToString();
             }
             GraphViewControl.FitToView();
+        }
+
+        private void GraphEditMode_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button { Tag: string modeName } ||
+                !Enum.TryParse(modeName, out GraphEditMode mode))
+            {
+                return;
+            }
+
+            GraphViewControl.EditMode = mode;
+            UpdateGraphEditModeButtons(mode);
+            SetGraphEditStatus(mode switch
+            {
+                GraphEditMode.None => "Drag a node to move it.",
+                GraphEditMode.AddNode => "Click the graph to add a node.",
+                GraphEditMode.ConnectNodes => "Click two nodes to connect them.",
+                GraphEditMode.Remove => "Click a node or connection to remove it.",
+                GraphEditMode.SetLatency => "Click a connection to set its latency.",
+                _ => "Edit the graph."
+            }, false);
+        }
+
+        private void UpdateGraphEditModeButtons(GraphEditMode selectedMode)
+        {
+            (Button Button, GraphEditMode Mode)[] buttons =
+            {
+                (MoveNodesButton, GraphEditMode.None),
+                (AddNodeButton, GraphEditMode.AddNode),
+                (ConnectNodesButton, GraphEditMode.ConnectNodes),
+                (RemoveGraphItemButton, GraphEditMode.Remove),
+                (SetLatencyButton, GraphEditMode.SetLatency)
+            };
+
+            foreach (var (button, mode) in buttons)
+            {
+                bool selected = mode == selectedMode;
+                button.Background = new SolidColorBrush(Color.FromRgb(
+                    selected ? (byte)7 : (byte)30,
+                    selected ? (byte)89 : (byte)41,
+                    selected ? (byte)133 : (byte)59));
+                button.BorderBrush = new SolidColorBrush(Color.FromRgb(
+                    selected ? (byte)56 : (byte)51,
+                    selected ? (byte)189 : (byte)65,
+                    selected ? (byte)248 : (byte)81));
+            }
         }
 
         private void ToggleParameters_Click(object sender, RoutedEventArgs e)
@@ -881,10 +1114,11 @@ namespace VisualizationTest
             SimulationConfig.Current = _config.Clone();
 
             // Synchronize toolbar protocol dropdown
+            _isApplyingConfiguration = true;
             SetComboBoxItem(ProtocolComboBox, routingProtocol);
+            _isApplyingConfiguration = false;
 
-            // Restart simulation with new config
-            StartSimulation(_config, forceNewSeed: false);
+            InitializeEditableGraph(_config);
             GraphViewControl.FitToView();
         }
 

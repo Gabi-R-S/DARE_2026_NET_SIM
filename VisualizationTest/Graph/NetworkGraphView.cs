@@ -70,6 +70,19 @@ namespace VisualizationTest.Graph
             set => SetValue(ShowNodeLabelsProperty, value);
         }
 
+        private GraphEditMode _editMode;
+        public GraphEditMode EditMode
+        {
+            get => _editMode;
+            set
+            {
+                _editMode = value;
+                _connectionStartNode = null;
+                InvalidateVisual();
+            }
+        }
+        public bool EdgeToggleEnabled { get; set; }
+
         private static void OnStateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is NetworkGraphView view)
@@ -84,6 +97,11 @@ namespace VisualizationTest.Graph
 
         public event EventHandler<GraphParticle>? ParticleArrived;
         public event Action<GraphEdge>? EdgeToggled;
+        public event Action<Point>? NodeAddRequested;
+        public event Action<GraphNode, GraphNode>? ConnectionRequested;
+        public event Action<GraphNode>? NodeRemoveRequested;
+        public event Action<GraphEdge>? EdgeRemoveRequested;
+        public event Action<GraphEdge>? EdgeLatencyRequested;
 
         #endregion
 
@@ -124,6 +142,7 @@ namespace VisualizationTest.Graph
 
         // Hover inspection
         private GraphNode? _hoveredNode;
+        private GraphNode? _connectionStartNode;
 
         #endregion
 
@@ -217,6 +236,15 @@ namespace VisualizationTest.Graph
         {
             _isAnimating = false;
             CompositionTarget.Rendering -= OnCompositionRendering;
+        }
+
+        public void RefreshGraph()
+        {
+            if (_hoveredNode != null && State?.TryGetNode(_hoveredNode.Id, out _) != true)
+            {
+                _hoveredNode = null;
+            }
+            InvalidateVisual();
         }
 
         private void OnCompositionRendering(object? sender, EventArgs e)
@@ -445,10 +473,13 @@ namespace VisualizationTest.Graph
                 bool isHovered = ReferenceEquals(node, _hoveredNode);
 
                 Brush fill = node.Fill ?? DefaultNodeBrush;
-                Pen pen = isHovered ? HoveredNodePen : (node.Stroke != null ? new Pen(node.Stroke, node.StrokeThickness) : DefaultNodePen);
+                bool isConnectionStart = ReferenceEquals(node, _connectionStartNode);
+                Pen pen = isHovered || isConnectionStart
+                    ? HoveredNodePen
+                    : (node.Stroke != null ? new Pen(node.Stroke, node.StrokeThickness) : DefaultNodePen);
 
                 // Outer aura on hover
-                if (isHovered)
+                if (isHovered || isConnectionStart)
                 {
                     dc.DrawEllipse(new SolidColorBrush(Color.FromArgb(50, 250, 204, 21)), null, pos, r + 6, r + 6);
                 }
@@ -571,22 +602,86 @@ namespace VisualizationTest.Graph
                 _lastMousePosition = mousePosition;
 
                 Point worldPosition = ScreenToWorld(mousePosition);
-                _draggedNode = FindNodeAt(worldPosition);
-                if (_draggedNode != null)
+                GraphNode? node = FindNodeAt(worldPosition);
+
+                switch (EditMode)
                 {
-                    CaptureMouse();
-                    Cursor = Cursors.SizeAll;
-                    e.Handled = true;
-                    return;
+                    case GraphEditMode.AddNode:
+                        NodeAddRequested?.Invoke(worldPosition);
+                        e.Handled = true;
+                        return;
+
+                    case GraphEditMode.ConnectNodes:
+                        if (node != null)
+                        {
+                            if (_connectionStartNode == null)
+                            {
+                                _connectionStartNode = node;
+                                InvalidateVisual();
+                            }
+                            else
+                            {
+                                if (!ReferenceEquals(_connectionStartNode, node))
+                                {
+                                    ConnectionRequested?.Invoke(_connectionStartNode, node);
+                                }
+                                _connectionStartNode = null;
+                                InvalidateVisual();
+                            }
+                            e.Handled = true;
+                        }
+                        return;
+
+                    case GraphEditMode.Remove:
+                        if (node != null)
+                        {
+                            NodeRemoveRequested?.Invoke(node);
+                            e.Handled = true;
+                            return;
+                        }
+
+                        GraphEdge? edgeToRemove = FindEdgeAt(worldPosition);
+                        if (edgeToRemove != null)
+                        {
+                            EdgeRemoveRequested?.Invoke(edgeToRemove);
+                            e.Handled = true;
+                            return;
+                        }
+                        break;
+
+                    case GraphEditMode.SetLatency:
+                        GraphEdge? edgeForLatency = FindEdgeAt(worldPosition);
+                        if (edgeForLatency != null)
+                        {
+                            EdgeLatencyRequested?.Invoke(edgeForLatency);
+                            e.Handled = true;
+                            return;
+                        }
+                        break;
                 }
 
-                _edgeClickCandidate = FindEdgeAt(worldPosition);
-                if (_edgeClickCandidate != null)
+                if (EditMode == GraphEditMode.None)
                 {
-                    CaptureMouse();
-                    Cursor = Cursors.Hand;
-                    e.Handled = true;
-                    return;
+                    _draggedNode = node;
+                    if (_draggedNode != null)
+                    {
+                        CaptureMouse();
+                        Cursor = Cursors.SizeAll;
+                        e.Handled = true;
+                        return;
+                    }
+
+                    if (EdgeToggleEnabled)
+                    {
+                        _edgeClickCandidate = FindEdgeAt(worldPosition);
+                        if (_edgeClickCandidate != null)
+                        {
+                            CaptureMouse();
+                            Cursor = Cursors.Hand;
+                            e.Handled = true;
+                            return;
+                        }
+                    }
                 }
             }
 

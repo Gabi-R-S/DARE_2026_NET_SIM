@@ -57,6 +57,40 @@ public sealed class NetworkModelTests
     }
 
     [TestMethod]
+    public void ConnectionMapRetainsIsolatedReplicasAndRemovesConnectionsSymmetrically()
+    {
+        var left = new ReplicaID(1);
+        var right = new ReplicaID(2);
+        var map = new ConnectionMap();
+        map.SetConnection(left, right, new NetworkConnection());
+
+        Assert.IsTrue(map.RemoveConnection(left, right));
+
+        Assert.IsNull(map.GetConnection(left, right));
+        Assert.IsNull(map.GetConnection(right, left));
+        CollectionAssert.AreEquivalent(new[] { left, right }, map.GetAllKnownReplicas().ToArray());
+    }
+
+    [TestMethod]
+    public void ConnectionMapRemovesReplicaAndItsIncidentConnections()
+    {
+        var removed = new ReplicaID(1);
+        var firstNeighbor = new ReplicaID(2);
+        var secondNeighbor = new ReplicaID(3);
+        var map = new ConnectionMap();
+        map.SetConnection(removed, firstNeighbor, new NetworkConnection());
+        map.SetConnection(removed, secondNeighbor, new NetworkConnection());
+
+        Assert.IsTrue(map.RemoveReplica(removed));
+
+        CollectionAssert.AreEquivalent(new[] { firstNeighbor, secondNeighbor }, map.GetAllKnownReplicas().ToArray());
+        Assert.IsNull(map.GetConnection(removed, firstNeighbor));
+        Assert.IsNull(map.GetConnection(firstNeighbor, removed));
+        Assert.IsNull(map.GetConnection(removed, secondNeighbor));
+        Assert.IsNull(map.GetConnection(secondNeighbor, removed));
+    }
+
+    [TestMethod]
     public void ActiveConnectionTrackerTransitionsBetweenActiveAndInactive()
     {
         var self = new ReplicaID(1);
