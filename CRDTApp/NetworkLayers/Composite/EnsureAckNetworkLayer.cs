@@ -49,7 +49,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (!RunningTracker.IsRunning)
+            if (!RunningTracker.IsRunning || lowerLayerMessage.ProtocolTag!=Tag)
             {
                 return;
             }

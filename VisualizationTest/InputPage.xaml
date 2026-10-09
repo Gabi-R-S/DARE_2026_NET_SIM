@@ -284,7 +284,7 @@
                                 <ComboBoxItem Content="Flood Routing" IsSelected="True"/>
                                 <ComboBoxItem Content="Distance Vector"/>
                                 <ComboBoxItem Content="Link State"/>
-                                <ComboBoxItem Content="No-Route (Ack)"/>
+                                <ComboBoxItem Content="Base Layer + Heartbeat"/>
                                 <ComboBoxItem Content="Base Layer Only"/>
                             </ComboBox>
                             <TextBlock Text="Network routing and forwarding protocol stack" Style="{StaticResource FieldHint}"/>

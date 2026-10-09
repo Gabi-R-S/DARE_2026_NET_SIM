@@ -255,7 +255,7 @@ namespace VisualizationTest
                     return (baseLayer, scheduler, new List<NetworkLayer> { baseLayer }, null);
                 }
 
-                case "No-Route (Ack)":
+                case "Base Layer + Heartbeat":
                 {
                     int ackSeq = 0;
                     var ackLayer = new EnsureAckNetworkLayer<int>(
@@ -401,6 +401,8 @@ namespace VisualizationTest
                     try
                     {
                         app.Close();
+
+                        System.Diagnostics.Debug.WriteLine($"Closed app!");
                     }
                     catch (Exception ex)
                     {
@@ -411,7 +413,7 @@ namespace VisualizationTest
             }
 
             _behaviours.Clear();
-            _simulator?.ForceStop();
+            //_simulator?.ForceStop();
             _simulator = null;
         }
 
