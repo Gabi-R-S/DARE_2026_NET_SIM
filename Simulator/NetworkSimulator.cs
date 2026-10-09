@@ -10,16 +10,24 @@ namespace Simulator
     public abstract class NetworkSimulator
     {
 
-        protected List<Func<Task>> RunEvents { get; private set; } = new List<Func<Task>>(); //close events!
-        protected List<Func<Task>> CloseEvents { get; private set; } = new List<Func<Task>>(); //close events!
+        event Action RunEvents; //close events!
+        event Action CloseEvents; //close events!
 
-        public void AddRunEvent(Func<Task> task)
+        protected void CallCloseEvents()
         {
-            RunEvents.Add(task);
+            CloseEvents?.Invoke();
         }
-        public void AddCloseEvent(Func<Task> task)
+        protected void CallRunEvents()
         {
-            CloseEvents.Add(task);
+            RunEvents?.Invoke();
+        }
+        public void AddRunEvent(Action task)
+        {
+            RunEvents+=task;
+        }
+        public void AddCloseEvent(Action task)
+        {
+            CloseEvents+=task;
         }
 
         public abstract Task Run(float simulationTimeLimit);

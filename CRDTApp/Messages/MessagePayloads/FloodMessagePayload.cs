@@ -6,26 +6,30 @@ using System.Text;
 
 namespace CRDTApp.Messages.LayerMessages
 {
-    public class LinkStateMessage : NetworkLayerMessage<LinkStateMessage>
+    public class FloodMessagePayload : Parseable<FloodMessagePayload>
     {
         public ReplicaID OriginalSender { get; set; }
         public ReplicaID IntendedTarget { get; set; }
-        public bool IsProtocolMessage { get; set; }
+        public int NumberOfHops { get; set; }
+        public uint Tag { get; set; }
         public Message? Message { get; set; }
 
-        public LinkStateMessage()
+        public FloodMessagePayload()
         {
 
         }
 
-        public LinkStateMessage(ReplicaID intendedTarget, ReplicaID originalSender, Message? message, bool isProtocolMessage = false)
+        public FloodMessagePayload(ReplicaID intendedTarget, ReplicaID originalSender, uint tag, Message? message, int numberOfHops)
         {
             OriginalSender = originalSender;
             IntendedTarget = intendedTarget;
+            Tag = tag;
             Message = message;
-            IsProtocolMessage = isProtocolMessage;
+            NumberOfHops = numberOfHops;
 
         }
+
+
     }
 
 }

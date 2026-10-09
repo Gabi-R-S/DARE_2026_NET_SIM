@@ -14,24 +14,23 @@ namespace CRDTApp.NetworkLayers.Base
         ReplicaID replicaID;
         NetworkSimulator networkSimulator;
 
-        public SimulatedNetworkBaseLayer(NetworkSimulator simulator, ReplicaID id)
+        public SimulatedNetworkBaseLayer(NetworkSimulator simulator, IsRunningTracker runningTracker, ReplicaID id):base("", runningTracker)
         {
 
             this.networkSimulator = simulator;
             this.replicaID = id;
 
-            networkSimulator.AddConnectionInterruptedHandler(replicaID, CallConnectionInterrupted);
             networkSimulator.AddMessageDeliveredHandler(replicaID, OnSimulatorMessageReceived);
 
         }
 
         void OnSimulatorMessageReceived(NetworkMessage message) {
 
-            if (IsRunning == false)
+            if (RunningTracker.IsRunning == false)
             {
                 return;
             }
-            CallMessageReceived(message.Source, new Message(message.Payload));
+            CallMessageReceived(message.Source, Message.Decode(message.Payload));
         }
 
 
@@ -39,12 +38,12 @@ namespace CRDTApp.NetworkLayers.Base
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (IsRunning == false)
+            if (RunningTracker.IsRunning == false)
             {
                 return false;
             }
 
-            return networkSimulator.ScheduleMessageDelivery(new NetworkMessage(this.replicaID, recipient, message.Payload));
+            return networkSimulator.ScheduleMessageDelivery(new NetworkMessage(this.replicaID, recipient, message.Encode()));
         }
 
 

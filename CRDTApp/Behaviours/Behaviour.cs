@@ -7,9 +7,8 @@ namespace CRDTApp.Behaviours
     public abstract class Behaviour
     {
 
-        public abstract Task Run();
+        public abstract void Launch();
 
-        public abstract void Stop();
 
         event Action? BehaviourEnded;
 

@@ -12,20 +12,21 @@ namespace CRDTApp.Behaviours
 {
     public class InsertBehaviour : Behaviour
     {
+        IsRunningTracker runningTracker;
+
         ORSet<int> ints = new();
         NetworkLayer network;
         ReplicaID[] otherReplicas;
         int minNumber, maxNumber, expectedCount;
         float delayBetweenSends, delayBetweenOps;
         ReplicaID replicaID;
-        bool running = false;
         IScheduler scheduler;
 
         CausalHistoryTracker historyTracker;
 
-        public InsertBehaviour(NetworkLayer network, IScheduler scheduler, ReplicaID ourID, ReplicaID[] otherIDs, int minNumber, int maxNumberInclusive, int expectedCount, float delayBetweenSends, float delayBetweenOps)
+        public InsertBehaviour(IsRunningTracker runningTracker,NetworkLayer network, IScheduler scheduler, ReplicaID ourID, ReplicaID[] otherIDs, int minNumber, int maxNumberInclusive, int expectedCount, float delayBetweenSends, float delayBetweenOps)
         {
-            historyTracker = new CausalHistoryTracker(ourID);
+            historyTracker = new CausalHistoryTracker(ourID, tag: "app");
             this.replicaID = ourID;
             this.otherReplicas = otherIDs;
             this.network = network;
@@ -35,18 +36,26 @@ namespace CRDTApp.Behaviours
             this.delayBetweenOps = delayBetweenOps;
             this.delayBetweenSends = delayBetweenSends;
             this.scheduler = scheduler;
-            network.AddOnMessageReceivedHandler(historyTracker.OnMessageReceived);
+            this.runningTracker = runningTracker;
+            network.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
             historyTracker.AddMessageIssuedHandler(OnMessageReceivedInSequence);
         }
+
+        void OnLowerLayerMessageReceived(ReplicaID sender, Message message) {
+            if (message.ProtocolTag == "app") {
+                historyTracker.OnMessageReceived(sender, message);
+            }
+        }
+
 
         public int CurrentCount => ints.GetValues().Count;
         public int ExpectedCount => expectedCount;
         public ReplicaID ReplicaID => replicaID;
         public event Action<ReplicaID, int, int>? OperationApplied;
 
-        void OnMessageReceivedInSequence(ReplicaID replica, Message? message, VersionVector vector)
+        void OnMessageReceivedInSequence(ReplicaID replica, string message, VersionVector vector)
         { //TODO: retrieve CRDT and merge it
-            var op = ORSet<int>.FromJSON(message.Payload, (str) => { return int.Parse(str); });
+            var op = ORSet<int>.FromJSON(message, (str) => { return int.Parse(str); });
             lock (ints)
             {
                 ints.Merge(op);
@@ -65,11 +74,11 @@ namespace CRDTApp.Behaviours
         {
             bool succeeded;
             succeeded = await network.SendMessage(replica, message);
-            if (!succeeded && running)
+            if (!succeeded && runningTracker.IsRunning)
             {
                 scheduler.ExecuteAfter(delayBetweenSends, () =>
                 {
-                    if (running)
+                    if (runningTracker.IsRunning)
                     {
                         SendUntilSuccess(replica, message);
                     }
@@ -81,7 +90,7 @@ namespace CRDTApp.Behaviours
 
         async Task SendUpdateUntil(int currentNumber, int maxNumber)
         {
-            if (currentNumber > maxNumber || !running)
+            if (currentNumber > maxNumber || !runningTracker.IsRunning)
             {
                 return;
             }
@@ -101,7 +110,7 @@ namespace CRDTApp.Behaviours
                 }
             }
 
-            Message message = historyTracker.TagMessage(new Message(addOp.ToJson((i) => { return i.ToString(); }))).AsMessage();
+            Message message = new Message("app", historyTracker.TagMessage(addOp.ToJson((i) => i.ToString())).Encode());
 
             foreach (ReplicaID replica in otherReplicas)
             {
@@ -113,21 +122,16 @@ namespace CRDTApp.Behaviours
         }
 
 
-        public override async Task Run()
+        public override void Launch()
         {
-            running = true;
             SendUpdateUntil(minNumber, maxNumber);
         }
 
-        public override void Stop()
-        {
-            running = false;
-        }
 
 
         public void InsertManualValue(int val)
         {
-            if (!running) return;
+            if (runningTracker.IsRunning) return;
             ORSet<int> addOp;
             lock (ints)
             {
@@ -140,7 +144,7 @@ namespace CRDTApp.Behaviours
                     CallBehaviourEnded();
                 }
             }
-            Message message = historyTracker.TagMessage(new Message(addOp.ToJson((i) => i.ToString()))).AsMessage();
+            Message message = new Message("app",historyTracker.TagMessage(addOp.ToJson((i)=>i.ToString())).Encode());
             foreach (ReplicaID replica in otherReplicas)
             {
                 SendUntilSuccess(replica, message);

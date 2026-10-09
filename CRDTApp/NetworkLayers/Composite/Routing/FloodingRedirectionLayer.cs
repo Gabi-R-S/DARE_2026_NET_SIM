@@ -38,7 +38,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         HashSet<(uint, ReplicaID)> rememberedMessages = new();
         float forgettingTime = 60.0f;
 
-        public FloodingRedirectionLayer(ReplicaID replicaID, IScheduler scheduler, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, int numHops, float forgettingTime) : base(layerBelow, false, true, true)
+        public FloodingRedirectionLayer(ReplicaID replicaID, IsRunningTracker runningTracker, IScheduler scheduler, ActiveConnectionTracker connectionTracker, NetworkLayer layerBelow, int numHops, float forgettingTime, string tag="") : base(tag,runningTracker,layerBelow)
         {
             this.scheduler = scheduler;
             this.connectionTracker = connectionTracker;
@@ -68,12 +68,12 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (!IsRunning)
+            if (!RunningTracker.IsRunning || Tag!=lowerLayerMessage.ProtocolTag)
             {
                 return;
             }
 
-            var floodMessage = FloodMessage.FromJson(lowerLayerMessage.Payload);
+            var floodMessage = FloodMessagePayload.Decode(lowerLayerMessage.Payload);
 
             if (floodMessage == null)
             {
@@ -91,7 +91,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 bool toForward = false;
                 lock (rememberedMessages)
                 {
-                    toForward = floodMessage.NumberOfHops > 0 && IsRunning && floodMessage.OriginalSender != replicaID && !rememberedMessages.Contains((floodMessage.Tag, floodMessage.OriginalSender));
+                    toForward = floodMessage.NumberOfHops > 0 && RunningTracker.IsRunning && floodMessage.OriginalSender != replicaID && !rememberedMessages.Contains((floodMessage.Tag, floodMessage.OriginalSender));
                 }
                 if (toForward)
                 {
@@ -99,12 +99,12 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                     if (floodMessage.NumberOfHops > 0)
                     {
                         floodMessage.NumberOfHops -= 1;
-                        var newMessage = floodMessage.AsMessage();
+                        var newMessage =  new Message(Tag,floodMessage.Encode());
                         foreach (var connection in connectionTracker.ActiveConnections)
                         {
                             if (connection != senderID && connection != replicaID)
                             {
-                                LayerBelow.SendMessage(connection, newMessage);
+                                base.SendMessage(connection, newMessage);
                             }
                         }
                     }
@@ -123,19 +123,19 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return false;
             }
 
-            var newMessage = new Message(new FloodMessage(recipient, replicaID, GetNextTag(), message, numHops).ToJson());
+            var newMessage = new Message(Tag,new FloodMessagePayload(recipient, replicaID, GetNextTag(), message, numHops).Encode());
 
             if (recipient == replicaID)
             {
 
 
 
-                return await LayerBelow.SendMessage(recipient, newMessage);
+                return await base.SendMessage(recipient, newMessage);
             }
 
 
@@ -149,13 +149,13 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 {
                     if (connection != replicaID)
                     {
-                        tasks[(LayerBelow.SendMessage(connection, newMessage))] = connection;
+                        tasks[(base.SendMessage(connection, newMessage))] = connection;
                     }
                 }
             }
             else
             {
-                tasks[(LayerBelow.SendMessage(recipient, newMessage))] = recipient;
+                tasks[(base.SendMessage(recipient, newMessage))] = recipient;
 
             }
 

@@ -1,64 +1,79 @@
 ﻿using Simulator;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace CRDTApp.Schedulers
 {
-    public class SimulationScheduler:IScheduler
+    public class SimulationScheduler : IScheduler
     {
-        NetworkSimulator sim;
-        public SimulationScheduler(NetworkSimulator sim) {
+        private readonly NetworkSimulator sim;
+
+        public SimulationScheduler(NetworkSimulator sim)
+        {
             this.sim = sim;
         }
 
         public void ExecuteAfter(float time, Action action)
         {
-            sim.ExecuteAfter(time,action);
+            sim.ExecuteAfter(time, action);
         }
 
+        public async Task<(bool, T)> ExecuteTaskOrTimeout<T>(
+            Func<Task<T>> operation,
+            float time,
+            T defaultValue)
+        {
+            var timeout = new TaskCompletionSource<bool>();
+            sim.ExecuteAfter(time, () => timeout.TrySetResult(true));
 
-
-        public async Task<(bool, T)> ExecuteTaskOrTimeout<T>(Task<T> task, float time, T defaultValue) {
-            SemaphoreSlim sem = new SemaphoreSlim(0);
-
-            sim.ExecuteAfter(time, () => { sem.Release(); });
-
-            var t = sem.WaitAsync();
-            var ind = await Task.WhenAny(t,task);
-
-            if (ind == t) {
+            Task<T> operationTask = operation();
+            if (await Task.WhenAny(operationTask, timeout.Task) != operationTask)
+            {
                 return (false, defaultValue);
             }
 
-            return (true, task.Result);
-
+            return (true, await operationTask);
         }
 
-        public async Task<bool> ExecuteTaskOrTimeout(Task task, float time)
+        public async Task<bool> ExecuteTaskOrTimeout(
+            Func<Task> operation,
+            float time)
         {
-            SemaphoreSlim sem = new SemaphoreSlim(0);
+            var timeout = new TaskCompletionSource<bool>();
+            sim.ExecuteAfter(time, () => timeout.TrySetResult(true));
 
-            sim.ExecuteAfter(time, () => { sem.Release(); });
-
-            var t = sem.WaitAsync();
-            var ind = await Task.WhenAny(t, task);
-
-            if (ind == t)
+            Task operationTask = operation();
+            if (await Task.WhenAny(operationTask, timeout.Task) != operationTask)
             {
                 return false;
             }
 
+            await operationTask;
             return true;
-
         }
 
+        public async Task<bool> ExecuteTaskOrTimeout(
+            Func<Task> operation,
+            float time,
+            Action timeoutAction)
+        {
+            var timeout = new TaskCompletionSource<bool>();
+            sim.ExecuteAfter(time, () => timeout.TrySetResult(true));
 
+            Task operationTask = operation();
+            if (await Task.WhenAny(operationTask, timeout.Task) != operationTask)
+            {
+                timeoutAction();
+                return false;
+            }
+
+            await operationTask;
+            return true;
+        }
 
         public DateTime GetCurrentTime()
         {
             return sim.GetCurrentTime();
         }
-
     }
 }

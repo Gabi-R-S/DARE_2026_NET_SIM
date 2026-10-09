@@ -17,10 +17,7 @@ namespace Simulator
         {
             List<Task> tasks = new List<Task>();
 
-            foreach (var runEvent in RunEvents)
-            {
-                tasks.Add(runEvent());
-            }
+            CallRunEvents();
 
             await Task.WhenAll(tasks);
 
@@ -28,10 +25,9 @@ namespace Simulator
             await Task.Run(() => { env.RunD(simulationTimeLimit); });
 
             tasks.Clear();
-            foreach (var ev in CloseEvents)
-            {
-                tasks.Add(Task.Run(ev));
-            }
+
+            CallRunEvents();
+            
             await Task.WhenAll(tasks);
         }
 

@@ -13,7 +13,6 @@ namespace Simulator
         volatile bool running = false;
         public override void ForceStop()
         {
-            Debug.WriteLine("THE ULTIMATE STOP WAS CALLED!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             running = false;
         }
         DateTime start;
@@ -23,10 +22,9 @@ namespace Simulator
 
             List<Task> tasks = new List<Task>();
             running = true;
-            foreach (var ev in RunEvents)
-            {
-                tasks.Add(ev());
-            }
+
+
+            CallRunEvents();
             var delay = simulationTimeLimit > 0
                 ? Task.Delay(TimeSpan.FromSeconds(simulationTimeLimit))
                 : Task.Delay(System.Threading.Timeout.InfiniteTimeSpan);
@@ -34,9 +32,8 @@ namespace Simulator
             await delay;
 
             tasks.Clear();
-            foreach (var ev in CloseEvents) {
-                tasks.Add(ev());
-            }
+
+            CallCloseEvents();
 
             await Task.WhenAll(tasks);
             running = false;

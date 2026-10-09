@@ -41,7 +41,7 @@ namespace CRDTApp.Behaviours
                 {
                     if (keepSending)
                     {
-                        var t = manager.SendMessage(otherReplica, new Message("HI"));
+                        var t = manager.SendMessage(otherReplica, new Message("app","HI"));
                         await t;
 
                         if (!t.Result)
@@ -53,15 +53,11 @@ namespace CRDTApp.Behaviours
                 });
             }
         }
-        public override async Task Run()
+        public override void Launch()
         {
             Send();
 
         }
 
-        public override void Stop()
-        {
-            keepSending = false;
-        }
     }
 }

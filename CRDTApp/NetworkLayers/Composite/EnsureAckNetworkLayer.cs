@@ -18,7 +18,7 @@ namespace CRDTApp.NetworkLayers.Composite
         Dictionary<(T, ReplicaID), SemaphoreSlim> pendingAcks = new();
 
 
-        public EnsureAckNetworkLayer(ReplicaID replicaID, NetworkLayer lowerLayerNetworkManager, IScheduler scheduler, Func<ReplicaID, T> generateNextTag, float waitTime = 0.5f) : base(lowerLayerNetworkManager, false, true, true)
+        public EnsureAckNetworkLayer(ReplicaID replicaID,IsRunningTracker runningTracker, NetworkLayer lowerLayerNetworkManager, IScheduler scheduler, Func<ReplicaID, T> generateNextTag, float waitTime = 2.5f,string tag="") : base(tag,runningTracker,lowerLayerNetworkManager)
         {
             this.replicaID = replicaID;
             GenerateNextTag = generateNextTag;
@@ -31,7 +31,7 @@ namespace CRDTApp.NetworkLayers.Composite
 
         void OnAckReceived(T tag, ReplicaID senderID)
         {
-            if (!IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return;
             }
@@ -49,13 +49,13 @@ namespace CRDTApp.NetworkLayers.Composite
 
         public void OnLowerLayerMessageReceived(ReplicaID senderID, Message lowerLayerMessage)
         {
-            if (!IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return;
             }
             lock (pendingAcks)
             {
-                var pendingAckMessage = EnsureAckMessage<T>.FromJson(lowerLayerMessage.Payload);
+                var pendingAckMessage = AckMessagePayload<T>.Decode(lowerLayerMessage.Payload);
 
                 if (pendingAckMessage == null)
                 {
@@ -68,10 +68,10 @@ namespace CRDTApp.NetworkLayers.Composite
                 }
                 else
                 {
-                    var ack = new EnsureAckMessage<T>(pendingAckMessage.Tag, new Message(""), true);
-                    LayerBelow.SendMessage(senderID, new Message(ack.ToJson()));
+                    var ack = new AckMessagePayload<T>(pendingAckMessage.Tag, "", true);
+                    LayerBelow?.SendMessage(senderID, new Message(Tag, ack.Encode()));
 
-                    CallMessageReceived(senderID, pendingAckMessage.Message);
+                    CallMessageReceived(senderID, Message.Decode(pendingAckMessage.Message));
                 }
             }
         }
@@ -86,18 +86,18 @@ namespace CRDTApp.NetworkLayers.Composite
         public override async Task<bool> SendMessage(ReplicaID recipient, Message message)
         {
 
-            if (!IsRunning)
+            if (!RunningTracker.IsRunning)
             {
                 return false;
             }
 
             var newTag = GenerateNextTag(replicaID);
 
-            var trackerMessage = new EnsureAckMessage<T>(newTag, message);
+            var trackerMessage = new AckMessagePayload<T>(newTag, message);
 
-            var networkMessage = new Message(trackerMessage.ToJson());
+            var networkMessage = new Message(Tag,trackerMessage.Encode());
 
-            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT && IsRunning; i++)
+            for (int i = 0; i < NUMBER_OF_ATTEMPTS_UNTIL_TIMEOUT && RunningTracker.IsRunning; i++)
             {
                 var semaphore = new SemaphoreSlim(0);
                 lock (pendingAcks)
@@ -105,23 +105,18 @@ namespace CRDTApp.NetworkLayers.Composite
                     pendingAcks[(newTag, recipient)] = semaphore;
                 }
 
-                if (!await LayerBelow.SendMessage(recipient, networkMessage))
+                if (!await base.SendMessage(recipient, networkMessage))
                 {
-                    CallConnectionInterrupted(recipient);
                     return false;
                 }
 
-                if (await scheduler.ExecuteTaskOrTimeout(semaphore.WaitAsync(), waitTime))
+                if (await scheduler.ExecuteTaskOrTimeout(async () => { await semaphore.WaitAsync(); }, waitTime))
                 {
                     return true;
                 }
 
             }
 
-            if (IsRunning)
-            {
-                CallConnectionInterrupted(recipient);
-            }
             return false;
         }
 

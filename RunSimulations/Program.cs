@@ -17,13 +17,48 @@ namespace RunSimulations
             
             List<Experiment> experiments = new List<Experiment>()
             {
-                new CompleteGraphExperiment(200.0f,0.01f,1,4),
-                new CompleteGraphExperiment(2000.0f,0.01f,2,6),
-                new RingTopologyExperiment(2000.0f, 0.01f, 10,10), 
-                new StarTopologyExperiment(2000.0f,0.01f, 10,10),
-                new RandomFullyConnectedExperiment(2000.0f, 0.01f,0.2f, 10,10,false,0.4f,0.1f,42),
-                new RandomFullyConnectedExperiment(2000.0f, 0.01f,0.2f, 10,10,false,0.4f,0.1f,1),
-                new RandomFullyConnectedExperiment(2000.0f, 0.01f,0.2f, 10,10,false,0.4f,0.1f,2),
+                new CompleteGraphExperiment(
+                    numReplicas: 4,
+                    communicationDelay: 0.01f,
+                    maxExperimentDuration: 200.0f,
+                    extraParams: CreateInsertionParams(1)),
+                new CompleteGraphExperiment(
+                    numReplicas: 6,
+                    communicationDelay: 0.01f,
+                    maxExperimentDuration: 2000.0f,
+                    extraParams: CreateInsertionParams(2)),
+                new RingTopologyExperiment(
+                    numReplicas: 10,
+                    delay: 0.01f,
+                    maxExperimentDuration: 2000.0f,
+                    extraParams: CreateInsertionParams(10)),
+                new StarTopologyExperiment(
+                    numReplicas: 10,
+                    centerNode: 0,
+                    delay: 0.01f,
+                    maxExperimentDuration: 2000.0f,
+                    extraParams: CreateInsertionParams(10)),
+                new RandomFullyConnectedExperiment(
+                    numReplicas: 10,
+                    minDelay: 0.01f,
+                    maxDelay: 0.2f,
+                    maxExperimentDuration: 2000.0f,
+                    seed: 42,
+                    extraParams: CreateInsertionParams(10)),
+                new RandomFullyConnectedExperiment(
+                    numReplicas: 10,
+                    minDelay: 0.01f,
+                    maxDelay: 0.2f,
+                    maxExperimentDuration: 2000.0f,
+                    seed: 1,
+                    extraParams: CreateInsertionParams(10)),
+                new RandomFullyConnectedExperiment(
+                    numReplicas: 10,
+                    minDelay: 0.01f,
+                    maxDelay: 0.2f,
+                    maxExperimentDuration: 2000.0f,
+                    seed: 2,
+                    extraParams: CreateInsertionParams(10)),
             };
 
             
@@ -31,13 +66,21 @@ namespace RunSimulations
             List<ExperimentResults> results = new();
 
             foreach (var experiment in experiments) {
-                var t = experiment.Run();
-                t.Wait();
-                results.AddRange(t.Result);
+                results.AddRange(experiment.Run());
             }
 
             Console.WriteLine(JsonConvert.SerializeObject(results));
 
+        }
+
+        private static Experiment.InsertionExperimentParams CreateInsertionParams(int opsPerReplica)
+        {
+            return new Experiment.InsertionExperimentParams(
+                opsPerReplica: opsPerReplica,
+                delayBetweenSends: 0.4f,
+                delayBetweenOps: 0.1f,
+                heartbeatTime: 0.1f,
+                ackTimeout: 5.0f);
         }
     }
 }

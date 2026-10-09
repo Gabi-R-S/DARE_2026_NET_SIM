@@ -65,16 +65,12 @@ namespace VisualizationTest.Graph
         public static readonly Brush GeneralProtocolGlow = Freeze(new SolidColorBrush(Color.FromArgb(100, 251, 113, 133)));
 
         private static readonly System.Text.RegularExpressions.Regex HeartbeatRegex = new(
-            @"""HeartBeat""\s*:\s*(?:true|""true"")\b",
+            @"""ProtocolTag""\s*:\s*""heartbeat""|""Timestamp""\s*:|""HeartBeat""\s*:\s*(?:true|""true"")\b",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
 
         private static readonly System.Text.RegularExpressions.Regex AckRegex = new(
             @"""IsAck""\s*:\s*(?:true|""true"")\b",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
-
-        // NOTE: AppAckFalseRegex ("IsAck":false) was removed — it matched ALL EnsureAck data
-        // wrappers (heartbeats, routing retries, CRDT sends) and caused everything to be
-        // misclassified as APP traffic. CRDT packets are identified by their inner payload keys.
 
         private static readonly System.Text.RegularExpressions.Regex DistancesRegex = new(
             @"""Distances""\s*:",
@@ -94,6 +90,10 @@ namespace VisualizationTest.Graph
 
         private static readonly System.Text.RegularExpressions.Regex RemovesRegex = new(
             @"""removes""\s*:",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static readonly System.Text.RegularExpressions.Regex AppTagRegex = new(
+            @"""ProtocolTag""\s*:\s*""app""",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
 
         private static T Freeze<T>(T freezable) where T : Freezable
@@ -120,41 +120,45 @@ namespace VisualizationTest.Graph
             string clean = payload.Replace("\\", "");
 
             // ── 1. Pure heartbeat ──────────────────────────────────────────────────────
-            // HeartbeatMessage serializes HeartBeat:true when it is a probe (no data payload).
-            if (HeartbeatRegex.IsMatch(clean))
+            // HeartbeatBehaviour serializes ProtocolTag:"heartbeat" wrapping HeartbeatMessagePayload (with Timestamp).
+            if (clean.Contains("\"ProtocolTag\":\"heartbeat\"", StringComparison.OrdinalIgnoreCase)
+                || clean.Contains("\"heartbeat\"", StringComparison.OrdinalIgnoreCase)
+                || HeartbeatRegex.IsMatch(clean))
             {
                 return new PacketInfo(true, "Heartbeat", "HB", HeartbeatBrush, HeartbeatGlow, 4.0);
             }
 
             // ── 2. ACK packet ──────────────────────────────────────────────────────────
-            // EnsureAckNetworkLayer sends IsAck:true for pure acknowledgements.
-            // These carry no app data (Message payload is empty string "").
+            // EnsureAckNetworkLayer sends IsAck:true for pure acknowledgements (Message payload is empty string "").
             if (AckRegex.IsMatch(clean))
             {
                 return new PacketInfo(true, "Ack", "ACK", AckBrush, AckGlow, 4.5);
             }
 
             // ── 3. Distance Vector routing update ──────────────────────────────────────
-            // DistanceVectorMessage with IsProtocolMessage:true wraps a DistanceTableUpdateMessage
+            // DistanceVectorMessage with IsProtocolMessage:true wraps DistanceTableUpdateMessagePayload
             // containing "Distances":{...}.
-            if (DistancesRegex.IsMatch(clean) || clean.Contains("DistanceTableUpdate", StringComparison.OrdinalIgnoreCase))
+            if (DistancesRegex.IsMatch(clean)
+                || clean.Contains("DistanceTableUpdate", StringComparison.OrdinalIgnoreCase)
+                || (clean.Contains("\"dv\"", StringComparison.OrdinalIgnoreCase) && ProtocolMsgRegex.IsMatch(clean)))
             {
                 return new PacketInfo(true, "Distance Vector Update", "DV", RoutingBrush, RoutingGlow, 5.0);
             }
 
             // ── 4. Link State Advertisement (LSA flood) ────────────────────────────────
             // LinkStateMessage with IsProtocolMessage:true wraps an LSA containing "Neighbours":[...].
-            if (NeighboursRegex.IsMatch(clean) || clean.Contains("\"LSA\"", StringComparison.OrdinalIgnoreCase))
+            if (NeighboursRegex.IsMatch(clean)
+                || clean.Contains("\"LSA\"", StringComparison.OrdinalIgnoreCase)
+                || (clean.Contains("\"ls\"", StringComparison.OrdinalIgnoreCase) && ProtocolMsgRegex.IsMatch(clean)))
             {
                 return new PacketInfo(true, "Link State Advertisement", "LSA", LsaBrush, LsaGlow, 5.0);
             }
 
             // ── 5. App CRDT data ────────────────────────────────────────────────────────
-            // InsertBehaviour sends ORSet operations serialized as JSON with "adds" or "removes".
-            // CausalHistoryTrackerLayer wraps them with "CausalityTracker" metadata.
-            // These keys are unique to CRDT payloads and correctly identify app data
-            // regardless of what EnsureAck layer wrapper surrounds them.
-            bool hasAppContent = AddsRegex.IsMatch(clean)
+            // InsertBehaviour sends ORSet operations with "adds" or "removes",
+            // wrapped in HistoryTrackedMessage with "CausalityTracker", and Message.ProtocolTag == "app".
+            bool hasAppContent = AppTagRegex.IsMatch(clean)
+                              || AddsRegex.IsMatch(clean)
                               || RemovesRegex.IsMatch(clean)
                               || clean.Contains("CausalityTracker", StringComparison.OrdinalIgnoreCase);
 

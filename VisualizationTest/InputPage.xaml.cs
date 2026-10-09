@@ -31,6 +31,7 @@ namespace VisualizationTest
 
             SetComboBoxItem(RoutingProtocolComboBox, config.RoutingProtocol);
             HeartbeatIntervalTextBox.Text = config.HeartbeatInterval.ToString("F2", CultureInfo.InvariantCulture);
+            DistanceVectorHeartbeatTextBox.Text = config.DistanceVectorHeartbeatInterval.ToString("F2", CultureInfo.InvariantCulture);
             MessageTimeoutTextBox.Text = config.MessageTimeout.ToString("F2", CultureInfo.InvariantCulture);
             AckTimeoutTextBox.Text = config.AckTimeout.ToString("F2", CultureInfo.InvariantCulture);
             MaxHopsTextBox.Text = config.MaxHops.ToString();
@@ -106,6 +107,7 @@ namespace VisualizationTest
                 MaximumMessageDelay = 0.45f,
                 RoutingProtocol = "Distance Vector",
                 HeartbeatInterval = 0.4f,
+                DistanceVectorHeartbeatInterval = 0.8f,
                 MessageTimeout = 2.0f,
                 MaxHops = 6,
                 OperationsPerReplica = 2,
@@ -249,6 +251,12 @@ namespace VisualizationTest
                 return;
             }
 
+            if (!float.TryParse(DistanceVectorHeartbeatTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float dvHeartbeatInterval) || dvHeartbeatInterval < 0.05f)
+            {
+                ShowValidation("Distance vector heartbeat interval must be at least 0.05 seconds.");
+                return;
+            }
+
             if (!float.TryParse(MessageTimeoutTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float messageTimeout) || messageTimeout < 0.1f)
             {
                 ShowValidation("Message timeout must be at least 0.1 seconds.");
@@ -298,6 +306,7 @@ namespace VisualizationTest
                 MaximumMessageDelay = maxDelay,
                 RoutingProtocol = routingProtocol,
                 HeartbeatInterval = heartbeatInterval,
+                DistanceVectorHeartbeatInterval = dvHeartbeatInterval,
                 MessageTimeout = messageTimeout,
                 AckTimeout = ackTimeout,
                 MaxHops = maxHops,
