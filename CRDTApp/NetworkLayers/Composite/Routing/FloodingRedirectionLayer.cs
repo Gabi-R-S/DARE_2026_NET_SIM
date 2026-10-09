@@ -91,7 +91,7 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
                 bool toForward = false;
                 lock (rememberedMessages)
                 {
-                    toForward = floodMessage.NumberOfHops > 0 && !RunningTracker.IsRunning && floodMessage.OriginalSender != replicaID && !rememberedMessages.Contains((floodMessage.Tag, floodMessage.OriginalSender));
+                    toForward = floodMessage.NumberOfHops > 0 && RunningTracker.IsRunning && floodMessage.OriginalSender != replicaID && !rememberedMessages.Contains((floodMessage.Tag, floodMessage.OriginalSender));
                 }
                 if (toForward)
                 {
