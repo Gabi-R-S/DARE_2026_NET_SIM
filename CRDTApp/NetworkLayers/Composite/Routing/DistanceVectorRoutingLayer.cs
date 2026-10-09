@@ -2,10 +2,6 @@ using CRDTApp.Messages;
 using CRDTApp.Messages.LayerMessages;
 using CRDTApp.Schedulers;
 using Shared;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using static CRDTApp.NetworkLayers.NetworkLayer;
 
 namespace CRDTApp.NetworkLayers.Composite.Routing
 {
@@ -31,6 +27,9 @@ namespace CRDTApp.NetworkLayers.Composite.Routing
             layerBelow.AddOnMessageReceivedHandler(OnLowerLayerMessageReceived);
         }
 
+        public void OnConnectionLost(ReplicaID replicaID) {
+            table.ResetConnection(replicaID);
+        }
         public void OnConnectionGained(ReplicaID replica)
         {
             if (!RunningTracker.IsRunning)

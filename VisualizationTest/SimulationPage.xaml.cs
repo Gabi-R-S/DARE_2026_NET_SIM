@@ -309,7 +309,7 @@ namespace VisualizationTest
                         connectionTracker,
                         config.HeartbeatInterval,
                         config.MessageTimeout);
-
+                    heartbeatBehaviour.AddConnectionInterruptedHandler(dvRoutingLayer.OnConnectionLost);
                     heartbeatBehaviour.AddConnectionRegainedHandler(dvRoutingLayer.OnConnectionGained);
 
                     return (ackLayer, scheduler, new List<NetworkLayer> { ackLayer, baseLayer, dvRoutingLayer }, heartbeatBehaviour);
