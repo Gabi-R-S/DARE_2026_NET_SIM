@@ -21,12 +21,14 @@ namespace CRDTs.Basic
         }
 
         public int Value { get => positive.Value - negative.Value; }
-        public PNCounter CreateIncrementOperation(ReplicaID replicaID) { 
-            return new PNCounter(new Dictionary<ReplicaID, int> { { replicaID, 1 } }, new Dictionary<ReplicaID, int>());
+        public PNCounter CreateIncrementOperation(ReplicaID replicaID) {
+            var op = positive.CreateAddOperation(replicaID);
+            return new PNCounter(new Dictionary<ReplicaID, int> { { replicaID, op.Value } }, new Dictionary<ReplicaID, int>());
         }
         public PNCounter CreateDecrementOperation(ReplicaID replicaID)
         {
-            return new PNCounter(new Dictionary<ReplicaID, int>(), new Dictionary<ReplicaID, int> { { replicaID, 1 } });
+            var op = negative.CreateAddOperation(replicaID);
+            return new PNCounter(new Dictionary<ReplicaID, int>(), new Dictionary<ReplicaID, int> { { replicaID, op.Value} });
         }
         public void Merge(PNCounter other) { 
             positive.Merge(other.positive);
