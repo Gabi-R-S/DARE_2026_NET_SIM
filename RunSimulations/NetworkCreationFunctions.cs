@@ -119,6 +119,46 @@ namespace RunSimulations
 
             return (map, replicaIDs);
         }
+        //Barabási–Albert (preferential attachment): each new node connects to m existing nodes, chosen with probability proportional to their current degree. Produces power-law degrees: a few big hubs, many leaves. Connected by construction. 
+        public static (ConnectionMap, List<ReplicaID>) CreateScaleFreeNetwork(
+    int numReplicas, float minDelay, float maxDelay, int seed = 42, int edgesPerNewNode = 2)
+        {
+            ConnectionMap map = new ConnectionMap();
+            List<ReplicaID> replicaIDs = new List<ReplicaID>();
+            for (int i = 0; i < numReplicas; i++)
+                replicaIDs.Add(new ReplicaID((ulong)i));
+
+            var random = new Random(seed);
+
+            NetworkConnection RandomConnection() =>
+                new NetworkConnection(minDelay + (float)(random.NextDouble() * (maxDelay - minDelay)));
+
+            if (numReplicas < 2) return (map, replicaIDs);
+
+            var degreeBag = new List<int>();
+
+            map.SetConnection(replicaIDs[0], replicaIDs[1], RandomConnection());
+            degreeBag.Add(0);
+            degreeBag.Add(1);
+
+            for (int i = 2; i < numReplicas; i++)
+            {
+                int m = Math.Min(edgesPerNewNode, i); 
+                var targets = new HashSet<int>();
+
+                while (targets.Count < m)
+                    targets.Add(degreeBag[random.Next(degreeBag.Count)]);
+
+                foreach (int t in targets)
+                {
+                    map.SetConnection(replicaIDs[i], replicaIDs[t], RandomConnection());
+                    degreeBag.Add(i);
+                    degreeBag.Add(t);
+                }
+            }
+
+            return (map, replicaIDs);
+        }
 
         public static List<ExtraMetric> BasicMetricCreator(NetworkSimulator sim, List<App> apps)
         {

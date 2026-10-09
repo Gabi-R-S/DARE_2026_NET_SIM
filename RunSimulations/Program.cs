@@ -59,6 +59,13 @@ namespace RunSimulations
                     maxExperimentDuration: 2000.0f,
                     seed: 2,
                     extraParams: CreateInsertionParams(10)),
+                new ScaleFreeNetworkExperiment(
+                    numReplicas: 10,
+                    minDelay: 0.01f,
+                    maxDelay: 0.2f,
+                    maxExperimentDuration: 2000.0f,
+                    seed: 42,
+                    extraParams: CreateInsertionParams(10)),
             };
 
             

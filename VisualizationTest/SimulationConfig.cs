@@ -20,7 +20,7 @@ namespace VisualizationTest
 
         // 2. Network Scale & Topology
         public int NumberOfNodes { get; set; } = 6;
-        public string Topology { get; set; } = "Random Mesh"; // "Random Mesh", "Fully Connected", "Ring", "Star", "Line / Bus"
+        public string Topology { get; set; } = "Random Mesh"; // "Random Mesh", "Scale-Free", "Fully Connected", "Ring", "Star", "Line / Bus"
         public double ExtraEdgeProbability { get; set; } = 0.15;
 
         // 3. Link Latency
@@ -137,6 +137,15 @@ namespace VisualizationTest
                         map.SetConnection(replicas[i], replicas[i + 1], new NetworkConnection(RandomDelay()));
                     }
                     return (map, replicas);
+                }
+
+                case "Scale-Free":
+                {
+                    return NetworkCreationFunctions.CreateScaleFreeNetwork(
+                        count,
+                        minDelay,
+                        maxDelay,
+                        seed);
                 }
 
                 case "Random Mesh":

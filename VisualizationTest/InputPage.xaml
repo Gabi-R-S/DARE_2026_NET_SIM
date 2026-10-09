@@ -211,6 +211,7 @@
                             <TextBlock Text="Network Topology" Style="{StaticResource FieldLabel}"/>
                             <ComboBox x:Name="TopologyComboBox" Height="36" Margin="0,0,0,2" SelectionChanged="TopologyComboBox_SelectionChanged">
                                 <ComboBoxItem Content="Random Mesh" IsSelected="True"/>
+                                <ComboBoxItem Content="Scale-Free"/>
                                 <ComboBoxItem Content="Fully Connected"/>
                                 <ComboBoxItem Content="Ring"/>
                                 <ComboBoxItem Content="Star"/>
