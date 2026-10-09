@@ -388,6 +388,9 @@
                             <TextBlock Text="Heartbeat Interval (s)" Style="{StaticResource DrawerLabel}"/>
                             <TextBox x:Name="DrawerHeartbeatTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 
+                            <TextBlock Text="DV Heartbeat Interval (s)" Style="{StaticResource DrawerLabel}"/>
+                            <TextBox x:Name="DrawerDvHeartbeatTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
+
                             <TextBlock Text="Message Timeout (s)" Style="{StaticResource DrawerLabel}"/>
                             <TextBox x:Name="DrawerTimeoutTextBox" Height="34" Style="{StaticResource DrawerTextBox}"/>
 

@@ -30,6 +30,7 @@ namespace VisualizationTest
         // 4. Routing & Protocol Timers / Intervals
         public string RoutingProtocol { get; set; } = "Flood Routing";
         public float HeartbeatInterval { get; set; } = 1.0f;
+        public float DistanceVectorHeartbeatInterval { get; set; } = 2.0f;
         public float MessageTimeout { get; set; } = 5.0f;
         public float AckTimeout { get; set; } = 5.0f;
         public int MaxHops { get; set; } = 5;

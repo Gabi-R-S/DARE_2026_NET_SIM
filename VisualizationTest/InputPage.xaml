@@ -289,9 +289,13 @@
                             </ComboBox>
                             <TextBlock Text="Network routing and forwarding protocol stack" Style="{StaticResource FieldHint}"/>
 
-                            <TextBlock Text="Heartbeat / Protocol Interval (seconds)" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="Regular Heartbeat Interval (seconds)" Style="{StaticResource FieldLabel}"/>
                             <TextBox x:Name="HeartbeatIntervalTextBox" Text="1.0" Height="36" Style="{StaticResource ModernTextBox}"/>
-                            <TextBlock Text="Frequency of heartbeat pings and route updates (≥ 0.05s)" Style="{StaticResource FieldHint}"/>
+                            <TextBlock Text="Frequency of regular heartbeat pings between nodes (≥ 0.05s)" Style="{StaticResource FieldHint}"/>
+
+                            <TextBlock x:Name="DistanceVectorHeartbeatLabel" Text="Distance Vector Heartbeat Interval (seconds)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox x:Name="DistanceVectorHeartbeatTextBox" Text="2.0" Height="36" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock x:Name="DistanceVectorHeartbeatHint" Text="Periodic routing update interval for Distance Vector (≥ 0.05s)" Style="{StaticResource FieldHint}"/>
 
                             <TextBlock Text="Message Timeout Duration (seconds)" Style="{StaticResource FieldLabel}"/>
                             <TextBox x:Name="MessageTimeoutTextBox" Text="5.0" Height="36" Style="{StaticResource ModernTextBox}"/>

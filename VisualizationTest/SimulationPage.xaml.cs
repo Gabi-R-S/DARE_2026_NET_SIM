@@ -159,7 +159,8 @@ namespace VisualizationTest
             int i = 0;
             foreach (var replica in replicas)
             {
-                (NetworkLayer networkManager, IScheduler scheduler, _) = CreateStack(config.RoutingProtocol, _simulator, replica, config);
+                var runningTracker = new IsRunningTracker(true);
+                var (networkManager, scheduler, layers, heartbeat) = CreateStack(config.RoutingProtocol, _simulator, runningTracker, replica, replicas, config);
 
                 var otherReplicas = new List<ReplicaID>(replicas);
                 otherReplicas.Remove(replica);
@@ -167,7 +168,6 @@ namespace VisualizationTest
                 int minNum = opsPerReplica * i;
                 int maxNum = opsPerReplica * (i + 1) - 1;
 
-                var runningTracker = new IsRunningTracker(true);
                 var behaviour = new InsertBehaviour(
                     runningTracker,
                     networkManager,
@@ -184,11 +184,17 @@ namespace VisualizationTest
                 behaviour.OperationApplied += OnOperationApplied;
                 behaviour.AddBehaviourEndedHandler(() => OnBehaviourEnded(replica));
 
+                var behaviours = new List<Behaviour> { behaviour };
+                if (heartbeat != null)
+                {
+                    behaviours.Add(heartbeat);
+                }
+
                 var app = new CRDTApp.App(
                     runningTracker,
-                    new List<Behaviour> { behaviour },
+                    behaviours,
                     scheduler,
-                    new List<NetworkLayer> { networkManager });
+                    layers);
 
                 _apps.Add(app);
                 _behaviours.Add(behaviour);
@@ -206,7 +212,8 @@ namespace VisualizationTest
 
             if (TopologySubtext != null)
             {
-                TopologySubtext.Text = $"{config.Topology} (Seed: {seed}) | {replicas.Count} Nodes | Delays: {config.MinimumMessageDelay:F2}s-{config.MaximumMessageDelay:F2}s | {config.RoutingProtocol} | HB: {config.HeartbeatInterval:F2}s | Timeout: {config.MessageTimeout:F2}s | ACK: {config.AckTimeout:F2}s | Ops/Node: {config.OperationsPerReplica}";
+                string dvSub = config.RoutingProtocol == "Distance Vector" ? $" | DV HB: {config.DistanceVectorHeartbeatInterval:F2}s" : "";
+                TopologySubtext.Text = $"{config.Topology} (Seed: {seed}) | {replicas.Count} Nodes | Delays: {config.MinimumMessageDelay:F2}s-{config.MaximumMessageDelay:F2}s | {config.RoutingProtocol} | HB: {config.HeartbeatInterval:F2}s{dvSub} | Timeout: {config.MessageTimeout:F2}s | ACK: {config.AckTimeout:F2}s | Ops/Node: {config.OperationsPerReplica}";
             }
 
             // Run the RealtimeSimulator in the background
@@ -228,26 +235,154 @@ namespace VisualizationTest
             UpdateStats();
         }
 
-        private static (NetworkLayer, IScheduler, List<ExtraMetric>) CreateStack(
+        private static (NetworkLayer TopLayer, IScheduler Scheduler, List<NetworkLayer> Layers, HeartbeatBehaviour? Heartbeat) CreateStack(
             string stackType,
             NetworkSimulator simulator,
+            IsRunningTracker runningTracker,
             ReplicaID id,
+            List<ReplicaID> allReplicas,
             SimulationConfig config)
         {
-            // The legacy factory helpers were removed from the current runtime library.
-            // Keep the visualization project buildable by falling back to the supported base-layer stack.
             var scheduler = new RealtimeScheduler();
-            var baseLayer = new SimulatedNetworkBaseLayer(simulator, id);
+            var baseLayer = new SimulatedNetworkBaseLayer(simulator, runningTracker, id);
+            var connectionTracker = new ActiveConnectionTracker(new HashSet<ReplicaID>(), new HashSet<ReplicaID>(allReplicas), id);
 
             switch (stackType)
             {
-                case "Distance Vector":
-                case "Link State":
-                case "No-Route (Ack)":
                 case "Base Layer Only":
+                {
+                    // Simple simulation mode: base layer only, no heartbeat behaviour (see RunSimulations/Experiment.cs)
+                    return (baseLayer, scheduler, new List<NetworkLayer> { baseLayer }, null);
+                }
+
+                case "No-Route (Ack)":
+                {
+                    int ackSeq = 0;
+                    var ackLayer = new EnsureAckNetworkLayer<int>(
+                        id,
+                        runningTracker,
+                        baseLayer,
+                        scheduler,
+                        (_) => Interlocked.Increment(ref ackSeq),
+                        config.AckTimeout,
+                        "ack");
+
+                    var heartbeatBehaviour = new HeartbeatBehaviour(
+                        id,
+                        baseLayer,
+                        runningTracker,
+                        scheduler,
+                        connectionTracker,
+                        config.HeartbeatInterval,
+                        config.MessageTimeout);
+
+                    return (ackLayer, scheduler, new List<NetworkLayer> { ackLayer, baseLayer }, heartbeatBehaviour);
+                }
+
+                case "Distance Vector":
+                {
+                    var dvRoutingLayer = new DistanceVectorRoutingLayer(
+                        id,
+                        runningTracker,
+                        connectionTracker,
+                        baseLayer,
+                        scheduler,
+                        config.MaxHops,
+                        config.DistanceVectorHeartbeatInterval,
+                        "dv");
+
+                    int ackSeq = 0;
+                    var ackLayer = new EnsureAckNetworkLayer<int>(
+                        id,
+                        runningTracker,
+                        dvRoutingLayer,
+                        scheduler,
+                        (_) => Interlocked.Increment(ref ackSeq),
+                        config.AckTimeout,
+                        "ack");
+
+                    var heartbeatBehaviour = new HeartbeatBehaviour(
+                        id,
+                        baseLayer,
+                        runningTracker,
+                        scheduler,
+                        connectionTracker,
+                        config.HeartbeatInterval,
+                        config.MessageTimeout);
+
+                    heartbeatBehaviour.AddConnectionRegainedHandler(dvRoutingLayer.OnConnectionGained);
+
+                    return (ackLayer, scheduler, new List<NetworkLayer> { ackLayer, baseLayer, dvRoutingLayer }, heartbeatBehaviour);
+                }
+
+                case "Link State":
+                {
+                    var lsLayer = new LinkStateRoutingLayer(
+                        id,
+                        runningTracker,
+                        baseLayer,
+                        connectionTracker,
+                        "ls");
+
+                    int ackSeq = 0;
+                    var ackLayer = new EnsureAckNetworkLayer<int>(
+                        id,
+                        runningTracker,
+                        lsLayer,
+                        scheduler,
+                        (_) => Interlocked.Increment(ref ackSeq),
+                        config.AckTimeout,
+                        "ack");
+
+                    var heartbeatBehaviour = new HeartbeatBehaviour(
+                        id,
+                        baseLayer,
+                        runningTracker,
+                        scheduler,
+                        connectionTracker,
+                        config.HeartbeatInterval,
+                        config.MessageTimeout);
+
+                    heartbeatBehaviour.AddConnectionInterruptedHandler(lsLayer.OnDisconnect);
+                    heartbeatBehaviour.AddConnectionRegainedHandler(lsLayer.OnConnect);
+
+                    return (ackLayer, scheduler, new List<NetworkLayer> { ackLayer, baseLayer, lsLayer }, heartbeatBehaviour);
+                }
+
                 case "Flood Routing":
                 default:
-                    return (baseLayer, scheduler, new List<ExtraMetric>());
+                {
+                    var flood = new FloodingRedirectionLayer(
+                        id,
+                        runningTracker,
+                        scheduler,
+                        connectionTracker,
+                        baseLayer,
+                        config.MaxHops,
+                        60.0f,
+                        "flood");
+
+                    int ackSeq = 0;
+                    var ackLayer = new EnsureAckNetworkLayer<int>(
+                        id,
+                        runningTracker,
+                        flood,
+                        scheduler,
+                        (_) => Interlocked.Increment(ref ackSeq),
+                        config.AckTimeout,
+                        "ack");
+
+                    var heartbeatBehaviour = new HeartbeatBehaviour(
+                        id,
+                        baseLayer,
+                        runningTracker,
+                        scheduler,
+                        connectionTracker,
+                        config.HeartbeatInterval,
+                        config.MessageTimeout);
+
+                    return (ackLayer, scheduler, new List<NetworkLayer> { ackLayer, baseLayer, flood }, heartbeatBehaviour);
+                }
             }
         }
 
@@ -377,20 +512,7 @@ namespace VisualizationTest
                     isNewlyCompleted = true;
                     Interlocked.Increment(ref _convergedCount);
 
-                    // 1. Stop this app's usual behaviour (InsertBehaviour); it will only forward messages now
-                    if (_appsByReplica.TryGetValue(replica, out var app))
-                    {
-                        try
-                        {
-                            app.Close();
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Failed to close app for replica {replica}: {ex}");
-                        }
-                    }
-
-                    // 2. Check if all tasks are completed
+                    // Check if all tasks are completed
                     if (_completedReplicas.Count >= _apps.Count)
                     {
                         allCompleted = true;
@@ -583,6 +705,7 @@ namespace VisualizationTest
 
             SetComboBoxItem(DrawerProtocolComboBox, config.RoutingProtocol);
             DrawerHeartbeatTextBox.Text = config.HeartbeatInterval.ToString("F2", CultureInfo.InvariantCulture);
+            DrawerDvHeartbeatTextBox.Text = config.DistanceVectorHeartbeatInterval.ToString("F2", CultureInfo.InvariantCulture);
             DrawerTimeoutTextBox.Text = config.MessageTimeout.ToString("F2", CultureInfo.InvariantCulture);
             DrawerAckTimeoutTextBox.Text = config.AckTimeout.ToString("F2", CultureInfo.InvariantCulture);
             DrawerMaxHopsTextBox.Text = config.MaxHops.ToString();
@@ -674,6 +797,12 @@ namespace VisualizationTest
                 return;
             }
 
+            if (!float.TryParse(DrawerDvHeartbeatTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float dvHeartbeatInterval) || dvHeartbeatInterval < 0.05f)
+            {
+                ShowDrawerValidation("DV heartbeat interval must be ≥ 0.05s.");
+                return;
+            }
+
             if (!float.TryParse(DrawerTimeoutTextBox.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out float messageTimeout) || messageTimeout < 0.1f)
             {
                 ShowDrawerValidation("Message timeout must be ≥ 0.1s.");
@@ -720,6 +849,7 @@ namespace VisualizationTest
             _config.MaximumMessageDelay = maxDelay;
             _config.RoutingProtocol = routingProtocol;
             _config.HeartbeatInterval = heartbeatInterval;
+            _config.DistanceVectorHeartbeatInterval = dvHeartbeatInterval;
             _config.MessageTimeout = messageTimeout;
             _config.AckTimeout = ackTimeout;
             _config.MaxHops = maxHops;
