@@ -161,8 +161,6 @@ namespace Simulator
 
         protected void DeliverMessage(NetworkMessage message)
         {
-            // Debug.WriteLine("sending " +message.Payload +" from "+message.Source.ToString()+" to " + message.Recipient.ToString());
-
             lock (ConnectionMap)
             {
                 if (ConnectionMap.IsConnectionAvailable(message.Source, message.Recipient))

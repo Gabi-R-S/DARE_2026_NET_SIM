@@ -127,8 +127,10 @@ namespace RunSimulations
 
             BooleanMetric endedSuccessfully = new BooleanMetric("ended_successfully", false);
             FloatMetric executionTime = new FloatMetric("execution_time", 0.0f);
-            
+            CounterMetric unnecessaryMessageCounter = new CounterMetric("messages_after_close",0);
+
             int count = 0;
+            bool closed = false;
             foreach (var app in apps)
             {
                 foreach (var item in app.Behaviours)
@@ -142,12 +144,14 @@ namespace RunSimulations
                             if (count == apps.Count)
                             {
                                 Console.WriteLine("Task ended!");
+                                
                                 endedSuccessfully.Value = true;
                                 executionTime.Value = (float)(sim.GetCurrentTime() - sim.GetRunStartTime()).TotalSeconds;
                                 foreach (var a in apps)
                                 {
                                     a.Close();
                                 }
+                                closed = true;
                             }
                         });
                     }
@@ -155,8 +159,12 @@ namespace RunSimulations
                 
             }
 
+            sim.AddMessageSendAttemptedHandler((_) => { if (closed) { Console.WriteLine("VERY BAD!!!"); } });
+            sim.AddMessageDeliveredHandler((_) => { if (closed) { unnecessaryMessageCounter.Counter++; } });
+
             metrics.Add(endedSuccessfully);
             metrics.Add(executionTime);
+            metrics.Add(unnecessaryMessageCounter);
 
 
             return metrics;
