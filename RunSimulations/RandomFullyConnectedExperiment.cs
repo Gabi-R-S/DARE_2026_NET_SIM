@@ -12,6 +12,7 @@ namespace RunSimulations
             float maxDelay = 0.0f,
             float maxExperimentDuration = 100.0f,
             int seed = 42,
+            double extraEdgeProbability = 0.15,
             bool runHopelessCases = false,
             InsertionExperimentParams? extraParams = null)
         {
@@ -21,6 +22,7 @@ namespace RunSimulations
             this.maxDelay = maxDelay;
             this.maxExperimentDuration = maxExperimentDuration;
             this.seed = seed;
+            this.extraEdgeProbability = extraEdgeProbability;
             this.runHopelessCases = runHopelessCases;
             this.extraParams = extraParams ?? new InsertionExperimentParams(
                 opsPerReplica: 1000,
@@ -35,6 +37,7 @@ namespace RunSimulations
         private readonly float maxDelay;
         private readonly float maxExperimentDuration;
         private readonly int seed;
+        private readonly double extraEdgeProbability;
         private readonly bool runHopelessCases;
         private readonly InsertionExperimentParams extraParams;
 
@@ -49,7 +52,7 @@ namespace RunSimulations
             };
 
             var createMap = () => NetworkCreationFunctions.CreateRandomFullyConnectedNetwork(
-                numReplicas, minDelay, maxDelay, seed);
+                numReplicas, minDelay, maxDelay, seed, extraEdgeProbability);
 
             if (runHopelessCases)
             {
