@@ -26,7 +26,7 @@ namespace Simulator
 
             tasks.Clear();
 
-            CallRunEvents();
+            CallCloseEvents();
             
             await Task.WhenAll(tasks);
         }

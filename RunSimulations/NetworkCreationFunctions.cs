@@ -159,7 +159,6 @@ namespace RunSimulations
                 
             }
 
-            sim.AddMessageSendAttemptedHandler((_) => { if (closed) { Console.WriteLine("VERY BAD!!!"); } });
             sim.AddMessageDeliveredHandler((_) => { if (closed) { unnecessaryMessageCounter.Counter++; } });
 
             metrics.Add(endedSuccessfully);
