@@ -65,4 +65,6 @@ Interpretation notes
 --------------------
 Each input record is one run; the input contains no repeated trials for a configuration, so these comparisons do not estimate run-to-run variability or statistical significance.
 Parameter effects compare each scenario only with the baseline having the same topology and routing mode. Execution-time percentage changes are included only when both runs complete; the C# metric remains zero when a run does not complete. Messages-after-close changes are absolute counts.
+The network-delay-low/high scenarios change minimum and maximum delay together, so they are joint-setting comparisons rather than isolated effects of either delay parameter.
+Each parameter level has one simulation run. Spearman coefficients in parameter_trends.csv are descriptive rank trends (at most three observations per topology/algorithm/factor), with no p-values, confidence intervals, or causal claims.
 Scenario tags identify the setting variant (for example, low/high); the JSON does not include the numeric setting values.

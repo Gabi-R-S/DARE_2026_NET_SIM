@@ -41,6 +41,87 @@ METRIC_FIELDS = {
     "messages_after_close": "Counter",
 }
 ROUTING_ALGORITHMS = tuple(ALGORITHMS.values())
+PARAMETER_SPECS: dict[str, dict[str, Any]] = {
+    "replicas": {"label": "Replica count", "baseline": 10, "unit": "replicas"},
+    "network-delay": {
+        "label": "Network delay range (minimum and maximum jointly)",
+        "baseline": None,
+        "unit": "",
+        "levels": {
+            "low": "min=0.001, max=0.01",
+            "baseline": "min=0.01, max=0.2",
+            "high": "min=0.05, max=0.5",
+        },
+    },
+    "duration": {"label": "Maximum simulation duration", "baseline": 200.0, "unit": "s"},
+    "operations": {"label": "Operations per replica", "baseline": 5, "unit": "operations"},
+    "send-interval": {"label": "Delay between sends", "baseline": 0.4, "unit": "s"},
+    "operation-interval": {"label": "Delay between operations", "baseline": 0.1, "unit": "s"},
+    "heartbeat": {"label": "Heartbeat interval", "baseline": 0.1, "unit": "s"},
+    "timeout": {"label": "Timeout", "baseline": 15.0, "unit": "s"},
+    "hop-limit": {"label": "Hop limit", "baseline": 10, "unit": "hops"},
+    "forgetting-time": {"label": "Forgetting time", "baseline": 60.0, "unit": "s"},
+    "ack-timeout": {"label": "Acknowledgement timeout", "baseline": 5.0, "unit": "s"},
+    "distance-vector-poll": {
+        "label": "Distance-vector polling interval",
+        "baseline": 10.0,
+        "unit": "s",
+    },
+    "seed": {
+        "label": "Random seed (categorical; not a numeric dose)",
+        "baseline": None,
+        "unit": "",
+        "levels": {"low": "1", "baseline": "42", "high": "2026"},
+    },
+    "minimum-delay": {"label": "Minimum network delay", "baseline": 0.01, "unit": "s"},
+    "maximum-delay": {"label": "Maximum network delay", "baseline": 0.2, "unit": "s"},
+    "edge-probability": {"label": "Extra-edge probability", "baseline": 0.15, "unit": "probability"},
+    "edges-per-node": {"label": "Edges per new node", "baseline": 2, "unit": "edges"},
+    "center": {
+        "label": "Star center-node choice (categorical)",
+        "baseline": None,
+        "unit": "",
+        "levels": {"first": "node 0", "baseline": "node 0", "last": "node 9"},
+    },
+}
+SCENARIO_PARAMETERS: dict[str, tuple[str, float | None, str]] = {
+    "replicas-low": ("replicas", 5, "5"),
+    "replicas-high": ("replicas", 20, "20"),
+    "network-delay-low": ("network-delay", None, "min=0.001, max=0.01"),
+    "network-delay-high": ("network-delay", None, "min=0.05, max=0.5"),
+    "duration-low": ("duration", 20.0, "20"),
+    "duration-high": ("duration", 500.0, "500"),
+    "operations-low": ("operations", 1, "1"),
+    "operations-high": ("operations", 10, "10"),
+    "send-interval-low": ("send-interval", 0.1, "0.1"),
+    "send-interval-high": ("send-interval", 0.8, "0.8"),
+    "operation-interval-low": ("operation-interval", 0.025, "0.025"),
+    "operation-interval-high": ("operation-interval", 0.2, "0.2"),
+    "heartbeat-low": ("heartbeat", 0.05, "0.05"),
+    "heartbeat-high": ("heartbeat", 0.5, "0.5"),
+    "timeout-low": ("timeout", 2.0, "2"),
+    "timeout-high": ("timeout", 30.0, "30"),
+    "hop-limit-low": ("hop-limit", 2, "2"),
+    "hop-limit-high": ("hop-limit", 20, "20"),
+    "forgetting-time-low": ("forgetting-time", 10.0, "10"),
+    "forgetting-time-high": ("forgetting-time", 120.0, "120"),
+    "ack-timeout-low": ("ack-timeout", 1.0, "1"),
+    "ack-timeout-high": ("ack-timeout", 15.0, "15"),
+    "distance-vector-poll-low": ("distance-vector-poll", 1.0, "1"),
+    "distance-vector-poll-high": ("distance-vector-poll", 20.0, "20"),
+    "seed-low": ("seed", None, "1"),
+    "seed-high": ("seed", None, "2026"),
+    "minimum-delay-low": ("minimum-delay", 0.001, "0.001"),
+    "minimum-delay-high": ("minimum-delay", 0.05, "0.05"),
+    "maximum-delay-low": ("maximum-delay", 0.05, "0.05"),
+    "maximum-delay-high": ("maximum-delay", 0.5, "0.5"),
+    "edge-probability-low": ("edge-probability", 0.0, "0.0"),
+    "edge-probability-high": ("edge-probability", 0.5, "0.5"),
+    "edges-per-node-low": ("edges-per-node", 1, "1"),
+    "edges-per-node-high": ("edges-per-node", 4, "4"),
+    "center-first": ("center", None, "node 0"),
+    "center-last": ("center", None, "node 9"),
+}
 
 
 @dataclass(frozen=True)
@@ -316,13 +397,6 @@ def plot_baseline_comparison(
             plt.close(figure)
 
 
-def _parameter_variant(scenario: str) -> tuple[str, str]:
-    match = re.fullmatch(r"(.+)-(low|high|first|last)", scenario)
-    if match is None:
-        return scenario, "variant"
-    return match.group(1), match.group(2)
-
-
 def _baseline_comparison_rows(
     results: list[SimulationResult],
 ) -> list[dict[str, Any]]:
@@ -411,21 +485,459 @@ def _baseline_comparison_rows(
     return rows
 
 
-def plot_parameter_sweeps_by_algorithm(
-    results: list[SimulationResult], output_dir: Path
+def _parameter_metadata(scenario: str) -> dict[str, Any] | None:
+    definition = SCENARIO_PARAMETERS.get(scenario)
+    if definition is None:
+        return None
+    parameter, setting_value, setting_label = definition
+    variant = scenario.rsplit("-", 1)[-1]
+    spec = PARAMETER_SPECS[parameter]
+    return {
+        "parameter": parameter,
+        "parameter_label": spec["label"],
+        "variant": variant,
+        "setting_value": setting_value,
+        "setting_label": setting_label,
+        "setting_unit": spec["unit"],
+        "setting_kind": "numeric" if spec["baseline"] is not None else "categorical",
+    }
+
+
+def _parameter_response_rows(
+    comparison_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    response_rows = []
+    for row in comparison_rows:
+        metadata = _parameter_metadata(row["scenario"])
+        if metadata is None:
+            continue
+        parameter = metadata["parameter"]
+        spec = PARAMETER_SPECS[parameter]
+        baseline_label = (
+            spec["levels"]["baseline"]
+            if spec["baseline"] is None
+            else str(spec["baseline"])
+        )
+        response_rows.append(
+            {
+                **row,
+                **metadata,
+                "baseline_setting_value": spec["baseline"],
+                "baseline_setting_label": baseline_label,
+            }
+        )
+    return response_rows
+
+
+def _average_ranks(values: list[float]) -> list[float]:
+    order = sorted(range(len(values)), key=values.__getitem__)
+    ranks = [0.0] * len(values)
+    start = 0
+    while start < len(order):
+        end = start + 1
+        while end < len(order) and values[order[end]] == values[order[start]]:
+            end += 1
+        average_rank = (start + 1 + end) / 2
+        for index in order[start:end]:
+            ranks[index] = average_rank
+        start = end
+    return ranks
+
+
+def _spearman_rho(x_values: list[float], y_values: list[float]) -> float | None:
+    if len(x_values) < 3 or len(x_values) != len(y_values):
+        return None
+    x_ranks = np.asarray(_average_ranks(x_values), dtype=float)
+    y_ranks = np.asarray(_average_ranks(y_values), dtype=float)
+    if np.std(x_ranks) == 0 or np.std(y_ranks) == 0:
+        return None
+    return float(np.corrcoef(x_ranks, y_ranks)[0, 1])
+
+
+def _result_metric(result: SimulationResult, metric: str) -> float | None:
+    if metric == "total_messages_sent":
+        return float(result.total_messages_sent)
+    if metric == "execution_time":
+        if result.ended_successfully is not True or result.execution_time is None:
+            return None
+        return float(result.execution_time)
+    if metric == "completion_rate_pct":
+        if result.ended_successfully is None:
+            return None
+        return 100.0 if result.ended_successfully else 0.0
+    if metric == "messages_after_close":
+        if result.messages_after_close is None:
+            return None
+        return float(result.messages_after_close)
+    raise ValueError(f"Unknown analysis metric {metric!r}.")
+
+
+def parameter_trend_rows(
+    results: list[SimulationResult],
+) -> list[dict[str, Any]]:
+    baselines = {
+        (result.topology, result.routing_algorithm): result
+        for result in results
+        if result.scenario == "baseline"
+    }
+    variations: dict[tuple[str, str, str], list[SimulationResult]] = defaultdict(list)
+    for result in results:
+        metadata = _parameter_metadata(result.scenario)
+        if metadata is not None:
+            variations[
+                (result.topology, result.routing_algorithm, metadata["parameter"])
+            ].append(result)
+
+    metrics = (
+        ("total_messages_sent", "Messages sent"),
+        ("execution_time", "Time to successful completion"),
+        ("completion_rate_pct", "Successful completion"),
+        ("messages_after_close", "Messages after close"),
+    )
+    trend_rows: list[dict[str, Any]] = []
+    for (topology, algorithm, parameter), variant_results in variations.items():
+        spec = PARAMETER_SPECS[parameter]
+        if spec["baseline"] is None:
+            continue
+        baseline = baselines.get((topology, algorithm))
+        if baseline is None:
+            continue
+
+        observations: list[tuple[float, SimulationResult]] = [
+            (float(spec["baseline"]), baseline)
+        ]
+        for result in variant_results:
+            metadata = _parameter_metadata(result.scenario)
+            if metadata is not None and metadata["setting_value"] is not None:
+                observations.append((float(metadata["setting_value"]), result))
+
+        for metric, metric_label in metrics:
+            measured = [
+                (x_value, value)
+                for x_value, result in observations
+                if (value := _result_metric(result, metric)) is not None
+            ]
+            rho = _spearman_rho(
+                [item[0] for item in measured],
+                [item[1] for item in measured],
+            )
+            trend_rows.append(
+                {
+                    "topology": topology,
+                    "routing_algorithm": algorithm,
+                    "parameter": parameter,
+                    "parameter_label": spec["label"],
+                    "metric": metric,
+                    "metric_label": metric_label,
+                    "observation_count": len(measured),
+                    "spearman_rho_descriptive": rho,
+                    "inferential_test_performed": False,
+                }
+            )
+    return sorted(
+        trend_rows,
+        key=lambda row: (
+            row["routing_algorithm"],
+            row["topology"],
+            row["parameter"],
+            row["metric"],
+        ),
+    )
+
+
+def write_parameter_analysis_csv(
+    response_rows: list[dict[str, Any]],
+    trend_rows: list[dict[str, Any]],
+    output_dir: Path,
 ) -> None:
-    comparison_rows = _baseline_comparison_rows(results)
-    measures = (
+    response_fields = [
+        "topology",
+        "routing_algorithm",
+        "parameter",
+        "parameter_label",
+        "variant",
+        "setting_value",
+        "setting_label",
+        "setting_unit",
+        "setting_kind",
+        "baseline_setting_value",
+        "baseline_setting_label",
+        "scenario",
+        "total_messages_sent",
+        "baseline_total_messages_sent",
+        "messages_sent_change_pct",
+        "execution_time",
+        "baseline_execution_time",
+        "execution_time_change_pct",
+        "ended_successfully",
+        "baseline_ended_successfully",
+        "completion_change_percentage_points",
+        "messages_after_close",
+        "baseline_messages_after_close",
+        "messages_after_close_change",
+    ]
+    with (output_dir / "parameter_response_data.csv").open(
+        "w", newline="", encoding="utf-8"
+    ) as output_file:
+        writer = csv.DictWriter(output_file, fieldnames=response_fields)
+        writer.writeheader()
+        writer.writerows(
+            {field: row.get(field) for field in response_fields}
+            for row in response_rows
+        )
+
+    trend_fields = [
+        "topology",
+        "routing_algorithm",
+        "parameter",
+        "parameter_label",
+        "metric",
+        "metric_label",
+        "observation_count",
+        "spearman_rho_descriptive",
+        "inferential_test_performed",
+    ]
+    with (output_dir / "parameter_trends.csv").open(
+        "w", newline="", encoding="utf-8"
+    ) as output_file:
+        writer = csv.DictWriter(output_file, fieldnames=trend_fields)
+        writer.writeheader()
+        writer.writerows(trend_rows)
+
+
+def _format_metric_value(metric: str, value: float) -> str:
+    if metric in ("total_messages_sent", "messages_after_close"):
+        return f"{value:,.0f}"
+    if metric == "completion_rate_pct":
+        return f"{value:.0f}%"
+    return f"{value:.4g} s"
+
+
+def _numeric_setting_value(
+    point: tuple[str, str, float | None, float, str],
+) -> float:
+    value = point[2]
+    if value is None:
+        raise ValueError("A numeric parameter response is missing its setting value.")
+    return value
+
+
+def plot_parameter_responses(
+    results: list[SimulationResult],
+    response_rows: list[dict[str, Any]],
+    trend_rows: list[dict[str, Any]],
+    output_dir: Path,
+) -> None:
+    metric_definitions = (
+        ("total_messages_sent", "Messages sent", "symlog"),
+        ("execution_time", "Time to successful completion", "linear"),
+        ("completion_rate_pct", "Successful completion", "completion"),
+        ("messages_after_close", "Messages after close", "symlog"),
+    )
+    variant_markers = {
+        "baseline": "o",
+        "low": "v",
+        "high": "^",
+        "first": "s",
+        "last": "D",
+    }
+    variant_colors = {
+        "baseline": "#111827",
+        "low": "#2563eb",
+        "high": "#ea580c",
+        "first": "#059669",
+        "last": "#9333ea",
+    }
+    baselines = {
+        (result.topology, result.routing_algorithm): result
+        for result in results
+        if result.scenario == "baseline"
+    }
+    by_parameter: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in response_rows:
+        by_parameter[(row["routing_algorithm"], row["parameter"])].append(row)
+    response_dir = output_dir / "parameter_responses"
+    effect_dir = output_dir / "parameter_effects"
+    response_dir.mkdir(parents=True, exist_ok=True)
+    effect_dir.mkdir(parents=True, exist_ok=True)
+    trends_by_group = {
         (
-            "messages_sent_change_pct",
-            "Messages sent",
-            "change from baseline (%)",
-        ),
-        (
-            "execution_time_change_pct",
-            "Time to completion",
-            "change from successful baseline (%)",
-        ),
+            row["routing_algorithm"],
+            row["topology"],
+            row["parameter"],
+            row["metric"],
+        ): row
+        for row in trend_rows
+    }
+
+    for (algorithm, parameter), parameter_rows in sorted(by_parameter.items()):
+        spec = PARAMETER_SPECS[parameter]
+        topologies = sorted({row["topology"] for row in parameter_rows})
+        for metric, metric_label, axis_scale in metric_definitions:
+            figure, axes = plt.subplots(2, 3, figsize=(18, 11), squeeze=False)
+            flattened_axes = list(axes.flat)
+            has_points = False
+
+            for axis, topology in zip(flattened_axes, topologies):
+                topology_rows = [
+                    row for row in parameter_rows if row["topology"] == topology
+                ]
+                baseline = baselines.get((topology, algorithm))
+                points: list[tuple[str, str, float | None, float, str]] = []
+                baseline_value = _result_metric(baseline, metric) if baseline else None
+                if baseline_value is not None:
+                    baseline_label = (
+                        spec["levels"]["baseline"]
+                        if spec["baseline"] is None
+                        else str(spec["baseline"])
+                    )
+                    points.append(
+                        (
+                            "baseline",
+                            baseline_label,
+                            spec["baseline"],
+                            baseline_value,
+                            "baseline",
+                        )
+                    )
+
+                variant_order = {"low": 0, "first": 1, "high": 2, "last": 3}
+                for row in sorted(
+                    topology_rows,
+                    key=lambda item: variant_order.get(item["variant"], 4),
+                ):
+                    value = row.get(metric)
+                    if metric == "completion_rate_pct":
+                        value = (
+                            None
+                            if row["ended_successfully"] is None
+                            else 100.0
+                            if row["ended_successfully"]
+                            else 0.0
+                        )
+                    elif metric == "execution_time" and row["ended_successfully"] is not True:
+                        value = None
+                    if value is None:
+                        continue
+                    points.append(
+                        (
+                            row["variant"],
+                            row["setting_label"],
+                            row["setting_value"],
+                            float(value),
+                            row["scenario"],
+                        )
+                    )
+
+                if not points:
+                    axis.set_visible(False)
+                    continue
+                has_points = True
+                is_categorical = spec["baseline"] is None
+                if is_categorical:
+                    category_order = ["baseline", "low", "first", "high", "last"]
+                    category_positions = {
+                        category: index for index, category in enumerate(category_order)
+                    }
+                    points.sort(key=lambda point: category_positions[point[0]])
+                    x_values = [category_positions[point[0]] for point in points]
+                    visible_categories = [point[0] for point in points]
+                    axis.set_xticks(
+                        [category_positions[category] for category in visible_categories],
+                        [
+                            f"{point[0]}\n{point[1]}"
+                            for point in points
+                        ],
+                    )
+                else:
+                    points.sort(key=_numeric_setting_value)
+                    x_values = [_numeric_setting_value(point) for point in points]
+                    axis.set_xticks(
+                        x_values,
+                        [f"{point[0]}\n{point[1]}" for point in points],
+                    )
+
+                y_values = [point[3] for point in points]
+                if len(points) >= 2 and not is_categorical:
+                    axis.plot(x_values, y_values, color="#94a3b8", linewidth=1.5, zorder=1)
+
+                for x_value, point in zip(x_values, points):
+                    variant = point[0]
+                    y_value = point[3]
+                    axis.scatter(
+                        x_value,
+                        y_value,
+                        marker=variant_markers[variant],
+                        color=variant_colors[variant],
+                        s=78,
+                        edgecolor="white",
+                        linewidth=0.8,
+                        zorder=3,
+                    )
+                    axis.annotate(
+                        _format_metric_value(metric, y_value),
+                        (x_value, y_value),
+                        xytext=(5, 5),
+                        textcoords="offset points",
+                        fontsize=8,
+                        color="#111827",
+                    )
+
+                if axis_scale == "symlog":
+                    axis.set_yscale("symlog", linthresh=1000 if metric == "total_messages_sent" else 10)
+                    axis.yaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
+                elif axis_scale == "completion":
+                    axis.set_ylim(-8, 108)
+                    axis.set_yticks([0, 25, 50, 75, 100])
+                    axis.yaxis.set_major_formatter(StrMethodFormatter("{x:.0f}%"))
+
+                if is_categorical:
+                    axis.set_xlabel("Setting variant (categorical)")
+                else:
+                    unit = f" ({spec['unit']})" if spec["unit"] else ""
+                    axis.set_xlabel(f"{spec['label']}{unit}")
+                    trend = trends_by_group.get(
+                        (algorithm, topology, parameter, metric)
+                    )
+                    if trend and trend["spearman_rho_descriptive"] is not None:
+                        axis.text(
+                            0.03,
+                            0.97,
+                            f"Spearman ρ={trend['spearman_rho_descriptive']:.2f}, "
+                            f"n={trend['observation_count']} (descriptive)",
+                            transform=axis.transAxes,
+                            va="top",
+                            fontsize=8,
+                            bbox={"facecolor": "white", "alpha": 0.8, "edgecolor": "none"},
+                        )
+                axis.set_title(topology, fontsize=12)
+                axis.set_ylabel(metric_label)
+                axis.grid(axis="y", alpha=0.25, which="both")
+                axis.set_axisbelow(True)
+
+            for axis in flattened_axes[len(topologies):]:
+                axis.set_visible(False)
+            if not has_points:
+                plt.close(figure)
+                continue
+
+            figure.suptitle(
+                f"{algorithm} — isolated parameter response: {spec['label']}\n"
+                f"{metric_label}; separate panels are separate topologies",
+                fontsize=15,
+            )
+            figure.tight_layout(rect=(0, 0, 1, 0.94))
+            figure.savefig(
+                response_dir
+                / f"parameter_response_{algorithm}_{parameter}_{metric}.png",
+                dpi=220,
+                bbox_inches="tight",
+            )
+            plt.close(figure)
+
+    effect_definitions = (
+        ("messages_sent_change_pct", "Messages sent", "change from baseline (%)"),
+        ("execution_time_change_pct", "Time to successful completion", "change from successful baseline (%)"),
         (
             "completion_change_percentage_points",
             "Successful completion",
@@ -437,79 +949,49 @@ def plot_parameter_sweeps_by_algorithm(
             "change from baseline (messages)",
         ),
     )
+    variant_order = {"low": 0, "first": 1, "high": 2, "last": 3}
+    for (algorithm, parameter), parameter_rows in sorted(by_parameter.items()):
+        spec = PARAMETER_SPECS[parameter]
+        topologies = sorted({row["topology"] for row in parameter_rows})
+        for field, metric_label, change_label in effect_definitions:
+            figure, axes = plt.subplots(2, 3, figsize=(18, 11), squeeze=False)
+            flattened_axes = list(axes.flat)
+            has_points = False
 
-    topologies = sorted({result.topology for result in results})
-    algorithms = [
-        algorithm
-        for algorithm in ROUTING_ALGORITHMS
-        if any(result.routing_algorithm == algorithm for result in results)
-    ]
-    variant_order = {"low": 0, "high": 1, "first": 2, "last": 3, "variant": 4}
-    variant_colors = {
-        "low": "#2563eb",
-        "high": "#ea580c",
-        "first": "#059669",
-        "last": "#9333ea",
-        "variant": "#64748b",
-    }
-
-    for topology in topologies:
-        for algorithm in algorithms:
-            matching_rows = [
-                row
-                for row in comparison_rows
-                if row["topology"] == topology
-                and row["routing_algorithm"] == algorithm
-            ]
-            if not matching_rows:
-                continue
-
-            parameter_variants: dict[str, list[tuple[str, dict[str, Any]]]] = (
-                defaultdict(list)
-            )
-            for row in matching_rows:
-                parameter, variant = _parameter_variant(row["scenario"])
-                parameter_variants[parameter].append((variant, row))
-
-            for field, metric, change_label in measures:
-                sweep_rows = sorted(
+            for axis, topology in zip(flattened_axes, topologies):
+                topology_rows = sorted(
                     (
-                        (parameter, variant, row)
-                        for parameter, variants in parameter_variants.items()
-                        for variant, row in variants
-                        if row[field] is not None
+                        row
+                        for row in parameter_rows
+                        if row["topology"] == topology and row[field] is not None
                     ),
-                    key=lambda item: (
-                        item[0],
-                        variant_order[item[1]],
-                    ),
+                    key=lambda row: variant_order.get(row["variant"], 4),
                 )
-                if not sweep_rows:
+                if not topology_rows:
+                    axis.set_visible(False)
                     continue
+                has_points = True
 
-                figure_height = max(7, 0.4 * len(sweep_rows))
-                figure, axis = plt.subplots(figsize=(13, figure_height))
-                for y_position, (parameter, variant, row) in enumerate(sweep_rows):
-                    change = row[field]
-                    color = variant_colors[variant]
-
-                    axis.hlines(
-                        y_position,
+                for position, row in enumerate(topology_rows):
+                    change = float(row[field])
+                    variant = row["variant"]
+                    axis.vlines(
+                        position,
                         min(0, change),
                         max(0, change),
-                        color=color,
+                        color=variant_colors[variant],
                         linewidth=2,
-                        alpha=0.75,
+                        alpha=0.8,
                     )
                     axis.scatter(
+                        position,
                         change,
-                        y_position,
-                        color=color,
+                        marker=variant_markers[variant],
+                        color=variant_colors[variant],
                         edgecolor="white",
                         linewidth=0.8,
-                        s=64,
+                        s=78,
                         zorder=3,
-                        label=variant,
                     )
                     if field.endswith("_pct"):
                         value_label = f"{change:+.2f}%"
@@ -519,64 +1001,48 @@ def plot_parameter_sweeps_by_algorithm(
                         value_label = f"{change:+,.0f}"
                     axis.annotate(
                         value_label,
-                        (change, y_position),
-                        xytext=(6, 0),
+                        (position, change),
+                        xytext=(4, 5 if change >= 0 else -10),
                         textcoords="offset points",
-                        va="center",
-                        fontsize=8.5,
-                        color="#111827",
-                        clip_on=False,
+                        fontsize=8,
                     )
 
-                axis.axvline(0, color="#111827", linewidth=1, alpha=0.8)
+                axis.axhline(0, color="#111827", linewidth=1)
+                axis.set_xticks(
+                    range(len(topology_rows)),
+                    [
+                        f"{row['variant']}\n{row['setting_label']}"
+                        for row in topology_rows
+                    ],
+                )
                 if field == "completion_change_percentage_points":
-                    axis.set_xlim(-105, 105)
-                    axis.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
-                elif field == "messages_after_close_change":
-                    axis.set_xscale("symlog", linthresh=10)
-                    axis.xaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
+                    axis.set_ylim(-108, 108)
                 else:
-                    axis.set_xscale("symlog", linthresh=10)
-                    axis.xaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
-
-                axis.set_yticks(
-                    np.arange(len(sweep_rows)),
-                    [f"{parameter} ({variant})" for parameter, variant, _ in sweep_rows],
-                    fontsize=9,
-                )
-                axis.invert_yaxis()
-                axis.set_xlabel(f"{change_label}; negative is less than baseline")
-                axis.set_ylabel("Changed parameter")
-                axis.set_title(
-                    f"{algorithm} — {topology.title()} topology\n"
-                    f"{metric}: each variant compared with this algorithm's "
-                    "matching baseline",
-                    fontsize=14,
-                    pad=14,
-                )
-                axis.grid(axis="x", alpha=0.25, which="both")
+                    axis.set_yscale("symlog", linthresh=1 if field.endswith("_pct") else 10)
+                axis.set_title(topology, fontsize=12)
+                axis.set_ylabel(change_label)
+                axis.grid(axis="y", alpha=0.25, which="both")
                 axis.set_axisbelow(True)
 
-                handles, labels = axis.get_legend_handles_labels()
-                unique_handles: dict[str, Any] = {}
-                for handle, label in zip(handles, labels):
-                    unique_handles[label] = handle
-                axis.legend(
-                    unique_handles.values(),
-                    unique_handles.keys(),
-                    title="Variant",
-                    loc="best",
-                    ncols=min(len(unique_handles), 4),
-                )
-
-                figure.tight_layout()
-                figure.savefig(
-                    output_dir
-                    / f"parameter_sweep_{algorithm}_{topology}_{field}.png",
-                    dpi=220,
-                    bbox_inches="tight",
-                )
+            for axis in flattened_axes[len(topologies):]:
+                axis.set_visible(False)
+            if not has_points:
                 plt.close(figure)
+                continue
+
+            figure.suptitle(
+                f"{algorithm} — isolated parameter effect: {spec['label']}\n"
+                f"{metric_label}; changes are relative to the same topology/algorithm baseline",
+                fontsize=15,
+            )
+            figure.tight_layout(rect=(0, 0, 1, 0.94))
+            figure.savefig(
+                effect_dir
+                / f"parameter_effect_{algorithm}_{parameter}_{field}.png",
+                dpi=220,
+                bbox_inches="tight",
+            )
+            plt.close(figure)
 
 
 def write_analysis_report(
@@ -675,6 +1141,13 @@ def write_analysis_report(
             "are included only when both runs complete; the C# metric remains zero "
             "when a run does not complete. "
             "Messages-after-close changes are absolute counts.",
+            "The network-delay-low/high scenarios change minimum and maximum delay "
+            "together, so they are joint-setting comparisons rather than isolated "
+            "effects of either delay parameter.",
+            "Each parameter level has one simulation run. Spearman coefficients in "
+            "parameter_trends.csv are descriptive rank trends (at most three "
+            "observations per topology/algorithm/factor), with no p-values, "
+            "confidence intervals, or causal claims.",
             "Scenario tags identify the setting variant (for example, low/high); "
             "the JSON does not include the numeric setting values.",
         ]
@@ -733,7 +1206,17 @@ def main(argv: list[str] | None = None) -> int:
         write_csv_reports(results, args.output_dir)
         plot_baseline_comparison(results, args.output_dir)
         comparison_rows = _baseline_comparison_rows(results)
-        plot_parameter_sweeps_by_algorithm(results, args.output_dir)
+        response_rows = _parameter_response_rows(comparison_rows)
+        trend_rows = parameter_trend_rows(results)
+        write_parameter_analysis_csv(response_rows, trend_rows, args.output_dir)
+        plot_parameter_responses(
+            results,
+            response_rows,
+            trend_rows,
+            args.output_dir,
+        )
+        for obsolete_chart in args.output_dir.glob("parameter_sweep_*.png"):
+            obsolete_chart.unlink()
         write_analysis_report(
             results,
             comparison_rows,

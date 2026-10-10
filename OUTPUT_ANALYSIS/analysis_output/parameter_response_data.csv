@@ -1,0 +1,691 @@
+topology,routing_algorithm,parameter,parameter_label,variant,setting_value,setting_label,setting_unit,setting_kind,baseline_setting_value,baseline_setting_label,scenario,total_messages_sent,baseline_total_messages_sent,messages_sent_change_pct,execution_time,baseline_execution_time,execution_time_change_pct,ended_successfully,baseline_ended_successfully,completion_change_percentage_points,messages_after_close,baseline_messages_after_close,messages_after_close_change
+complete,no-stack,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,125,500,-75.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,225,950,-76.31578947368422,0.4099999,0.4099999,0.0,True,True,0.0,5,10,-5
+complete,flooding,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,4580,210610,-97.825364417644,0.4099999,0.4099999,0.0,True,True,0.0,269,6636,-6367
+complete,distance-vector,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,390,1630,-76.07361963190185,0.4099999,0.4099999,0.0,True,True,0.0,25,116,-91
+complete,link-state,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,550,4228,-86.9914853358562,0.4099999,0.4099999,0.0,True,True,0.0,25,125,-100
+complete,no-stack,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,2000,500,300.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,3900,950,310.5263157894737,0.4099999,0.4099999,0.0,True,True,0.0,44,10,34
+complete,flooding,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,8081912,210610,3737.3828403209723,0.4099999,0.4099999,0.0,True,True,0.0,130600,6636,123964
+complete,distance-vector,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,6660,1630,308.58895705521473,0.4099999,0.4099999,0.0,True,True,0.0,454,116,338
+complete,link-state,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,39274,4228,828.9025543992432,0.4099999,0.4099999,0.0,True,True,0.0,401,125,276
+complete,no-stack,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,500,500,0.0,0.401,0.4099999,-2.1950980963653772,True,True,0.0,1,1,0
+complete,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,950,950,0.0,0.401,0.4099999,-2.1950980963653772,True,True,0.0,10,10,0
+complete,flooding,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,210610,210610,0.0,0.401,0.4099999,-2.1950980963653772,True,True,0.0,6636,6636,0
+complete,distance-vector,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,1630,1630,0.0,0.401,0.4099999,-2.1950980963653772,True,True,0.0,116,116,0
+complete,link-state,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,4228,4228,0.0,0.401,0.4099999,-2.1950980963653772,True,True,0.0,125,125,0
+complete,no-stack,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,500,500,0.0,0.45,0.4099999,9.756124330762042,True,True,0.0,1,1,0
+complete,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,950,950,0.0,0.45,0.4099999,9.756124330762042,True,True,0.0,10,10,0
+complete,flooding,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,186546,210610,-11.42585822135701,0.45,0.4099999,9.756124330762042,True,True,0.0,34980,6636,28344
+complete,distance-vector,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,1630,1630,0.0,0.45,0.4099999,9.756124330762042,True,True,0.0,112,116,-4
+complete,link-state,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,4052,4228,-4.162724692526018,0.45,0.4099999,9.756124330762042,True,True,0.0,99,125,-26
+complete,no-stack,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,100,500,-80.0,0.0099999,0.4099999,-97.5609994051218,True,True,0.0,1,1,0
+complete,ack-no-routing,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,190,950,-80.0,0.0099999,0.4099999,-97.5609994051218,True,True,0.0,10,10,0
+complete,flooding,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,570,210610,-99.7293575803618,0.0099999,0.4099999,-97.5609994051218,True,True,0.0,380,6636,-6256
+complete,distance-vector,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,470,1630,-71.16564417177914,0.0099999,0.4099999,-97.5609994051218,True,True,0.0,118,116,2
+complete,link-state,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,731,4228,-82.7105014191107,0.0099999,0.4099999,-97.5609994051218,True,True,0.0,541,125,416
+complete,no-stack,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,1000,500,100.0,0.9099999,0.4099999,121.95124925640226,True,True,0.0,1,1,0
+complete,ack-no-routing,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,1900,950,100.0,0.9099999,0.4099999,121.95124925640226,True,True,0.0,32,10,22
+complete,flooding,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,539660,210610,156.23664593324153,0.9099999,0.4099999,121.95124925640226,True,True,0.0,6627,6636,-9
+complete,distance-vector,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,3080,1630,88.95705521472392,0.9099999,0.4099999,121.95124925640226,True,True,0.0,108,116,-8
+complete,link-state,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,5678,4228,34.29517502365185,0.9099999,0.4099999,121.95124925640226,True,True,0.0,125,125,0
+complete,no-stack,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,500,500,0.0,0.1099999,0.4099999,-73.17074955384135,True,True,0.0,1,1,0
+complete,ack-no-routing,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,680,950,-28.421052631578945,0.1099999,0.4099999,-73.17074955384135,True,True,0.0,1,10,-9
+complete,flooding,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,210340,210610,-0.1281990408812497,0.1099999,0.4099999,-73.17074955384135,True,True,0.0,52653,6636,46017
+complete,distance-vector,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,1360,1630,-16.56441717791411,0.1099999,0.4099999,-73.17074955384135,True,True,0.0,91,116,-25
+complete,link-state,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,3958,4228,-6.385998107852413,0.1099999,0.4099999,-73.17074955384135,True,True,0.0,93,125,-32
+complete,no-stack,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,500,500,0.0,0.8099999,0.4099999,97.56099940512182,True,True,0.0,1,1,0
+complete,ack-no-routing,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,1310,950,37.89473684210527,0.8099999,0.4099999,97.56099940512182,True,True,0.0,91,10,81
+complete,flooding,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,210970,210610,0.17093205450833293,0.8099999,0.4099999,97.56099940512182,True,True,0.0,6661,6636,25
+complete,distance-vector,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,1990,1630,22.085889570552148,0.8099999,0.4099999,97.56099940512182,True,True,0.0,181,116,65
+complete,link-state,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,4588,4228,8.514664143803216,0.8099999,0.4099999,97.56099940512182,True,True,0.0,181,125,56
+complete,no-stack,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,1310,950,37.89473684210527,0.4099999,0.4099999,0.0,True,True,0.0,91,10,81
+complete,flooding,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,210970,210610,0.17093205450833293,0.4099999,0.4099999,0.0,True,True,0.0,6661,6636,25
+complete,distance-vector,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,1990,1630,22.085889570552148,0.4099999,0.4099999,0.0,True,True,0.0,181,116,65
+complete,link-state,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,4588,4228,8.514664143803216,0.4099999,0.4099999,0.0,True,True,0.0,181,125,56
+complete,no-stack,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,590,950,-37.89473684210527,0.4099999,0.4099999,0.0,True,True,0.0,1,10,-9
+complete,flooding,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,210250,210610,-0.17093205450833293,0.4099999,0.4099999,0.0,True,True,0.0,6571,6636,-65
+complete,distance-vector,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,1270,1630,-22.085889570552148,0.4099999,0.4099999,0.0,True,True,0.0,91,116,-25
+complete,link-state,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,3868,4228,-8.514664143803216,0.4099999,0.4099999,0.0,True,True,0.0,91,125,-34
+complete,no-stack,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+complete,no-stack,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,500,500,0.0,0.4099999,0.4099999,0.0,True,True,0.0,1,1,0
+complete,ack-no-routing,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,950,950,0.0,0.4099999,0.4099999,0.0,True,True,0.0,10,10,0
+complete,flooding,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,210610,210610,0.0,0.4099999,0.4099999,0.0,True,True,0.0,6636,6636,0
+complete,distance-vector,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,1630,1630,0.0,0.4099999,0.4099999,0.0,True,True,0.0,116,116,0
+complete,link-state,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,4228,4228,0.0,0.4099999,0.4099999,0.0,True,True,0.0,125,125,0
+ring,no-stack,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,75,150,-50.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,20075,40150,-50.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,1218,10578,-88.48553601815088,0.4199998,0.4499995,-6.666607407341568,True,True,0.0,82,480,-398
+ring,distance-vector,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,1445,11120,-87.00539568345323,10.42,40.45,-74.2398022249691,True,True,0.0,21,21,0
+ring,link-state,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,400,2658,-84.95109104589918,0.4199998,0.4499995,-6.666607407341568,True,True,0.0,22,101,-79
+ring,no-stack,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,300,150,100.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,80300,40150,100.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,59232,10578,459.95462280204197,0.499999,0.4499995,11.111012345569279,True,True,0.0,1881,480,1401
+ring,distance-vector,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,58440,11120,425.5395683453237,90.5,40.45,123.73300370828181,True,True,0.0,41,21,20
+ring,link-state,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,20750,2658,680.6621519939805,0.599999,0.4499995,33.33325925917695,True,True,0.0,21,101,-80
+ring,no-stack,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,10586,10578,0.07562866326337682,0.405,0.4499995,-9.999899999888882,True,True,0.0,438,480,-42
+ring,distance-vector,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,11120,11120,0.0,40.405,40.45,-0.11124845488257529,True,True,0.0,21,21,0
+ring,link-state,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,2658,2658,0.0,0.405,0.4499995,-9.999899999888882,True,True,0.0,101,101,0
+ring,no-stack,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,8630,10578,-18.415579504632255,0.65,0.4499995,44.44460493844994,True,True,0.0,1032,480,552
+ring,distance-vector,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,11120,11120,0.0,40.65,40.45,0.4944375772558609,True,True,0.0,41,21,20
+ring,link-state,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,2820,2658,6.094808126410835,0.95,0.4499995,111.11134567927297,True,True,0.0,51,101,-50
+ring,no-stack,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,4150,40150,-89.66376089663761,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,4909,11120,-55.8543165467626,0.0,40.45,,False,True,-100.0,0,21,-21
+ring,link-state,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,100150,40150,149.43960149439602,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,11120,11120,0.0,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,30,150,-80.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,40030,40150,-0.29887920298879206,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,1197,10578,-88.68406125921724,0.4499995,0.4499995,0.0,True,True,0.0,198,480,-282
+ring,distance-vector,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,8840,11120,-20.503597122302157,40.45,40.45,0.0,True,True,0.0,11,21,-10
+ring,link-state,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,698,2658,-73.73965387509406,0.4499995,0.4499995,0.0,True,True,0.0,51,101,-50
+ring,no-stack,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,300,150,100.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,40300,40150,0.37359900373599003,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,25328,10578,139.440347891851,0.9499995,0.4499995,111.11123456803841,True,True,0.0,280,480,-200
+ring,distance-vector,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,13980,11120,25.719424460431657,40.45,40.45,0.0,True,True,0.0,31,21,10
+ring,link-state,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,5388,2658,102.70880361173815,0.9499995,0.4499995,111.11123456803841,True,True,0.0,51,101,-50
+ring,no-stack,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,11676,10578,10.38003403289847,0.4499995,0.4499995,0.0,True,True,0.0,280,480,-200
+ring,distance-vector,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,10940,11120,-1.618705035971223,40.149998,40.45,-0.7416613102595954,True,True,0.0,51,21,30
+ring,link-state,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,2738,2658,3.0097817908201656,0.4499995,0.4499995,0.0,True,True,0.0,51,101,-50
+ring,no-stack,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,12005,10578,13.490262809604841,0.8499995,0.4499995,88.88898765443074,True,True,0.0,186,480,-294
+ring,distance-vector,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,11240,11120,1.079136690647482,40.85,40.45,0.9888751545117394,True,True,0.0,11,21,-10
+ring,link-state,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,2818,2658,6.019563581640331,0.8499995,0.4499995,88.88898765443074,True,True,0.0,51,101,-50
+ring,no-stack,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,11903,10578,12.525997352996784,0.4499995,0.4499995,0.0,True,True,0.0,186,480,-294
+ring,distance-vector,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,11160,11120,0.3597122302158274,40.45,40.45,0.0,True,True,0.0,11,21,-10
+ring,link-state,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,2760,2658,3.837471783295711,0.4999995,0.4499995,11.111123456803838,True,True,0.0,41,101,-60
+ring,no-stack,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,11800,10578,11.55227831348081,0.8499995,0.4499995,88.88898765443074,True,True,0.0,240,480,-240
+ring,distance-vector,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,11080,11120,-0.3597122302158274,40.45,40.45,0.0,True,True,0.0,31,21,10
+ring,link-state,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,2818,2658,6.019563581640331,0.8499995,0.4499995,88.88898765443074,True,True,0.0,51,101,-50
+ring,no-stack,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,80150,40150,99.62640099626401,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,10668,10578,0.8508224617129893,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,19200,11120,72.66187050359713,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,2740,2658,3.0850263355906695,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,8150,40150,-79.7011207970112,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,10496,10578,-0.7751937984496124,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,4640,11120,-58.27338129496403,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,2579,2658,-2.972159518434913,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,11120,11120,0.0,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,11120,11120,0.0,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,80030,10578,656.5702401210059,0.0,0.4499995,,False,True,-100.0,0,480,-480
+ring,distance-vector,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,60550,11120,444.51438848920867,0.0,40.45,,False,True,-100.0,0,21,-21
+ring,link-state,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,11120,11120,0.0,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,11120,11120,0.0,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,11120,11120,0.0,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,12520,11120,12.589928057553957,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,10870,11120,-2.2482014388489207,40.45,40.45,0.0,True,True,0.0,21,21,0
+ring,link-state,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,3570,11120,-67.89568345323741,4.4499993,40.45,-88.99876563658837,True,True,0.0,21,21,0
+ring,link-state,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+ring,no-stack,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,150,150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,ack-no-routing,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,40150,40150,0.0,0.0,0.0,,False,False,0.0,0,0,0
+ring,flooding,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,10578,10578,0.0,0.4499995,0.4499995,0.0,True,True,0.0,480,480,0
+ring,distance-vector,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,19520,11120,75.53956834532374,80.45,40.45,98.88751545117428,True,True,0.0,21,21,0
+ring,link-state,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,2658,2658,0.0,0.4499995,0.4499995,0.0,True,True,0.0,101,101,0
+star,no-stack,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,65,140,-53.57142857142857,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,16065,36140,-55.54786939679026,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,657,6257,-89.49976026849929,0.4199998,0.4199998,0.0,True,True,0.0,25,147,-122
+star,distance-vector,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,1238,3583,-65.44794864638571,10.42,10.42,0.0,True,True,0.0,25,145,-120
+star,link-state,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,392,1747,-77.5615340583858,0.4199998,0.4199998,0.0,True,True,0.0,25,146,-121
+star,no-stack,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,290,140,107.14285714285714,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,76290,36140,111.09573879358052,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,56232,6257,798.7054498961163,0.4199998,0.4199998,0.0,True,True,0.0,702,147,555
+star,distance-vector,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,10973,3583,206.2517443483115,10.42,10.42,0.0,True,True,0.0,685,145,540
+star,link-state,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,7382,1747,322.55294791070406,0.4199998,0.4199998,0.0,True,True,0.0,685,146,539
+star,no-stack,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,6257,6257,0.0,0.402,0.4199998,-4.285668707461278,True,True,0.0,147,147,0
+star,distance-vector,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,3583,3583,0.0,10.402,10.42,-0.17274472168906604,True,True,0.0,145,145,0
+star,link-state,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,1747,1747,0.0,0.402,0.4199998,-4.285668707461278,True,True,0.0,146,146,0
+star,no-stack,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,6275,6257,0.2876778008630334,0.5,0.4199998,19.047675736988452,True,True,0.0,175,147,28
+star,distance-vector,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,3601,3583,0.5023723137036004,10.5,10.42,0.7677543186180429,True,True,0.0,220,145,75
+star,link-state,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,1855,1747,6.18202633085289,0.6,0.4199998,42.857210884386134,True,True,0.0,150,146,4
+star,no-stack,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,3740,36140,-89.6513558384062,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,90140,36140,149.41892639734365,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,28,140,-80.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,36028,36140,-0.3099059214167128,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,885,6257,-85.85584145756752,0.4199998,0.4199998,0.0,True,True,0.0,74,147,-73
+star,distance-vector,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,2243,3583,-37.39882779793469,10.42,10.42,0.0,True,True,0.0,73,145,-72
+star,link-state,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,479,1747,-72.58156840297653,0.4199998,0.4199998,0.0,True,True,0.0,73,146,-73
+star,no-stack,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,280,140,100.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,36280,36140,0.387382401770891,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,14358,6257,129.47099248841297,0.9199998,0.4199998,119.04767573698845,True,True,0.0,73,147,-74
+star,distance-vector,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,5231,3583,45.994976276862964,10.42,10.42,0.0,True,True,0.0,217,145,72
+star,link-state,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,3584,1747,105.15168860904407,0.9199998,0.4199998,119.04767573698845,True,True,0.0,73,146,-73
+star,no-stack,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,6833,6257,9.205689627617069,0.4199998,0.4199998,0.0,True,True,0.0,73,147,-74
+star,distance-vector,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,3286,3583,-8.289143176109405,10.12,10.42,-2.879078694817665,True,True,0.0,361,145,216
+star,link-state,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,1819,1747,4.12135088723526,0.4199998,0.4199998,0.0,True,True,0.0,73,146,-73
+star,no-stack,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,6905,6257,10.356400831069204,0.8199998,0.4199998,95.23814058959076,True,True,0.0,75,147,-72
+star,distance-vector,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,3727,3583,4.018978509628803,10.82,10.42,3.838771593090214,True,True,0.0,73,145,-72
+star,link-state,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,1891,1747,8.24270177447052,0.8199998,0.4199998,95.23814058959076,True,True,0.0,73,146,-73
+star,no-stack,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,6833,6257,9.205689627617069,0.4199998,0.4199998,0.0,True,True,0.0,74,147,-73
+star,distance-vector,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,3655,3583,2.0094892548144014,10.42,10.42,0.0,True,True,0.0,73,145,-72
+star,link-state,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,1819,1747,4.12135088723526,0.4449998,0.4199998,5.952383786849428,True,True,0.0,73,146,-73
+star,no-stack,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,6905,6257,10.356400831069204,0.8199998,0.4199998,95.23814058959076,True,True,0.0,73,147,-74
+star,distance-vector,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,3493,3583,-2.5118615685180017,10.42,10.42,0.0,True,True,0.0,217,145,72
+star,link-state,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,1891,1747,8.24270177447052,0.8199998,0.4199998,95.23814058959076,True,True,0.0,73,146,-73
+star,no-stack,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,72140,36140,99.61261759822911,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,6329,6257,1.1507112034521336,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,5455,3583,52.24672062517443,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,1819,1747,4.12135088723526,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,7340,36140,-79.69009407858329,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,6185,6257,-1.1507112034521336,0.4199998,0.4199998,0.0,True,True,0.0,146,147,-1
+star,distance-vector,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,2071,3583,-42.19927435110243,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,1675,1747,-4.12135088723526,0.4199998,0.4199998,0.0,True,True,0.0,145,146,-1
+star,no-stack,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,3880,3583,8.289143176109405,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,3493,3583,-2.5118615685180017,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,1945,3583,-45.71588054702763,1.4199998,10.42,-86.37236276391556,True,True,0.0,73,145,-72
+star,link-state,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,5437,3583,51.74434831147083,20.42,10.42,95.9692898272553,True,True,0.0,145,145,0
+star,link-state,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,center,Star center-node choice (categorical),first,,node 0,,categorical,,node 0,center-first,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,center,Star center-node choice (categorical),first,,node 0,,categorical,,node 0,center-first,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,center,Star center-node choice (categorical),first,,node 0,,categorical,,node 0,center-first,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,center,Star center-node choice (categorical),first,,node 0,,categorical,,node 0,center-first,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,center,Star center-node choice (categorical),first,,node 0,,categorical,,node 0,center-first,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,146,146,0
+star,no-stack,center,Star center-node choice (categorical),last,,node 9,,categorical,,node 0,center-last,140,140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,ack-no-routing,center,Star center-node choice (categorical),last,,node 9,,categorical,,node 0,center-last,36140,36140,0.0,0.0,0.0,,False,False,0.0,0,0,0
+star,flooding,center,Star center-node choice (categorical),last,,node 9,,categorical,,node 0,center-last,6257,6257,0.0,0.4199998,0.4199998,0.0,True,True,0.0,147,147,0
+star,distance-vector,center,Star center-node choice (categorical),last,,node 9,,categorical,,node 0,center-last,3583,3583,0.0,10.42,10.42,0.0,True,True,0.0,145,145,0
+star,link-state,center,Star center-node choice (categorical),last,,node 9,,categorical,,node 0,center-last,1747,1747,0.0,0.4199998,0.4199998,0.0,True,True,0.0,145,146,-1
+random,no-stack,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,65,260,-75.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,16065,84260,-80.93401376691193,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,1104,39262,-97.1881208293006,5.3167806,0.5631944,844.0400330685109,True,True,0.0,11,14004,-13993
+random,distance-vector,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,2177,10588,-79.43898753305629,20.776672,20.66803,0.5256524206709574,True,True,0.0,19,41,-22
+random,link-state,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,473,2977,-84.11152166610681,0.9766731,0.8680292,12.516157290561194,True,True,0.0,21,55,-34
+random,no-stack,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,620,260,138.46153846153845,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,208620,84260,147.59079041063373,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,617970,39262,1473.964647751006,0.6387963,0.5631944,13.423766287448883,True,True,0.0,186735,14004,172731
+random,distance-vector,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,40770,10588,285.05855685681905,30.818449,20.66803,49.11169085781276,True,True,0.0,139,41,98
+random,link-state,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,20305,2977,582.0624790057104,5.551047,0.8680292,539.5000306441304,True,True,0.0,103,55,48
+random,no-stack,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,49254,39262,25.449544088431566,0.4096864,0.5631944,-27.25666306341114,True,True,0.0,3812,14004,-10192
+random,distance-vector,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,10482,10588,-1.0011333585190783,20.414274,20.66803,-1.2277706196478462,True,True,0.0,9,41,-32
+random,link-state,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,2749,2977,-7.658716829022507,0.4142749,0.8680292,-52.27408248478277,True,True,0.0,69,55,14
+random,no-stack,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,24834,39262,-36.74800061127808,0.9843333,0.5631944,74.77682661617374,True,True,0.0,11937,14004,-2067
+random,distance-vector,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,10855,10588,2.521722704948999,21.213753,20.66803,2.640420978680594,True,True,0.0,133,41,92
+random,link-state,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,3311,2977,11.219348337252267,1.6137533,0.8680292,85.91002468580551,True,True,0.0,210,55,155
+random,no-stack,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,8660,84260,-89.72228815570851,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,10085,10588,-4.750661125802796,0.0,20.66803,,False,True,-100.0,0,41,-41
+random,link-state,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,210260,84260,149.53714692618087,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,10588,10588,0.0,20.66803,20.66803,0.0,True,True,0.0,41,41,0
+random,link-state,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,52,260,-80.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,84052,84260,-0.24685497270353668,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,3051,39262,-92.22912740053997,0.5631944,0.5631944,0.0,True,True,0.0,1311,14004,-12693
+random,distance-vector,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,9276,10588,-12.391386475255006,20.66803,20.66803,0.0,True,True,0.0,33,41,-8
+random,link-state,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,1673,2977,-43.80248572388311,0.6680292,0.8680292,-23.04069955250353,True,True,0.0,55,55,0
+random,no-stack,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,520,260,100.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,84520,84260,0.30856871587942086,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,114669,39262,192.0610259283786,1.0631944,0.5631944,88.77929183954954,True,True,0.0,12875,14004,-1129
+random,distance-vector,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,12204,10588,15.262561390253115,20.66803,20.66803,0.0,True,True,0.0,49,41,8
+random,link-state,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,4564,2977,53.30870003359086,1.1680292,0.8680292,34.561049328755324,True,True,0.0,83,55,28
+random,no-stack,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,43905,39262,11.825683867352657,0.5631944,0.5631944,0.0,True,True,0.0,13807,14004,-197
+random,distance-vector,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,10450,10588,-1.3033622969399319,20.368029,20.66803,-1.4515219883075536,True,True,0.0,49,41,8
+random,link-state,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,2898,2977,-2.6536781995297276,0.6680292,0.8680292,-23.04069955250353,True,True,0.0,110,55,55
+random,no-stack,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,56079,39262,42.83276450511945,0.8858488,0.5631944,57.290058281829516,True,True,0.0,2199,14004,-11805
+random,distance-vector,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,10760,10588,1.6244805440120893,21.06803,20.66803,1.9353561998893871,True,True,0.0,33,41,-8
+random,link-state,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,3145,2977,5.64326503191132,1.2680292,0.8680292,46.08139910500707,True,True,0.0,55,55,0
+random,no-stack,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,46227,39262,17.739799297030206,5.1074924,0.5631944,806.8791166957626,True,True,0.0,801,14004,-13203
+random,distance-vector,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,10648,10588,0.5666792595391008,20.718029,20.66803,0.241914686595673,True,True,0.0,61,41,20
+random,link-state,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,2914,2977,-2.116224386966745,0.7680292,0.8680292,-11.520349776251765,True,True,0.0,133,55,78
+random,no-stack,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,52648,39262,34.094034944730275,0.9631944,0.5631944,71.02343347163963,True,True,0.0,7214,14004,-6790
+random,distance-vector,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,10574,10588,-0.13222516055912353,20.66803,20.66803,0.0,True,True,0.0,41,41,0
+random,link-state,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,3038,2977,2.0490426603963723,1.0680292,0.8680292,23.040699552503543,True,True,0.0,67,55,12
+random,no-stack,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,168260,84260,99.69143128412058,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,39519,39262,0.6545769446283939,0.5631944,0.5631944,0.0,True,True,0.0,14060,14004,56
+random,distance-vector,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,19282,10588,82.11182470721572,20.66803,20.66803,0.0,True,True,0.0,91,41,50
+random,link-state,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,3355,2977,12.69734632180047,0.8680292,0.8680292,0.0,True,True,0.0,105,55,50
+random,no-stack,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,17060,84260,-79.75314502729647,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,39098,39262,-0.41770668840099845,0.5631944,0.5631944,0.0,True,True,0.0,14002,14004,-2
+random,distance-vector,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,3658,10588,-65.45145447676614,20.66803,20.66803,0.0,True,True,0.0,15,41,-26
+random,link-state,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,2683,2977,-9.87571380584481,0.8680292,0.8680292,0.0,True,True,0.0,27,55,-28
+random,no-stack,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,10588,10588,0.0,20.66803,20.66803,0.0,True,True,0.0,41,41,0
+random,link-state,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,10588,10588,0.0,20.66803,20.66803,0.0,True,True,0.0,41,41,0
+random,link-state,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,53294,39262,35.739391778309816,5.2464533,0.5631944,831.5528172865356,True,True,0.0,308,14004,-13696
+random,distance-vector,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,90370,10588,753.5134114091425,0.0,20.66803,,False,True,-100.0,0,41,-41
+random,link-state,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,10588,10588,0.0,20.66803,20.66803,0.0,True,True,0.0,41,41,0
+random,link-state,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,10588,10588,0.0,20.66803,20.66803,0.0,True,True,0.0,41,41,0
+random,link-state,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,10588,10588,0.0,20.66803,20.66803,0.0,True,True,0.0,41,41,0
+random,link-state,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,11288,10588,6.611258027956176,20.66803,20.66803,0.0,True,True,0.0,41,41,0
+random,link-state,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,10458,10588,-1.2278050623347185,20.66803,20.66803,0.0,True,True,0.0,41,41,0
+random,link-state,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,2848,10588,-73.10162448054402,2.6680293,20.66803,-87.0910323818961,True,True,0.0,41,41,0
+random,link-state,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,39262,39262,0.0,0.5631944,0.5631944,0.0,True,True,0.0,14004,14004,0
+random,distance-vector,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,19158,10588,80.94068757083491,40.66803,20.66803,96.76780999446972,True,True,0.0,41,41,0
+random,link-state,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,2977,2977,0.0,0.8680292,0.8680292,0.0,True,True,0.0,55,55,0
+random,no-stack,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,170,260,-34.61538461538461,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,48170,84260,-42.83171136957038,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,13212,39262,-66.34914166369518,0.9779303,0.5631944,73.63991900487648,True,True,0.0,1757,14004,-12247
+random,distance-vector,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,9882,10588,-6.667925953910086,31.075035,20.66803,50.35315412257481,True,True,0.0,61,41,20
+random,link-state,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,2645,2977,-11.152166610681896,1.6750355,0.8680292,92.96994847638767,True,True,0.0,67,55,12
+random,no-stack,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,240,260,-7.6923076923076925,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,76240,84260,-9.51815808212675,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,31810,39262,-18.980184402220974,0.6494533,0.5631944,15.316008113717045,True,True,0.0,10674,14004,-3330
+random,distance-vector,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,9901,10588,-6.488477521722705,20.810335,20.66803,0.6885271600631351,True,True,0.0,78,41,37
+random,link-state,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,4615,2977,55.021834061135365,5.5309844,0.8680292,537.1887489499202,True,True,0.0,59,55,4
+random,no-stack,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,39011,39262,-0.6392949926137232,0.5330299,0.5631944,-5.355965897388192,True,True,0.0,14047,14004,43
+random,distance-vector,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,10588,10588,0.0,20.652304,20.66803,-0.07608852899865538,True,True,0.0,49,41,8
+random,link-state,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,2900,2977,-2.586496472959355,0.7523042,0.8680292,-13.331924778567354,True,True,0.0,95,55,40
+random,no-stack,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,36822,39262,-6.214660485966074,0.6625004,0.5631944,17.632632710836617,True,True,0.0,14468,14004,464
+random,distance-vector,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,10630,10588,0.3966754816773706,20.737917,20.66803,0.33814059685416464,True,True,0.0,71,41,30
+random,link-state,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,3032,2977,1.8474974806852538,1.0379177,0.8680292,19.571749429627484,True,True,0.0,97,55,42
+random,no-stack,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,49201,39262,25.314553512301973,0.4606774,0.5631944,-18.202773323030197,True,True,0.0,4293,14004,-9711
+random,distance-vector,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,10478,10588,-1.038911975821685,20.480112,20.66803,-0.9092206659270543,True,True,0.0,9,41,-32
+random,link-state,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,2756,2977,-7.423580786026202,0.4801113,0.8680292,-44.68949892469055,True,True,0.0,75,55,20
+random,no-stack,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,260,260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,84260,84260,0.0,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,53902,39262,37.28796291579645,5.232481,0.5631944,829.071915487796,True,True,0.0,355,14004,-13649
+random,distance-vector,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,10817,10588,2.162825840574235,21.143866,20.66803,2.3022803818264124,True,True,0.0,113,41,72
+random,link-state,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,3222,2977,8.229761504870675,1.4508348,0.8680292,67.14124363558277,True,True,0.0,187,55,132
+random,no-stack,edge-probability,Extra-edge probability,low,0.0,0.0,probability,numeric,0.15,0.15,edge-probability-low,140,260,-46.15384615384615,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,edge-probability,Extra-edge probability,low,0.0,0.0,probability,numeric,0.15,0.15,edge-probability-low,36140,84260,-57.108948492760504,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,edge-probability,Extra-edge probability,low,0.0,0.0,probability,numeric,0.15,0.15,edge-probability-low,7625,39262,-80.57918598135602,5.471418,0.5631944,871.4972307963288,True,True,0.0,31,14004,-13973
+random,distance-vector,edge-probability,Extra-edge probability,low,0.0,0.0,probability,numeric,0.15,0.15,edge-probability-low,10230,10588,-3.381186248583302,40.76423,20.66803,97.23326316054309,True,True,0.0,37,41,-4
+random,link-state,edge-probability,Extra-edge probability,low,0.0,0.0,probability,numeric,0.15,0.15,edge-probability-low,2703,2977,-9.203896540141082,1.2881286,0.8680292,48.39692028793503,True,True,0.0,69,55,14
+random,no-stack,edge-probability,Extra-edge probability,high,0.5,0.5,probability,numeric,0.15,0.15,edge-probability-high,340,260,30.76923076923077,0.0,0.0,,False,False,0.0,0,0,0
+random,ack-no-routing,edge-probability,Extra-edge probability,high,0.5,0.5,probability,numeric,0.15,0.15,edge-probability-high,116340,84260,38.072632328507,0.0,0.0,,False,False,0.0,0,0,0
+random,flooding,edge-probability,Extra-edge probability,high,0.5,0.5,probability,numeric,0.15,0.15,edge-probability-high,79028,39262,101.28368396923233,0.5156701,0.5631944,-8.438347398340602,True,True,0.0,25372,14004,11368
+random,distance-vector,edge-probability,Extra-edge probability,high,0.5,0.5,probability,numeric,0.15,0.15,edge-probability-high,7863,10588,-25.73668303740083,10.716781,20.66803,-48.148028621982846,True,True,0.0,80,41,39
+random,link-state,edge-probability,Extra-edge probability,high,0.5,0.5,probability,numeric,0.15,0.15,edge-probability-high,6479,2977,117.63520322472287,5.158891,0.8680292,494.32228777557253,True,True,0.0,45,55,-10
+scale-free,no-stack,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,95,220,-56.81818181818182,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,28095,68220,-58.817062445030786,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,1849,33823,-94.53330573869852,0.513838,0.6835944,-24.832912616019094,True,True,0.0,560,6087,-5527
+scale-free,distance-vector,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,1863,8856,-78.96341463414635,10.513838,20.487011,-48.680468810213455,True,True,0.0,35,17,18
+scale-free,link-state,replicas,Replica count,low,5,5,replicas,numeric,10,10,replicas-low,489,2510,-80.5179282868526,0.613838,0.9962296,-38.38388259092081,True,True,0.0,37,33,4
+scale-free,no-stack,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,470,220,113.63636363636364,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,148470,68220,117.63412489006157,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,310531,33823,818.1060225290483,0.6710291,0.6835944,-1.8381221379227215,True,True,0.0,82530,6087,76443
+scale-free,distance-vector,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,32075,8856,262.18383017163507,30.744818,20.487011,50.06980764543935,True,True,0.0,107,17,90
+scale-free,link-state,replicas,Replica count,high,20,20,replicas,numeric,10,10,replicas-high,15625,2510,522.5099601593625,5.346453,0.9962296,436.66875587715924,True,True,0.0,67,33,34
+scale-free,no-stack,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,35263,33823,4.257457942819975,0.4123805,0.6835944,-39.674681360760125,True,True,0.0,3391,6087,-2696
+scale-free,distance-vector,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,8856,8856,0.0,20.4057,20.487011,-0.3968904980819285,True,True,0.0,17,17,0
+scale-free,link-state,network-delay,Network delay range (minimum and maximum jointly),low,,"min=0.001, max=0.01",,categorical,,"min=0.01, max=0.2",network-delay-low,2311,2510,-7.9282868525896415,0.4150845,0.9962296,-58.334454226214525,True,True,0.0,63,33,30
+scale-free,no-stack,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,14174,33823,-58.09360494338173,0.8199002,0.6835944,19.9395723546009,True,True,0.0,6681,6087,594
+scale-free,distance-vector,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,8941,8856,0.9598012646793134,20.685026,20.487011,0.9665392379591224,True,True,0.0,73,17,56
+scale-free,link-state,network-delay,Network delay range (minimum and maximum jointly),high,,"min=0.05, max=0.5",,categorical,,"min=0.01, max=0.2",network-delay-high,2914,2510,16.095617529880478,2.054228,0.9962296,106.2002574506921,True,True,0.0,122,33,89
+scale-free,no-stack,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,7020,68220,-89.70976253298153,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,8556,8856,-3.387533875338753,0.0,20.487011,,False,True,-100.0,0,17,-17
+scale-free,link-state,duration,Maximum simulation duration,low,20.0,20,s,numeric,200.0,200.0,duration-low,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,170220,68220,149.51627088830256,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,8856,8856,0.0,20.487011,20.487011,0.0,True,True,0.0,17,17,0
+scale-free,link-state,duration,Maximum simulation duration,high,500.0,500,s,numeric,200.0,200.0,duration-high,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,44,220,-80.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,68044,68220,-0.25798885957197304,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,3635,33823,-89.25287526239542,0.6280367,0.6835944,-8.127290100679591,True,True,0.0,1327,6087,-4760
+scale-free,distance-vector,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,7516,8856,-15.130984643179765,20.487011,20.487011,0.0,True,True,0.0,15,17,-2
+scale-free,link-state,operations,Operations per replica,low,1,1,operations,numeric,5,5,operations-low,1159,2510,-53.82470119521913,0.6962296,0.9962296,-30.113540091561227,True,True,0.0,41,33,8
+scale-free,no-stack,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,440,220,100.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,68440,68220,0.32248607446496624,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,86264,33823,155.04538331904325,5.241592,0.6835944,666.7693006262192,True,True,0.0,166,6087,-5921
+scale-free,distance-vector,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,10532,8856,18.92502258355917,20.487011,20.487011,0.0,True,True,0.0,19,17,2
+scale-free,link-state,operations,Operations per replica,high,10,10,operations,numeric,5,5,operations-high,4099,2510,63.30677290836654,1.1962296,0.9962296,20.07569339437413,True,True,0.0,66,33,33
+scale-free,no-stack,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,40596,33823,20.024835171333116,5.241592,0.6835944,666.7693006262192,True,True,0.0,166,6087,-5921
+scale-free,distance-vector,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,8742,8856,-1.2872628726287263,20.18701,20.487011,-1.464347336954123,True,True,0.0,23,17,6
+scale-free,link-state,send-interval,Delay between sends,low,0.1,0.1,s,numeric,0.4,0.4,send-interval-low,2392,2510,-4.701195219123506,0.6962296,0.9962296,-30.113540091561227,True,True,0.0,89,33,56
+scale-free,no-stack,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,34756,33823,2.7584779587854418,0.8870139,0.6835944,29.757338562164925,True,True,0.0,1910,6087,-4177
+scale-free,distance-vector,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,8996,8856,1.5808491418247517,20.88701,20.487011,1.9524517266086356,True,True,0.0,15,17,-2
+scale-free,link-state,send-interval,Delay between sends,high,0.8,0.8,s,numeric,0.4,0.4,send-interval-high,2645,2510,5.378486055776892,1.3962296,0.9962296,40.1513867887483,True,True,0.0,33,33,0
+scale-free,no-stack,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,28792,33823,-14.874493687727286,5.0670023,0.6835944,641.2293459396391,True,True,0.0,300,6087,-5787
+scale-free,distance-vector,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,8933,8856,0.8694670280036133,20.51201,20.487011,0.12202365684287036,True,True,0.0,50,17,33
+scale-free,link-state,operation-interval,Delay between operations,low,0.025,0.025,s,numeric,0.1,0.1,operation-interval-low,2411,2510,-3.944223107569721,0.7962296,0.9962296,-20.075693394374152,True,True,0.0,107,33,74
+scale-free,no-stack,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,37242,33823,10.108506046181592,1.0280367,0.6835944,50.386939974932474,True,True,0.0,3621,6087,-2466
+scale-free,distance-vector,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,8852,8856,-0.045167118337850046,20.487011,20.487011,0.0,True,True,0.0,19,17,2
+scale-free,link-state,operation-interval,Delay between operations,high,0.2,0.2,s,numeric,0.1,0.1,operation-interval-high,2533,2510,0.9163346613545816,1.0962296,0.9962296,10.03784669718707,True,True,0.0,59,33,26
+scale-free,no-stack,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,136220,68220,99.67751392553504,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,34091,33823,0.7923602282470509,0.6835944,0.6835944,0.0,True,True,0.0,6148,6087,61
+scale-free,distance-vector,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,15826,8856,78.70370370370371,20.487011,20.487011,0.0,True,True,0.0,51,17,34
+scale-free,link-state,heartbeat,Heartbeat interval,low,0.05,0.05,s,numeric,0.1,0.1,heartbeat-low,2850,2510,13.545816733067728,0.9962296,0.9962296,0.0,True,True,0.0,59,33,26
+scale-free,no-stack,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,13820,68220,-79.74201114042802,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,33676,33823,-0.4346154983295391,0.6835944,0.6835944,0.0,True,True,0.0,6095,6087,8
+scale-free,distance-vector,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,3280,8856,-62.96296296296296,20.487011,20.487011,0.0,True,True,0.0,5,17,-12
+scale-free,link-state,heartbeat,Heartbeat interval,high,0.5,0.5,s,numeric,0.1,0.1,heartbeat-high,2238,2510,-10.836653386454183,0.9962296,0.9962296,0.0,True,True,0.0,21,33,-12
+scale-free,no-stack,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,8856,8856,0.0,20.487011,20.487011,0.0,True,True,0.0,17,17,0
+scale-free,link-state,timeout,Timeout,low,2.0,2,s,numeric,15.0,15.0,timeout-low,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,8856,8856,0.0,20.487011,20.487011,0.0,True,True,0.0,17,17,0
+scale-free,link-state,timeout,Timeout,high,30.0,30,s,numeric,15.0,15.0,timeout-high,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,27743,33823,-17.975933536351004,0.6835944,0.6835944,0.0,True,True,0.0,4175,6087,-1912
+scale-free,distance-vector,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,73450,8856,729.3812104787714,0.0,20.487011,,False,True,-100.0,0,17,-17
+scale-free,link-state,hop-limit,Hop limit,low,2,2,hops,numeric,10,10,hop-limit-low,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,8856,8856,0.0,20.487011,20.487011,0.0,True,True,0.0,17,17,0
+scale-free,link-state,hop-limit,Hop limit,high,20,20,hops,numeric,10,10,hop-limit-high,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,8856,8856,0.0,20.487011,20.487011,0.0,True,True,0.0,17,17,0
+scale-free,link-state,forgetting-time,Forgetting time,low,10.0,10,s,numeric,60.0,60.0,forgetting-time-low,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,8856,8856,0.0,20.487011,20.487011,0.0,True,True,0.0,17,17,0
+scale-free,link-state,forgetting-time,Forgetting time,high,120.0,120,s,numeric,60.0,60.0,forgetting-time-high,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,9556,8856,7.904245709123758,20.487011,20.487011,0.0,True,True,0.0,17,17,0
+scale-free,link-state,ack-timeout,Acknowledgement timeout,low,1.0,1,s,numeric,5.0,5.0,ack-timeout-low,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,8746,8856,-1.2420957542908764,20.487011,20.487011,0.0,True,True,0.0,17,17,0
+scale-free,link-state,ack-timeout,Acknowledgement timeout,high,15.0,15,s,numeric,5.0,5.0,ack-timeout-high,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,2576,8856,-70.91237579042458,2.4870105,20.487011,-87.8605497893275,True,True,0.0,17,17,0
+scale-free,link-state,distance-vector-poll,Distance-vector polling interval,low,1.0,1,s,numeric,10.0,10.0,distance-vector-poll-low,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,33823,33823,0.0,0.6835944,0.6835944,0.0,True,True,0.0,6087,6087,0
+scale-free,distance-vector,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,15846,8856,78.92953929539296,40.48701,20.487011,97.62282550636596,True,True,0.0,17,17,0
+scale-free,link-state,distance-vector-poll,Distance-vector polling interval,high,20.0,20,s,numeric,10.0,10.0,distance-vector-poll-high,2510,2510,0.0,0.9962296,0.9962296,0.0,True,True,0.0,33,33,0
+scale-free,no-stack,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,24205,33823,-28.436271176418416,0.6729444,0.6835944,-1.5579413757631788,True,True,0.0,7556,6087,1469
+scale-free,distance-vector,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,8961,8856,1.1856368563685638,20.65504,20.487011,0.820173328359128,True,True,0.0,47,17,30
+scale-free,link-state,seed,Random seed (categorical; not a numeric dose),low,,1,,categorical,,42,seed-low,4133,2510,64.66135458167331,5.4734054,0.9962296,449.4120431675589,True,True,0.0,29,33,-4
+scale-free,no-stack,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,25024,33823,-26.01484197143955,0.6805769,0.6835944,-0.4414167231328996,True,True,0.0,8544,6087,2457
+scale-free,distance-vector,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,9042,8856,2.100271002710027,20.782248,20.487011,1.4410935787558283,True,True,0.0,47,17,30
+scale-free,link-state,seed,Random seed (categorical; not a numeric dose),high,,2026,,categorical,,42,seed-high,4270,2510,70.1195219123506,5.6090407,0.9962296,463.0269066488287,True,True,0.0,57,33,24
+scale-free,no-stack,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,34238,33823,1.22697572657659,0.6733437,0.6835944,-1.4995295455902002,True,True,0.0,5438,6087,-649
+scale-free,distance-vector,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,8856,8856,0.0,20.462711,20.487011,-0.11861173892082262,True,True,0.0,25,17,8
+scale-free,link-state,minimum-delay,Minimum network delay,low,0.001,0.001,s,numeric,0.01,0.01,minimum-delay-low,2517,2510,0.27888446215139445,0.9913141,0.9962296,-0.4934103544002379,True,True,0.0,32,33,-1
+scale-free,no-stack,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,28105,33823,-16.905655914614314,0.7101148,0.6835944,3.879551968243157,True,True,0.0,7769,6087,1682
+scale-free,distance-vector,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,8898,8856,0.47425474254742545,20.595009,20.487011,0.5271535218095116,True,True,0.0,25,17,8
+scale-free,link-state,minimum-delay,Minimum network delay,high,0.05,0.05,s,numeric,0.01,0.01,minimum-delay-high,2590,2510,3.187250996015936,1.1180758,0.9962296,12.230734762347947,True,True,0.0,83,33,50
+scale-free,no-stack,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,34472,33823,1.9188126422848357,0.4716917,0.6835944,-30.99830835360852,True,True,0.0,3413,6087,-2674
+scale-free,distance-vector,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,8856,8856,0.0,20.442001,20.487011,-0.21970017978707473,True,True,0.0,9,17,-8
+scale-free,link-state,maximum-delay,Maximum network delay,low,0.05,0.05,s,numeric,0.2,0.2,maximum-delay-low,2372,2510,-5.49800796812749,0.5781535,0.9962296,-41.96583799557853,True,True,0.0,5,33,-28
+scale-free,no-stack,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,220,220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,68220,68220,0.0,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,27902,33823,-17.505839221831298,1.2369906,0.6835944,80.95388142442359,True,True,0.0,4451,6087,-1636
+scale-free,distance-vector,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,8898,8856,0.47425474254742545,20.577028,20.487011,0.439385716149611,True,True,0.0,63,17,46
+scale-free,link-state,maximum-delay,Maximum network delay,high,0.5,0.5,s,numeric,0.2,0.2,maximum-delay-high,2897,2510,15.41832669322709,1.9323816,0.9962296,93.96950261265073,True,True,0.0,115,33,82
+scale-free,no-stack,edges-per-node,Edges per new node,low,1,1,edges,numeric,2,2,edges-per-node-low,140,220,-36.36363636363637,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,edges-per-node,Edges per new node,low,1,1,edges,numeric,2,2,edges-per-node-low,36140,68220,-47.02433304016417,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,edges-per-node,Edges per new node,low,1,1,edges,numeric,2,2,edges-per-node-low,7548,33823,-77.6838246163853,5.421107,0.6835944,693.0297556562781,True,True,0.0,52,6087,-6035
+scale-free,distance-vector,edges-per-node,Edges per new node,low,1,1,edges,numeric,2,2,edges-per-node-low,10376,8856,17.163504968383016,40.968742,20.487011,99.9742275727777,True,True,0.0,57,17,40
+scale-free,link-state,edges-per-node,Edges per new node,low,1,1,edges,numeric,2,2,edges-per-node-low,2873,2510,14.46215139442231,1.4687442,0.9962296,47.4302911698267,True,True,0.0,58,33,25
+scale-free,no-stack,edges-per-node,Edges per new node,high,4,4,edges,numeric,2,2,edges-per-node-high,350,220,59.09090909090909,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,ack-no-routing,edges-per-node,Edges per new node,high,4,4,edges,numeric,2,2,edges-per-node-high,120350,68220,76.41454119026679,0.0,0.0,,False,False,0.0,0,0,0
+scale-free,flooding,edges-per-node,Edges per new node,high,4,4,edges,numeric,2,2,edges-per-node-high,90752,33823,168.3144605741655,0.4985305,0.6835944,-27.072179058225178,True,True,0.0,24267,6087,18180
+scale-free,distance-vector,edges-per-node,Edges per new node,high,4,4,edges,numeric,2,2,edges-per-node-high,8008,8856,-9.57542908762421,10.617403,20.487011,-48.17495338875935,True,True,0.0,83,17,66
+scale-free,link-state,edges-per-node,Edges per new node,high,4,4,edges,numeric,2,2,edges-per-node-high,6575,2510,161.95219123505976,5.1515045,0.9962296,417.1001243086934,True,True,0.0,45,33,12

@@ -29,15 +29,25 @@ The analysis writes:
 - `baseline_<topology>_<metric>.png`: one image per topology and baseline metric,
   with larger labels and exact values shown directly on each bar. Message counts
   use logarithmic or symmetrical-log scales where appropriate.
-- `parameter_sweep_<algorithm>_<topology>_<metric>.png`: parameter effects within
-  one routing algorithm and topology, with a separate graph for each metric.
-  Low/high or first/last variants are shown together on the same parameter row,
-  each compared against that algorithm/topology's baseline. Percentage and
-  percentage-point changes are labeled to two decimal places; count changes are
-  labeled as messages. Symmetric-log x-axes retain detail for percentage and
-  message-count changes when other parameters have much larger effects; completion
-  changes use a bounded linear scale. A time change is shown only when both runs
-  completed.
+- `parameter_responses/parameter_response_<algorithm>_<parameter>_<metric>.png`:
+  isolated dose-response curves for one parameter, routing algorithm, and metric.
+  Each image has a separate panel per topology and plots observed metric values
+  at baseline, low, and high settings. Exact values and descriptive Spearman rho
+  (numeric factors only) are annotated. Counts use a symmetric-log y-axis;
+  completion is displayed as a binary outcome (0% or 100%). Failed runs are
+  omitted from completion-time plots and remain visible in completion plots.
+- `parameter_effects/parameter_effect_<algorithm>_<parameter>_<metric>.png`:
+  companion baseline-centered effect plots, showing each low/high variant's
+  percentage, percentage-point, or count change against the matching baseline.
+- `parameter_response_data.csv`: one row per parameter-variation result, including
+  the configured numeric setting, baseline setting, raw outcomes, and paired
+  changes.
+- `parameter_trends.csv`: descriptive Spearman rank correlations between numeric
+  settings and each outcome, separately by topology and routing algorithm. This is
+  not an inferential statistical analysis: each level has a single run (at most
+  baseline/low/high, n=3), so the file contains no p-values or confidence intervals.
+  Categorical parameters such as random seed and star-center choice are compared
+  as categories, not treated as numeric dose-response variables.
 - `analysis_report.txt`: baseline results and the largest paired increases and
   decreases, broken down by topology.
 - `paired_baseline_comparison.csv`: each scenario result alongside its exact
@@ -48,9 +58,14 @@ The analysis writes:
 Each JSON record represents one run, and the input does not include repeated
 trials or the numeric values assigned to low/high settings. The report therefore
 describes observed comparisons rather than statistical significance or
-run-to-run variability; for numeric scenario settings, consult the C# scenario
-definitions. The C# execution-time metric is set only when all insert operations
-complete, so a recorded value of zero indicates an unsuccessful run, not a
-zero-duration success. Parameter-sweep images use scenario suffixes (`low`,
-`high`, `first`, or `last`) as variant labels; numeric values for those variants
-are not embedded in the simulation JSON.
+run-to-run variability. The analysis maps scenario labels to the values declared
+in `RunSimulations/Program.cs`. The C# execution-time metric is set only when all
+insert operations complete, so a recorded value of zero indicates an unsuccessful
+run, not a zero-duration success. The network-delay scenarios change both minimum
+and maximum delay together and are explicitly treated as a joint variation rather
+than an isolated single-parameter effect.
+
+Each setting level has only one run in this dataset. Spearman rho values and
+response curves are descriptive trends, not inferential evidence; they have no
+p-values or confidence intervals. Replicated randomized runs are needed to
+estimate run-to-run uncertainty and support statistical inference.

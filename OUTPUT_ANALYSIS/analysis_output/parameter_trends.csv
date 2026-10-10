@@ -1,0 +1,1221 @@
+topology,routing_algorithm,parameter,parameter_label,metric,metric_label,observation_count,spearman_rho_descriptive,inferential_test_performed
+complete,ack-no-routing,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+complete,ack-no-routing,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+complete,ack-no-routing,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+complete,ack-no-routing,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+complete,ack-no-routing,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+complete,ack-no-routing,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+complete,ack-no-routing,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+complete,ack-no-routing,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+complete,ack-no-routing,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+complete,ack-no-routing,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+complete,ack-no-routing,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+complete,ack-no-routing,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+complete,ack-no-routing,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+complete,ack-no-routing,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-1.0,False
+complete,ack-no-routing,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+complete,ack-no-routing,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+complete,ack-no-routing,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+complete,ack-no-routing,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+complete,ack-no-routing,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,operation-interval,Delay between operations,execution_time,Time to successful completion,3,1.0,False
+complete,ack-no-routing,operation-interval,Delay between operations,messages_after_close,Messages after close,3,1.0,False
+complete,ack-no-routing,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,1.0,False
+complete,ack-no-routing,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,operations,Operations per replica,execution_time,Time to successful completion,3,1.0,False
+complete,ack-no-routing,operations,Operations per replica,messages_after_close,Messages after close,3,0.8660254037844387,False
+complete,ack-no-routing,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+complete,ack-no-routing,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,replicas,Replica count,execution_time,Time to successful completion,3,,False
+complete,ack-no-routing,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+complete,ack-no-routing,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+complete,ack-no-routing,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,send-interval,Delay between sends,execution_time,Time to successful completion,3,,False
+complete,ack-no-routing,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+complete,ack-no-routing,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+complete,ack-no-routing,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+complete,ack-no-routing,timeout,Timeout,execution_time,Time to successful completion,3,,False
+complete,ack-no-routing,timeout,Timeout,messages_after_close,Messages after close,3,,False
+complete,ack-no-routing,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+random,ack-no-routing,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+random,ack-no-routing,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+random,ack-no-routing,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,duration,Maximum simulation duration,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,1.0,False
+random,ack-no-routing,edge-probability,Extra-edge probability,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,edge-probability,Extra-edge probability,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,edge-probability,Extra-edge probability,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,edge-probability,Extra-edge probability,total_messages_sent,Messages sent,3,1.0,False
+random,ack-no-routing,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,forgetting-time,Forgetting time,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+random,ack-no-routing,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,heartbeat,Heartbeat interval,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+random,ack-no-routing,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,hop-limit,Hop limit,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+random,ack-no-routing,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,maximum-delay,Maximum network delay,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,,False
+random,ack-no-routing,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,minimum-delay,Minimum network delay,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,,False
+random,ack-no-routing,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,operation-interval,Delay between operations,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,operation-interval,Delay between operations,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,,False
+random,ack-no-routing,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,operations,Operations per replica,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,operations,Operations per replica,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+random,ack-no-routing,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,replicas,Replica count,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,replicas,Replica count,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+random,ack-no-routing,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,send-interval,Delay between sends,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+random,ack-no-routing,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+random,ack-no-routing,timeout,Timeout,execution_time,Time to successful completion,0,,False
+random,ack-no-routing,timeout,Timeout,messages_after_close,Messages after close,3,,False
+random,ack-no-routing,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+ring,ack-no-routing,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+ring,ack-no-routing,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+ring,ack-no-routing,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,duration,Maximum simulation duration,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,1.0,False
+ring,ack-no-routing,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,forgetting-time,Forgetting time,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+ring,ack-no-routing,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,heartbeat,Heartbeat interval,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+ring,ack-no-routing,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,hop-limit,Hop limit,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+ring,ack-no-routing,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,operation-interval,Delay between operations,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,operation-interval,Delay between operations,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,,False
+ring,ack-no-routing,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,operations,Operations per replica,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,operations,Operations per replica,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+ring,ack-no-routing,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,replicas,Replica count,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,replicas,Replica count,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+ring,ack-no-routing,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,send-interval,Delay between sends,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+ring,ack-no-routing,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+ring,ack-no-routing,timeout,Timeout,execution_time,Time to successful completion,0,,False
+ring,ack-no-routing,timeout,Timeout,messages_after_close,Messages after close,3,,False
+ring,ack-no-routing,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+scale-free,ack-no-routing,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+scale-free,ack-no-routing,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+scale-free,ack-no-routing,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,duration,Maximum simulation duration,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,1.0,False
+scale-free,ack-no-routing,edges-per-node,Edges per new node,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,edges-per-node,Edges per new node,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,edges-per-node,Edges per new node,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,edges-per-node,Edges per new node,total_messages_sent,Messages sent,3,1.0,False
+scale-free,ack-no-routing,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,forgetting-time,Forgetting time,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+scale-free,ack-no-routing,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,heartbeat,Heartbeat interval,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+scale-free,ack-no-routing,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,hop-limit,Hop limit,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+scale-free,ack-no-routing,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,maximum-delay,Maximum network delay,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,,False
+scale-free,ack-no-routing,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,minimum-delay,Minimum network delay,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,,False
+scale-free,ack-no-routing,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,operation-interval,Delay between operations,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,operation-interval,Delay between operations,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,,False
+scale-free,ack-no-routing,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,operations,Operations per replica,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,operations,Operations per replica,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+scale-free,ack-no-routing,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,replicas,Replica count,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,replicas,Replica count,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+scale-free,ack-no-routing,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,send-interval,Delay between sends,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+scale-free,ack-no-routing,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,ack-no-routing,timeout,Timeout,execution_time,Time to successful completion,0,,False
+scale-free,ack-no-routing,timeout,Timeout,messages_after_close,Messages after close,3,,False
+scale-free,ack-no-routing,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+star,ack-no-routing,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+star,ack-no-routing,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+star,ack-no-routing,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,duration,Maximum simulation duration,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,1.0,False
+star,ack-no-routing,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,forgetting-time,Forgetting time,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+star,ack-no-routing,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,heartbeat,Heartbeat interval,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+star,ack-no-routing,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,hop-limit,Hop limit,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+star,ack-no-routing,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,operation-interval,Delay between operations,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,operation-interval,Delay between operations,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,,False
+star,ack-no-routing,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,operations,Operations per replica,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,operations,Operations per replica,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+star,ack-no-routing,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,replicas,Replica count,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,replicas,Replica count,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+star,ack-no-routing,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,send-interval,Delay between sends,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+star,ack-no-routing,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+star,ack-no-routing,timeout,Timeout,execution_time,Time to successful completion,0,,False
+star,ack-no-routing,timeout,Timeout,messages_after_close,Messages after close,3,,False
+star,ack-no-routing,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+complete,distance-vector,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+complete,distance-vector,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+complete,distance-vector,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+complete,distance-vector,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+complete,distance-vector,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+complete,distance-vector,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+complete,distance-vector,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+complete,distance-vector,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+complete,distance-vector,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+complete,distance-vector,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+complete,distance-vector,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+complete,distance-vector,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+complete,distance-vector,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+complete,distance-vector,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-1.0,False
+complete,distance-vector,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+complete,distance-vector,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+complete,distance-vector,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+complete,distance-vector,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+complete,distance-vector,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,operation-interval,Delay between operations,execution_time,Time to successful completion,3,1.0,False
+complete,distance-vector,operation-interval,Delay between operations,messages_after_close,Messages after close,3,1.0,False
+complete,distance-vector,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,1.0,False
+complete,distance-vector,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,operations,Operations per replica,execution_time,Time to successful completion,3,1.0,False
+complete,distance-vector,operations,Operations per replica,messages_after_close,Messages after close,3,-1.0,False
+complete,distance-vector,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+complete,distance-vector,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,replicas,Replica count,execution_time,Time to successful completion,3,,False
+complete,distance-vector,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+complete,distance-vector,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+complete,distance-vector,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,send-interval,Delay between sends,execution_time,Time to successful completion,3,,False
+complete,distance-vector,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+complete,distance-vector,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+complete,distance-vector,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+complete,distance-vector,timeout,Timeout,execution_time,Time to successful completion,3,,False
+complete,distance-vector,timeout,Timeout,messages_after_close,Messages after close,3,,False
+complete,distance-vector,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+random,distance-vector,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+random,distance-vector,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+random,distance-vector,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,-1.0,False
+random,distance-vector,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,1.0,False
+random,distance-vector,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+random,distance-vector,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,1.0,False
+random,distance-vector,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,0.8660254037844387,False
+random,distance-vector,duration,Maximum simulation duration,execution_time,Time to successful completion,2,,False
+random,distance-vector,duration,Maximum simulation duration,messages_after_close,Messages after close,3,0.8660254037844387,False
+random,distance-vector,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,0.8660254037844387,False
+random,distance-vector,edge-probability,Extra-edge probability,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,edge-probability,Extra-edge probability,execution_time,Time to successful completion,3,-1.0,False
+random,distance-vector,edge-probability,Extra-edge probability,messages_after_close,Messages after close,3,1.0,False
+random,distance-vector,edge-probability,Extra-edge probability,total_messages_sent,Messages sent,3,-0.5,False
+random,distance-vector,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+random,distance-vector,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+random,distance-vector,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+random,distance-vector,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+random,distance-vector,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-1.0,False
+random,distance-vector,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+random,distance-vector,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,0.8660254037844387,False
+random,distance-vector,hop-limit,Hop limit,execution_time,Time to successful completion,2,,False
+random,distance-vector,hop-limit,Hop limit,messages_after_close,Messages after close,3,0.8660254037844387,False
+random,distance-vector,hop-limit,Hop limit,total_messages_sent,Messages sent,3,-0.8660254037844387,False
+random,distance-vector,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,maximum-delay,Maximum network delay,execution_time,Time to successful completion,3,1.0,False
+random,distance-vector,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,1.0,False
+random,distance-vector,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,1.0,False
+random,distance-vector,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,minimum-delay,Minimum network delay,execution_time,Time to successful completion,3,1.0,False
+random,distance-vector,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,0.5,False
+random,distance-vector,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,0.8660254037844387,False
+random,distance-vector,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,operation-interval,Delay between operations,execution_time,Time to successful completion,3,-0.8660254037844387,False
+random,distance-vector,operation-interval,Delay between operations,messages_after_close,Messages after close,3,-0.8660254037844387,False
+random,distance-vector,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,-1.0,False
+random,distance-vector,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,operations,Operations per replica,execution_time,Time to successful completion,3,,False
+random,distance-vector,operations,Operations per replica,messages_after_close,Messages after close,3,1.0,False
+random,distance-vector,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+random,distance-vector,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,replicas,Replica count,execution_time,Time to successful completion,3,0.5,False
+random,distance-vector,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+random,distance-vector,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+random,distance-vector,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,send-interval,Delay between sends,execution_time,Time to successful completion,3,1.0,False
+random,distance-vector,send-interval,Delay between sends,messages_after_close,Messages after close,3,-1.0,False
+random,distance-vector,send-interval,Delay between sends,total_messages_sent,Messages sent,3,1.0,False
+random,distance-vector,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+random,distance-vector,timeout,Timeout,execution_time,Time to successful completion,3,,False
+random,distance-vector,timeout,Timeout,messages_after_close,Messages after close,3,,False
+random,distance-vector,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+ring,distance-vector,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+ring,distance-vector,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+ring,distance-vector,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+ring,distance-vector,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,-1.0,False
+ring,distance-vector,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+ring,distance-vector,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,1.0,False
+ring,distance-vector,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+ring,distance-vector,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,1.0,False
+ring,distance-vector,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,0.8660254037844387,False
+ring,distance-vector,duration,Maximum simulation duration,execution_time,Time to successful completion,2,,False
+ring,distance-vector,duration,Maximum simulation duration,messages_after_close,Messages after close,3,0.8660254037844387,False
+ring,distance-vector,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,0.8660254037844387,False
+ring,distance-vector,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+ring,distance-vector,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+ring,distance-vector,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+ring,distance-vector,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+ring,distance-vector,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+ring,distance-vector,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+ring,distance-vector,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+ring,distance-vector,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+ring,distance-vector,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,0.8660254037844387,False
+ring,distance-vector,hop-limit,Hop limit,execution_time,Time to successful completion,2,,False
+ring,distance-vector,hop-limit,Hop limit,messages_after_close,Messages after close,3,0.8660254037844387,False
+ring,distance-vector,hop-limit,Hop limit,total_messages_sent,Messages sent,3,-0.8660254037844387,False
+ring,distance-vector,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+ring,distance-vector,operation-interval,Delay between operations,execution_time,Time to successful completion,3,,False
+ring,distance-vector,operation-interval,Delay between operations,messages_after_close,Messages after close,3,1.0,False
+ring,distance-vector,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,-1.0,False
+ring,distance-vector,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+ring,distance-vector,operations,Operations per replica,execution_time,Time to successful completion,3,,False
+ring,distance-vector,operations,Operations per replica,messages_after_close,Messages after close,3,1.0,False
+ring,distance-vector,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+ring,distance-vector,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+ring,distance-vector,replicas,Replica count,execution_time,Time to successful completion,3,1.0,False
+ring,distance-vector,replicas,Replica count,messages_after_close,Messages after close,3,0.8660254037844387,False
+ring,distance-vector,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+ring,distance-vector,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+ring,distance-vector,send-interval,Delay between sends,execution_time,Time to successful completion,3,1.0,False
+ring,distance-vector,send-interval,Delay between sends,messages_after_close,Messages after close,3,-1.0,False
+ring,distance-vector,send-interval,Delay between sends,total_messages_sent,Messages sent,3,1.0,False
+ring,distance-vector,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+ring,distance-vector,timeout,Timeout,execution_time,Time to successful completion,3,,False
+ring,distance-vector,timeout,Timeout,messages_after_close,Messages after close,3,,False
+ring,distance-vector,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+scale-free,distance-vector,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+scale-free,distance-vector,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+scale-free,distance-vector,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,-1.0,False
+scale-free,distance-vector,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,1.0,False
+scale-free,distance-vector,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+scale-free,distance-vector,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,1.0,False
+scale-free,distance-vector,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,0.8660254037844387,False
+scale-free,distance-vector,duration,Maximum simulation duration,execution_time,Time to successful completion,2,,False
+scale-free,distance-vector,duration,Maximum simulation duration,messages_after_close,Messages after close,3,0.8660254037844387,False
+scale-free,distance-vector,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,0.8660254037844387,False
+scale-free,distance-vector,edges-per-node,Edges per new node,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,edges-per-node,Edges per new node,execution_time,Time to successful completion,3,-1.0,False
+scale-free,distance-vector,edges-per-node,Edges per new node,messages_after_close,Messages after close,3,0.5,False
+scale-free,distance-vector,edges-per-node,Edges per new node,total_messages_sent,Messages sent,3,-1.0,False
+scale-free,distance-vector,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+scale-free,distance-vector,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+scale-free,distance-vector,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+scale-free,distance-vector,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+scale-free,distance-vector,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-1.0,False
+scale-free,distance-vector,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+scale-free,distance-vector,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,0.8660254037844387,False
+scale-free,distance-vector,hop-limit,Hop limit,execution_time,Time to successful completion,2,,False
+scale-free,distance-vector,hop-limit,Hop limit,messages_after_close,Messages after close,3,0.8660254037844387,False
+scale-free,distance-vector,hop-limit,Hop limit,total_messages_sent,Messages sent,3,-0.8660254037844387,False
+scale-free,distance-vector,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,maximum-delay,Maximum network delay,execution_time,Time to successful completion,3,1.0,False
+scale-free,distance-vector,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,1.0,False
+scale-free,distance-vector,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,0.8660254037844387,False
+scale-free,distance-vector,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,minimum-delay,Minimum network delay,execution_time,Time to successful completion,3,1.0,False
+scale-free,distance-vector,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,0.0,False
+scale-free,distance-vector,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,0.8660254037844387,False
+scale-free,distance-vector,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,operation-interval,Delay between operations,execution_time,Time to successful completion,3,-0.8660254037844387,False
+scale-free,distance-vector,operation-interval,Delay between operations,messages_after_close,Messages after close,3,-0.5,False
+scale-free,distance-vector,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,-1.0,False
+scale-free,distance-vector,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,operations,Operations per replica,execution_time,Time to successful completion,3,,False
+scale-free,distance-vector,operations,Operations per replica,messages_after_close,Messages after close,3,1.0,False
+scale-free,distance-vector,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+scale-free,distance-vector,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,replicas,Replica count,execution_time,Time to successful completion,3,1.0,False
+scale-free,distance-vector,replicas,Replica count,messages_after_close,Messages after close,3,0.5,False
+scale-free,distance-vector,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+scale-free,distance-vector,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,send-interval,Delay between sends,execution_time,Time to successful completion,3,1.0,False
+scale-free,distance-vector,send-interval,Delay between sends,messages_after_close,Messages after close,3,-1.0,False
+scale-free,distance-vector,send-interval,Delay between sends,total_messages_sent,Messages sent,3,1.0,False
+scale-free,distance-vector,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,distance-vector,timeout,Timeout,execution_time,Time to successful completion,3,,False
+scale-free,distance-vector,timeout,Timeout,messages_after_close,Messages after close,3,,False
+scale-free,distance-vector,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+star,distance-vector,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+star,distance-vector,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+star,distance-vector,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,-1.0,False
+star,distance-vector,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,1.0,False
+star,distance-vector,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,0.8660254037844387,False
+star,distance-vector,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,1.0,False
+star,distance-vector,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+star,distance-vector,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+star,distance-vector,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+star,distance-vector,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+star,distance-vector,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+star,distance-vector,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+star,distance-vector,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+star,distance-vector,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+star,distance-vector,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+star,distance-vector,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+star,distance-vector,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+star,distance-vector,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+star,distance-vector,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,operation-interval,Delay between operations,execution_time,Time to successful completion,3,,False
+star,distance-vector,operation-interval,Delay between operations,messages_after_close,Messages after close,3,1.0,False
+star,distance-vector,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,-1.0,False
+star,distance-vector,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,operations,Operations per replica,execution_time,Time to successful completion,3,,False
+star,distance-vector,operations,Operations per replica,messages_after_close,Messages after close,3,1.0,False
+star,distance-vector,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+star,distance-vector,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,replicas,Replica count,execution_time,Time to successful completion,3,,False
+star,distance-vector,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+star,distance-vector,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+star,distance-vector,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,send-interval,Delay between sends,execution_time,Time to successful completion,3,1.0,False
+star,distance-vector,send-interval,Delay between sends,messages_after_close,Messages after close,3,-1.0,False
+star,distance-vector,send-interval,Delay between sends,total_messages_sent,Messages sent,3,1.0,False
+star,distance-vector,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+star,distance-vector,timeout,Timeout,execution_time,Time to successful completion,3,,False
+star,distance-vector,timeout,Timeout,messages_after_close,Messages after close,3,,False
+star,distance-vector,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+complete,flooding,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+complete,flooding,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+complete,flooding,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+complete,flooding,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+complete,flooding,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+complete,flooding,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+complete,flooding,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+complete,flooding,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+complete,flooding,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+complete,flooding,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+complete,flooding,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+complete,flooding,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+complete,flooding,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+complete,flooding,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+complete,flooding,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+complete,flooding,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+complete,flooding,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+complete,flooding,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+complete,flooding,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-1.0,False
+complete,flooding,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+complete,flooding,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+complete,flooding,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+complete,flooding,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+complete,flooding,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+complete,flooding,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+complete,flooding,operation-interval,Delay between operations,execution_time,Time to successful completion,3,1.0,False
+complete,flooding,operation-interval,Delay between operations,messages_after_close,Messages after close,3,-0.5,False
+complete,flooding,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,1.0,False
+complete,flooding,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+complete,flooding,operations,Operations per replica,execution_time,Time to successful completion,3,1.0,False
+complete,flooding,operations,Operations per replica,messages_after_close,Messages after close,3,0.5,False
+complete,flooding,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+complete,flooding,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+complete,flooding,replicas,Replica count,execution_time,Time to successful completion,3,,False
+complete,flooding,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+complete,flooding,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+complete,flooding,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+complete,flooding,send-interval,Delay between sends,execution_time,Time to successful completion,3,,False
+complete,flooding,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+complete,flooding,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+complete,flooding,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+complete,flooding,timeout,Timeout,execution_time,Time to successful completion,3,,False
+complete,flooding,timeout,Timeout,messages_after_close,Messages after close,3,,False
+complete,flooding,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+random,flooding,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+random,flooding,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+random,flooding,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+random,flooding,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+random,flooding,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+random,flooding,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+random,flooding,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+random,flooding,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+random,flooding,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+random,flooding,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+random,flooding,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+random,flooding,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+random,flooding,edge-probability,Extra-edge probability,completion_rate_pct,Successful completion,3,,False
+random,flooding,edge-probability,Extra-edge probability,execution_time,Time to successful completion,3,-1.0,False
+random,flooding,edge-probability,Extra-edge probability,messages_after_close,Messages after close,3,1.0,False
+random,flooding,edge-probability,Extra-edge probability,total_messages_sent,Messages sent,3,1.0,False
+random,flooding,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+random,flooding,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+random,flooding,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+random,flooding,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+random,flooding,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+random,flooding,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+random,flooding,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-1.0,False
+random,flooding,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+random,flooding,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+random,flooding,hop-limit,Hop limit,execution_time,Time to successful completion,3,-0.8660254037844387,False
+random,flooding,hop-limit,Hop limit,messages_after_close,Messages after close,3,0.8660254037844387,False
+random,flooding,hop-limit,Hop limit,total_messages_sent,Messages sent,3,-0.8660254037844387,False
+random,flooding,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+random,flooding,maximum-delay,Maximum network delay,execution_time,Time to successful completion,3,1.0,False
+random,flooding,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,-0.5,False
+random,flooding,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,0.5,False
+random,flooding,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+random,flooding,minimum-delay,Minimum network delay,execution_time,Time to successful completion,3,1.0,False
+random,flooding,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,0.5,False
+random,flooding,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,-0.5,False
+random,flooding,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+random,flooding,operation-interval,Delay between operations,execution_time,Time to successful completion,3,-0.5,False
+random,flooding,operation-interval,Delay between operations,messages_after_close,Messages after close,3,0.5,False
+random,flooding,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,0.5,False
+random,flooding,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+random,flooding,operations,Operations per replica,execution_time,Time to successful completion,3,0.8660254037844387,False
+random,flooding,operations,Operations per replica,messages_after_close,Messages after close,3,0.5,False
+random,flooding,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+random,flooding,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+random,flooding,replicas,Replica count,execution_time,Time to successful completion,3,-0.5,False
+random,flooding,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+random,flooding,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+random,flooding,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+random,flooding,send-interval,Delay between sends,execution_time,Time to successful completion,3,0.8660254037844387,False
+random,flooding,send-interval,Delay between sends,messages_after_close,Messages after close,3,-0.5,False
+random,flooding,send-interval,Delay between sends,total_messages_sent,Messages sent,3,0.5,False
+random,flooding,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+random,flooding,timeout,Timeout,execution_time,Time to successful completion,3,,False
+random,flooding,timeout,Timeout,messages_after_close,Messages after close,3,,False
+random,flooding,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+ring,flooding,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+ring,flooding,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+ring,flooding,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+ring,flooding,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+ring,flooding,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+ring,flooding,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+ring,flooding,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+ring,flooding,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+ring,flooding,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+ring,flooding,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+ring,flooding,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+ring,flooding,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+ring,flooding,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+ring,flooding,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+ring,flooding,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+ring,flooding,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+ring,flooding,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+ring,flooding,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+ring,flooding,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+ring,flooding,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+ring,flooding,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,0.8660254037844387,False
+ring,flooding,hop-limit,Hop limit,execution_time,Time to successful completion,2,,False
+ring,flooding,hop-limit,Hop limit,messages_after_close,Messages after close,3,0.8660254037844387,False
+ring,flooding,hop-limit,Hop limit,total_messages_sent,Messages sent,3,-0.8660254037844387,False
+ring,flooding,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+ring,flooding,operation-interval,Delay between operations,execution_time,Time to successful completion,3,0.8660254037844387,False
+ring,flooding,operation-interval,Delay between operations,messages_after_close,Messages after close,3,0.5,False
+ring,flooding,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,-0.5,False
+ring,flooding,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+ring,flooding,operations,Operations per replica,execution_time,Time to successful completion,3,0.8660254037844387,False
+ring,flooding,operations,Operations per replica,messages_after_close,Messages after close,3,0.5,False
+ring,flooding,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+ring,flooding,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+ring,flooding,replicas,Replica count,execution_time,Time to successful completion,3,1.0,False
+ring,flooding,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+ring,flooding,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+ring,flooding,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+ring,flooding,send-interval,Delay between sends,execution_time,Time to successful completion,3,0.8660254037844387,False
+ring,flooding,send-interval,Delay between sends,messages_after_close,Messages after close,3,-0.5,False
+ring,flooding,send-interval,Delay between sends,total_messages_sent,Messages sent,3,0.5,False
+ring,flooding,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+ring,flooding,timeout,Timeout,execution_time,Time to successful completion,3,,False
+ring,flooding,timeout,Timeout,messages_after_close,Messages after close,3,,False
+ring,flooding,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+scale-free,flooding,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+scale-free,flooding,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+scale-free,flooding,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+scale-free,flooding,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+scale-free,flooding,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+scale-free,flooding,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+scale-free,flooding,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+scale-free,flooding,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+scale-free,flooding,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+scale-free,flooding,edges-per-node,Edges per new node,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,edges-per-node,Edges per new node,execution_time,Time to successful completion,3,-1.0,False
+scale-free,flooding,edges-per-node,Edges per new node,messages_after_close,Messages after close,3,1.0,False
+scale-free,flooding,edges-per-node,Edges per new node,total_messages_sent,Messages sent,3,1.0,False
+scale-free,flooding,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+scale-free,flooding,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+scale-free,flooding,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+scale-free,flooding,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+scale-free,flooding,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-0.5,False
+scale-free,flooding,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+scale-free,flooding,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+scale-free,flooding,hop-limit,Hop limit,messages_after_close,Messages after close,3,0.8660254037844387,False
+scale-free,flooding,hop-limit,Hop limit,total_messages_sent,Messages sent,3,0.8660254037844387,False
+scale-free,flooding,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,maximum-delay,Maximum network delay,execution_time,Time to successful completion,3,1.0,False
+scale-free,flooding,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,0.5,False
+scale-free,flooding,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,-1.0,False
+scale-free,flooding,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,minimum-delay,Minimum network delay,execution_time,Time to successful completion,3,1.0,False
+scale-free,flooding,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,1.0,False
+scale-free,flooding,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,-1.0,False
+scale-free,flooding,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,operation-interval,Delay between operations,execution_time,Time to successful completion,3,-0.5,False
+scale-free,flooding,operation-interval,Delay between operations,messages_after_close,Messages after close,3,0.5,False
+scale-free,flooding,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,1.0,False
+scale-free,flooding,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,operations,Operations per replica,execution_time,Time to successful completion,3,1.0,False
+scale-free,flooding,operations,Operations per replica,messages_after_close,Messages after close,3,-0.5,False
+scale-free,flooding,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+scale-free,flooding,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,replicas,Replica count,execution_time,Time to successful completion,3,0.5,False
+scale-free,flooding,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+scale-free,flooding,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+scale-free,flooding,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,send-interval,Delay between sends,execution_time,Time to successful completion,3,-0.5,False
+scale-free,flooding,send-interval,Delay between sends,messages_after_close,Messages after close,3,0.5,False
+scale-free,flooding,send-interval,Delay between sends,total_messages_sent,Messages sent,3,-0.5,False
+scale-free,flooding,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,flooding,timeout,Timeout,execution_time,Time to successful completion,3,,False
+scale-free,flooding,timeout,Timeout,messages_after_close,Messages after close,3,,False
+scale-free,flooding,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+star,flooding,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+star,flooding,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+star,flooding,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+star,flooding,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+star,flooding,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+star,flooding,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+star,flooding,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+star,flooding,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+star,flooding,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+star,flooding,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+star,flooding,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+star,flooding,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+star,flooding,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+star,flooding,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+star,flooding,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+star,flooding,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+star,flooding,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+star,flooding,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+star,flooding,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-0.8660254037844387,False
+star,flooding,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+star,flooding,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+star,flooding,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+star,flooding,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+star,flooding,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+star,flooding,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+star,flooding,operation-interval,Delay between operations,execution_time,Time to successful completion,3,0.8660254037844387,False
+star,flooding,operation-interval,Delay between operations,messages_after_close,Messages after close,3,-0.5,False
+star,flooding,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,0.5,False
+star,flooding,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+star,flooding,operations,Operations per replica,execution_time,Time to successful completion,3,0.8660254037844387,False
+star,flooding,operations,Operations per replica,messages_after_close,Messages after close,3,-0.5,False
+star,flooding,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+star,flooding,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+star,flooding,replicas,Replica count,execution_time,Time to successful completion,3,,False
+star,flooding,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+star,flooding,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+star,flooding,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+star,flooding,send-interval,Delay between sends,execution_time,Time to successful completion,3,0.8660254037844387,False
+star,flooding,send-interval,Delay between sends,messages_after_close,Messages after close,3,0.5,False
+star,flooding,send-interval,Delay between sends,total_messages_sent,Messages sent,3,0.5,False
+star,flooding,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+star,flooding,timeout,Timeout,execution_time,Time to successful completion,3,,False
+star,flooding,timeout,Timeout,messages_after_close,Messages after close,3,,False
+star,flooding,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+complete,link-state,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+complete,link-state,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+complete,link-state,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+complete,link-state,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+complete,link-state,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+complete,link-state,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+complete,link-state,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+complete,link-state,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+complete,link-state,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+complete,link-state,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+complete,link-state,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+complete,link-state,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+complete,link-state,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+complete,link-state,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+complete,link-state,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+complete,link-state,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+complete,link-state,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+complete,link-state,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+complete,link-state,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-1.0,False
+complete,link-state,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+complete,link-state,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+complete,link-state,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+complete,link-state,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+complete,link-state,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+complete,link-state,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+complete,link-state,operation-interval,Delay between operations,execution_time,Time to successful completion,3,1.0,False
+complete,link-state,operation-interval,Delay between operations,messages_after_close,Messages after close,3,1.0,False
+complete,link-state,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,1.0,False
+complete,link-state,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+complete,link-state,operations,Operations per replica,execution_time,Time to successful completion,3,1.0,False
+complete,link-state,operations,Operations per replica,messages_after_close,Messages after close,3,-0.8660254037844387,False
+complete,link-state,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+complete,link-state,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+complete,link-state,replicas,Replica count,execution_time,Time to successful completion,3,,False
+complete,link-state,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+complete,link-state,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+complete,link-state,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+complete,link-state,send-interval,Delay between sends,execution_time,Time to successful completion,3,,False
+complete,link-state,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+complete,link-state,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+complete,link-state,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+complete,link-state,timeout,Timeout,execution_time,Time to successful completion,3,,False
+complete,link-state,timeout,Timeout,messages_after_close,Messages after close,3,,False
+complete,link-state,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+random,link-state,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+random,link-state,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+random,link-state,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+random,link-state,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+random,link-state,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+random,link-state,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+random,link-state,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+random,link-state,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+random,link-state,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+random,link-state,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+random,link-state,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+random,link-state,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+random,link-state,edge-probability,Extra-edge probability,completion_rate_pct,Successful completion,3,,False
+random,link-state,edge-probability,Extra-edge probability,execution_time,Time to successful completion,3,0.5,False
+random,link-state,edge-probability,Extra-edge probability,messages_after_close,Messages after close,3,-1.0,False
+random,link-state,edge-probability,Extra-edge probability,total_messages_sent,Messages sent,3,1.0,False
+random,link-state,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+random,link-state,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+random,link-state,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+random,link-state,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+random,link-state,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+random,link-state,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+random,link-state,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-1.0,False
+random,link-state,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+random,link-state,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+random,link-state,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+random,link-state,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+random,link-state,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+random,link-state,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+random,link-state,maximum-delay,Maximum network delay,execution_time,Time to successful completion,3,1.0,False
+random,link-state,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,0.5,False
+random,link-state,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,1.0,False
+random,link-state,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+random,link-state,minimum-delay,Minimum network delay,execution_time,Time to successful completion,3,1.0,False
+random,link-state,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,0.5,False
+random,link-state,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,1.0,False
+random,link-state,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+random,link-state,operation-interval,Delay between operations,execution_time,Time to successful completion,3,1.0,False
+random,link-state,operation-interval,Delay between operations,messages_after_close,Messages after close,3,-0.5,False
+random,link-state,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,1.0,False
+random,link-state,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+random,link-state,operations,Operations per replica,execution_time,Time to successful completion,3,1.0,False
+random,link-state,operations,Operations per replica,messages_after_close,Messages after close,3,0.8660254037844387,False
+random,link-state,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+random,link-state,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+random,link-state,replicas,Replica count,execution_time,Time to successful completion,3,0.5,False
+random,link-state,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+random,link-state,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+random,link-state,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+random,link-state,send-interval,Delay between sends,execution_time,Time to successful completion,3,1.0,False
+random,link-state,send-interval,Delay between sends,messages_after_close,Messages after close,3,-0.8660254037844387,False
+random,link-state,send-interval,Delay between sends,total_messages_sent,Messages sent,3,1.0,False
+random,link-state,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+random,link-state,timeout,Timeout,execution_time,Time to successful completion,3,,False
+random,link-state,timeout,Timeout,messages_after_close,Messages after close,3,,False
+random,link-state,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+ring,link-state,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+ring,link-state,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+ring,link-state,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+ring,link-state,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+ring,link-state,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+ring,link-state,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+ring,link-state,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+ring,link-state,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+ring,link-state,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+ring,link-state,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+ring,link-state,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+ring,link-state,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+ring,link-state,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+ring,link-state,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+ring,link-state,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+ring,link-state,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+ring,link-state,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+ring,link-state,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+ring,link-state,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+ring,link-state,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+ring,link-state,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+ring,link-state,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+ring,link-state,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+ring,link-state,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+ring,link-state,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+ring,link-state,operation-interval,Delay between operations,execution_time,Time to successful completion,3,0.5,False
+ring,link-state,operation-interval,Delay between operations,messages_after_close,Messages after close,3,0.5,False
+ring,link-state,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,0.5,False
+ring,link-state,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+ring,link-state,operations,Operations per replica,execution_time,Time to successful completion,3,0.8660254037844387,False
+ring,link-state,operations,Operations per replica,messages_after_close,Messages after close,3,0.0,False
+ring,link-state,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+ring,link-state,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+ring,link-state,replicas,Replica count,execution_time,Time to successful completion,3,1.0,False
+ring,link-state,replicas,Replica count,messages_after_close,Messages after close,3,-0.5,False
+ring,link-state,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+ring,link-state,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+ring,link-state,send-interval,Delay between sends,execution_time,Time to successful completion,3,0.8660254037844387,False
+ring,link-state,send-interval,Delay between sends,messages_after_close,Messages after close,3,0.0,False
+ring,link-state,send-interval,Delay between sends,total_messages_sent,Messages sent,3,0.5,False
+ring,link-state,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+ring,link-state,timeout,Timeout,execution_time,Time to successful completion,3,,False
+ring,link-state,timeout,Timeout,messages_after_close,Messages after close,3,,False
+ring,link-state,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+scale-free,link-state,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+scale-free,link-state,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+scale-free,link-state,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+scale-free,link-state,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+scale-free,link-state,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+scale-free,link-state,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+scale-free,link-state,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+scale-free,link-state,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+scale-free,link-state,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+scale-free,link-state,edges-per-node,Edges per new node,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,edges-per-node,Edges per new node,execution_time,Time to successful completion,3,0.5,False
+scale-free,link-state,edges-per-node,Edges per new node,messages_after_close,Messages after close,3,-0.5,False
+scale-free,link-state,edges-per-node,Edges per new node,total_messages_sent,Messages sent,3,0.5,False
+scale-free,link-state,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+scale-free,link-state,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+scale-free,link-state,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+scale-free,link-state,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+scale-free,link-state,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-1.0,False
+scale-free,link-state,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+scale-free,link-state,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+scale-free,link-state,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+scale-free,link-state,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+scale-free,link-state,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,maximum-delay,Maximum network delay,execution_time,Time to successful completion,3,1.0,False
+scale-free,link-state,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,1.0,False
+scale-free,link-state,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,1.0,False
+scale-free,link-state,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,minimum-delay,Minimum network delay,execution_time,Time to successful completion,3,1.0,False
+scale-free,link-state,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,1.0,False
+scale-free,link-state,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,0.5,False
+scale-free,link-state,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,operation-interval,Delay between operations,execution_time,Time to successful completion,3,1.0,False
+scale-free,link-state,operation-interval,Delay between operations,messages_after_close,Messages after close,3,-0.5,False
+scale-free,link-state,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,1.0,False
+scale-free,link-state,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,operations,Operations per replica,execution_time,Time to successful completion,3,1.0,False
+scale-free,link-state,operations,Operations per replica,messages_after_close,Messages after close,3,0.5,False
+scale-free,link-state,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+scale-free,link-state,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,replicas,Replica count,execution_time,Time to successful completion,3,1.0,False
+scale-free,link-state,replicas,Replica count,messages_after_close,Messages after close,3,0.5,False
+scale-free,link-state,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+scale-free,link-state,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,send-interval,Delay between sends,execution_time,Time to successful completion,3,1.0,False
+scale-free,link-state,send-interval,Delay between sends,messages_after_close,Messages after close,3,-0.8660254037844387,False
+scale-free,link-state,send-interval,Delay between sends,total_messages_sent,Messages sent,3,1.0,False
+scale-free,link-state,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,link-state,timeout,Timeout,execution_time,Time to successful completion,3,,False
+scale-free,link-state,timeout,Timeout,messages_after_close,Messages after close,3,,False
+scale-free,link-state,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+star,link-state,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+star,link-state,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+star,link-state,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+star,link-state,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+star,link-state,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+star,link-state,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+star,link-state,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+star,link-state,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+star,link-state,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+star,link-state,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+star,link-state,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+star,link-state,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+star,link-state,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+star,link-state,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+star,link-state,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+star,link-state,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+star,link-state,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+star,link-state,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+star,link-state,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,-0.8660254037844387,False
+star,link-state,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,-1.0,False
+star,link-state,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+star,link-state,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+star,link-state,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+star,link-state,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+star,link-state,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+star,link-state,operation-interval,Delay between operations,execution_time,Time to successful completion,3,0.5,False
+star,link-state,operation-interval,Delay between operations,messages_after_close,Messages after close,3,0.0,False
+star,link-state,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,0.5,False
+star,link-state,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+star,link-state,operations,Operations per replica,execution_time,Time to successful completion,3,0.8660254037844387,False
+star,link-state,operations,Operations per replica,messages_after_close,Messages after close,3,0.0,False
+star,link-state,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+star,link-state,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+star,link-state,replicas,Replica count,execution_time,Time to successful completion,3,,False
+star,link-state,replicas,Replica count,messages_after_close,Messages after close,3,1.0,False
+star,link-state,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+star,link-state,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+star,link-state,send-interval,Delay between sends,execution_time,Time to successful completion,3,0.8660254037844387,False
+star,link-state,send-interval,Delay between sends,messages_after_close,Messages after close,3,0.0,False
+star,link-state,send-interval,Delay between sends,total_messages_sent,Messages sent,3,0.5,False
+star,link-state,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+star,link-state,timeout,Timeout,execution_time,Time to successful completion,3,,False
+star,link-state,timeout,Timeout,messages_after_close,Messages after close,3,,False
+star,link-state,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+complete,no-stack,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,3,,False
+complete,no-stack,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+complete,no-stack,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+complete,no-stack,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,3,,False
+complete,no-stack,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+complete,no-stack,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+complete,no-stack,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,duration,Maximum simulation duration,execution_time,Time to successful completion,3,,False
+complete,no-stack,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+complete,no-stack,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+complete,no-stack,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,forgetting-time,Forgetting time,execution_time,Time to successful completion,3,,False
+complete,no-stack,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+complete,no-stack,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+complete,no-stack,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,heartbeat,Heartbeat interval,execution_time,Time to successful completion,3,,False
+complete,no-stack,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+complete,no-stack,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,,False
+complete,no-stack,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,hop-limit,Hop limit,execution_time,Time to successful completion,3,,False
+complete,no-stack,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+complete,no-stack,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+complete,no-stack,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,operation-interval,Delay between operations,execution_time,Time to successful completion,3,1.0,False
+complete,no-stack,operation-interval,Delay between operations,messages_after_close,Messages after close,3,,False
+complete,no-stack,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,,False
+complete,no-stack,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,operations,Operations per replica,execution_time,Time to successful completion,3,1.0,False
+complete,no-stack,operations,Operations per replica,messages_after_close,Messages after close,3,,False
+complete,no-stack,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+complete,no-stack,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,replicas,Replica count,execution_time,Time to successful completion,3,,False
+complete,no-stack,replicas,Replica count,messages_after_close,Messages after close,3,,False
+complete,no-stack,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+complete,no-stack,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,send-interval,Delay between sends,execution_time,Time to successful completion,3,,False
+complete,no-stack,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+complete,no-stack,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+complete,no-stack,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+complete,no-stack,timeout,Timeout,execution_time,Time to successful completion,3,,False
+complete,no-stack,timeout,Timeout,messages_after_close,Messages after close,3,,False
+complete,no-stack,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+random,no-stack,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+random,no-stack,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,0,,False
+random,no-stack,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+random,no-stack,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+random,no-stack,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+random,no-stack,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,0,,False
+random,no-stack,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+random,no-stack,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+random,no-stack,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+random,no-stack,duration,Maximum simulation duration,execution_time,Time to successful completion,0,,False
+random,no-stack,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+random,no-stack,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+random,no-stack,edge-probability,Extra-edge probability,completion_rate_pct,Successful completion,3,,False
+random,no-stack,edge-probability,Extra-edge probability,execution_time,Time to successful completion,0,,False
+random,no-stack,edge-probability,Extra-edge probability,messages_after_close,Messages after close,3,,False
+random,no-stack,edge-probability,Extra-edge probability,total_messages_sent,Messages sent,3,1.0,False
+random,no-stack,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+random,no-stack,forgetting-time,Forgetting time,execution_time,Time to successful completion,0,,False
+random,no-stack,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+random,no-stack,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+random,no-stack,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+random,no-stack,heartbeat,Heartbeat interval,execution_time,Time to successful completion,0,,False
+random,no-stack,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+random,no-stack,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,,False
+random,no-stack,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+random,no-stack,hop-limit,Hop limit,execution_time,Time to successful completion,0,,False
+random,no-stack,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+random,no-stack,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+random,no-stack,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+random,no-stack,maximum-delay,Maximum network delay,execution_time,Time to successful completion,0,,False
+random,no-stack,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,,False
+random,no-stack,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,,False
+random,no-stack,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+random,no-stack,minimum-delay,Minimum network delay,execution_time,Time to successful completion,0,,False
+random,no-stack,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,,False
+random,no-stack,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,,False
+random,no-stack,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+random,no-stack,operation-interval,Delay between operations,execution_time,Time to successful completion,0,,False
+random,no-stack,operation-interval,Delay between operations,messages_after_close,Messages after close,3,,False
+random,no-stack,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,,False
+random,no-stack,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+random,no-stack,operations,Operations per replica,execution_time,Time to successful completion,0,,False
+random,no-stack,operations,Operations per replica,messages_after_close,Messages after close,3,,False
+random,no-stack,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+random,no-stack,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+random,no-stack,replicas,Replica count,execution_time,Time to successful completion,0,,False
+random,no-stack,replicas,Replica count,messages_after_close,Messages after close,3,,False
+random,no-stack,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+random,no-stack,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+random,no-stack,send-interval,Delay between sends,execution_time,Time to successful completion,0,,False
+random,no-stack,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+random,no-stack,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+random,no-stack,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+random,no-stack,timeout,Timeout,execution_time,Time to successful completion,0,,False
+random,no-stack,timeout,Timeout,messages_after_close,Messages after close,3,,False
+random,no-stack,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+ring,no-stack,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,0,,False
+ring,no-stack,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+ring,no-stack,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+ring,no-stack,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,0,,False
+ring,no-stack,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+ring,no-stack,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+ring,no-stack,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,duration,Maximum simulation duration,execution_time,Time to successful completion,0,,False
+ring,no-stack,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+ring,no-stack,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+ring,no-stack,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,forgetting-time,Forgetting time,execution_time,Time to successful completion,0,,False
+ring,no-stack,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+ring,no-stack,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+ring,no-stack,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,heartbeat,Heartbeat interval,execution_time,Time to successful completion,0,,False
+ring,no-stack,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+ring,no-stack,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,,False
+ring,no-stack,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,hop-limit,Hop limit,execution_time,Time to successful completion,0,,False
+ring,no-stack,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+ring,no-stack,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+ring,no-stack,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,operation-interval,Delay between operations,execution_time,Time to successful completion,0,,False
+ring,no-stack,operation-interval,Delay between operations,messages_after_close,Messages after close,3,,False
+ring,no-stack,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,,False
+ring,no-stack,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,operations,Operations per replica,execution_time,Time to successful completion,0,,False
+ring,no-stack,operations,Operations per replica,messages_after_close,Messages after close,3,,False
+ring,no-stack,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+ring,no-stack,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,replicas,Replica count,execution_time,Time to successful completion,0,,False
+ring,no-stack,replicas,Replica count,messages_after_close,Messages after close,3,,False
+ring,no-stack,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+ring,no-stack,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,send-interval,Delay between sends,execution_time,Time to successful completion,0,,False
+ring,no-stack,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+ring,no-stack,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+ring,no-stack,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+ring,no-stack,timeout,Timeout,execution_time,Time to successful completion,0,,False
+ring,no-stack,timeout,Timeout,messages_after_close,Messages after close,3,,False
+ring,no-stack,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,duration,Maximum simulation duration,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,edges-per-node,Edges per new node,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,edges-per-node,Edges per new node,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,edges-per-node,Edges per new node,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,edges-per-node,Edges per new node,total_messages_sent,Messages sent,3,1.0,False
+scale-free,no-stack,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,forgetting-time,Forgetting time,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,heartbeat,Heartbeat interval,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,hop-limit,Hop limit,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,maximum-delay,Maximum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,maximum-delay,Maximum network delay,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,maximum-delay,Maximum network delay,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,maximum-delay,Maximum network delay,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,minimum-delay,Minimum network delay,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,minimum-delay,Minimum network delay,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,minimum-delay,Minimum network delay,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,minimum-delay,Minimum network delay,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,operation-interval,Delay between operations,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,operation-interval,Delay between operations,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,operations,Operations per replica,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,operations,Operations per replica,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+scale-free,no-stack,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,replicas,Replica count,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,replicas,Replica count,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+scale-free,no-stack,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,send-interval,Delay between sends,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+scale-free,no-stack,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+scale-free,no-stack,timeout,Timeout,execution_time,Time to successful completion,0,,False
+scale-free,no-stack,timeout,Timeout,messages_after_close,Messages after close,3,,False
+scale-free,no-stack,timeout,Timeout,total_messages_sent,Messages sent,3,,False
+star,no-stack,ack-timeout,Acknowledgement timeout,completion_rate_pct,Successful completion,3,,False
+star,no-stack,ack-timeout,Acknowledgement timeout,execution_time,Time to successful completion,0,,False
+star,no-stack,ack-timeout,Acknowledgement timeout,messages_after_close,Messages after close,3,,False
+star,no-stack,ack-timeout,Acknowledgement timeout,total_messages_sent,Messages sent,3,,False
+star,no-stack,distance-vector-poll,Distance-vector polling interval,completion_rate_pct,Successful completion,3,,False
+star,no-stack,distance-vector-poll,Distance-vector polling interval,execution_time,Time to successful completion,0,,False
+star,no-stack,distance-vector-poll,Distance-vector polling interval,messages_after_close,Messages after close,3,,False
+star,no-stack,distance-vector-poll,Distance-vector polling interval,total_messages_sent,Messages sent,3,,False
+star,no-stack,duration,Maximum simulation duration,completion_rate_pct,Successful completion,3,,False
+star,no-stack,duration,Maximum simulation duration,execution_time,Time to successful completion,0,,False
+star,no-stack,duration,Maximum simulation duration,messages_after_close,Messages after close,3,,False
+star,no-stack,duration,Maximum simulation duration,total_messages_sent,Messages sent,3,,False
+star,no-stack,forgetting-time,Forgetting time,completion_rate_pct,Successful completion,3,,False
+star,no-stack,forgetting-time,Forgetting time,execution_time,Time to successful completion,0,,False
+star,no-stack,forgetting-time,Forgetting time,messages_after_close,Messages after close,3,,False
+star,no-stack,forgetting-time,Forgetting time,total_messages_sent,Messages sent,3,,False
+star,no-stack,heartbeat,Heartbeat interval,completion_rate_pct,Successful completion,3,,False
+star,no-stack,heartbeat,Heartbeat interval,execution_time,Time to successful completion,0,,False
+star,no-stack,heartbeat,Heartbeat interval,messages_after_close,Messages after close,3,,False
+star,no-stack,heartbeat,Heartbeat interval,total_messages_sent,Messages sent,3,,False
+star,no-stack,hop-limit,Hop limit,completion_rate_pct,Successful completion,3,,False
+star,no-stack,hop-limit,Hop limit,execution_time,Time to successful completion,0,,False
+star,no-stack,hop-limit,Hop limit,messages_after_close,Messages after close,3,,False
+star,no-stack,hop-limit,Hop limit,total_messages_sent,Messages sent,3,,False
+star,no-stack,operation-interval,Delay between operations,completion_rate_pct,Successful completion,3,,False
+star,no-stack,operation-interval,Delay between operations,execution_time,Time to successful completion,0,,False
+star,no-stack,operation-interval,Delay between operations,messages_after_close,Messages after close,3,,False
+star,no-stack,operation-interval,Delay between operations,total_messages_sent,Messages sent,3,,False
+star,no-stack,operations,Operations per replica,completion_rate_pct,Successful completion,3,,False
+star,no-stack,operations,Operations per replica,execution_time,Time to successful completion,0,,False
+star,no-stack,operations,Operations per replica,messages_after_close,Messages after close,3,,False
+star,no-stack,operations,Operations per replica,total_messages_sent,Messages sent,3,1.0,False
+star,no-stack,replicas,Replica count,completion_rate_pct,Successful completion,3,,False
+star,no-stack,replicas,Replica count,execution_time,Time to successful completion,0,,False
+star,no-stack,replicas,Replica count,messages_after_close,Messages after close,3,,False
+star,no-stack,replicas,Replica count,total_messages_sent,Messages sent,3,1.0,False
+star,no-stack,send-interval,Delay between sends,completion_rate_pct,Successful completion,3,,False
+star,no-stack,send-interval,Delay between sends,execution_time,Time to successful completion,0,,False
+star,no-stack,send-interval,Delay between sends,messages_after_close,Messages after close,3,,False
+star,no-stack,send-interval,Delay between sends,total_messages_sent,Messages sent,3,,False
+star,no-stack,timeout,Timeout,completion_rate_pct,Successful completion,3,,False
+star,no-stack,timeout,Timeout,execution_time,Time to successful completion,0,,False
+star,no-stack,timeout,Timeout,messages_after_close,Messages after close,3,,False
+star,no-stack,timeout,Timeout,total_messages_sent,Messages sent,3,,False
