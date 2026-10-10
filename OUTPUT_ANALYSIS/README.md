@@ -26,11 +26,31 @@ py OUTPUT_ANALYSIS\OUTPUT_ANALYSIS.py simulation-results.json --output-dir OUTPU
 
 The analysis writes:
 
-- `baseline_comparison.png`: baseline/control results by topology and routing mode.
-- `parameter_sensitivity.png`: changes relative to the matching topology/routing baseline.
+- `baseline_<topology>_<metric>.png`: one image per topology and baseline metric,
+  with larger labels and exact values shown directly on each bar. Message counts
+  use logarithmic or symmetrical-log scales where appropriate.
+- `parameter_sweep_<algorithm>_<topology>_<metric>.png`: parameter effects within
+  one routing algorithm and topology, with a separate graph for each metric.
+  Low/high or first/last variants are shown together on the same parameter row,
+  each compared against that algorithm/topology's baseline. Percentage and
+  percentage-point changes are labeled to two decimal places; count changes are
+  labeled as messages. Symmetric-log x-axes retain detail for percentage and
+  message-count changes when other parameters have much larger effects; completion
+  changes use a bounded linear scale. A time change is shown only when both runs
+  completed.
+- `analysis_report.txt`: baseline results and the largest paired increases and
+  decreases, broken down by topology.
+- `paired_baseline_comparison.csv`: each scenario result alongside its exact
+  topology/routing baseline and the metric deltas.
 - `simulation_results.csv`: one normalized row per simulation.
 - `scenario_summary.csv`: grouped results by topology, scenario, and routing mode.
 
-Sensitivity bars average paired changes across the topology/routing combinations
-available for each parameter scenario. Completion-rate changes are in percentage
-points; message-count and execution-time changes are percentages.
+Each JSON record represents one run, and the input does not include repeated
+trials or the numeric values assigned to low/high settings. The report therefore
+describes observed comparisons rather than statistical significance or
+run-to-run variability; for numeric scenario settings, consult the C# scenario
+definitions. The C# execution-time metric is set only when all insert operations
+complete, so a recorded value of zero indicates an unsuccessful run, not a
+zero-duration success. Parameter-sweep images use scenario suffixes (`low`,
+`high`, `first`, or `last`) as variant labels; numeric values for those variants
+are not embedded in the simulation JSON.

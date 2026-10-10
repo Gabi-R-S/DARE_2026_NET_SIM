@@ -1,9 +1,12 @@
 <Solution>
-  <Project Path="CRDTApp/CRDTApp.csproj" Id="35c6a0ba-ff33-405b-a12f-bda0dc3c6c8f" />
-  <Project Path="CRDTs/CRDTs.csproj" />
-  <Project Path="RunSimulations/RunSimulations.csproj" Id="5c2237ad-d4b7-4a30-a180-33d29cf1b794" />
-  <Project Path="Shared/Shared.csproj" Id="bf4ec58f-1b52-472d-a76e-281cc94527d2" />
-  <Project Path="Simulator/Simulator.csproj" Id="38f867e6-8dce-4aee-9c84-747157222ed4" />
-  <Project Path="Tests_1/Tests_1.csproj" Id="bd44c577-a80a-4e77-b575-a3b6efe6a94f" />
-  <Project Path="VisualizationTest/VisualizationTest.csproj" Id="a45201fa-f601-4249-887b-4f627af0eeeb" />
+  <Project Path="D:/DARE_PROJECT/DistributedMeshSimulation/CRDTApp/CRDTApp.csproj" Id="35c6a0ba-ff33-405b-a12f-bda0dc3c6c8f" />
+  <Project Path="D:/DARE_PROJECT/DistributedMeshSimulation/CRDTs/CRDTs.csproj" />
+  <Project Path="D:/DARE_PROJECT/DistributedMeshSimulation/OUTPUT_ANALYSIS/OUTPUT_ANALYSIS.pyproj" Type="888888a0-9f3d-457c-b088-3a5042f75d52" Id="a0c386e4-e5b0-4fea-94a2-e63a0c15bed0">
+    <Build Project="false" />
+  </Project>
+  <Project Path="D:/DARE_PROJECT/DistributedMeshSimulation/RunSimulations/RunSimulations.csproj" Id="5c2237ad-d4b7-4a30-a180-33d29cf1b794" />
+  <Project Path="D:/DARE_PROJECT/DistributedMeshSimulation/Shared/Shared.csproj" Id="bf4ec58f-1b52-472d-a76e-281cc94527d2" />
+  <Project Path="D:/DARE_PROJECT/DistributedMeshSimulation/Simulator/Simulator.csproj" Id="38f867e6-8dce-4aee-9c84-747157222ed4" />
+  <Project Path="D:/DARE_PROJECT/DistributedMeshSimulation/Tests_1/Tests_1.csproj" Id="bd44c577-a80a-4e77-b575-a3b6efe6a94f" />
+  <Project Path="D:/DARE_PROJECT/DistributedMeshSimulation/VisualizationTest/VisualizationTest.csproj" Id="a45201fa-f601-4249-887b-4f627af0eeeb" />
 </Solution>

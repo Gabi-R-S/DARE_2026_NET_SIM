@@ -1,0 +1,68 @@
+Simulation analysis report
+==========================
+
+Results analyzed: 715
+Scenarios: 37
+Topologies: complete, random, ring, scale-free, star
+Routing modes: no-stack, ack-no-routing, flooding, distance-vector, link-state
+Successful results: 472/715 (66.0%)
+
+Baseline results by topology and routing mode
+---------------------------------------------
+Topology | Routing mode | Messages sent | Execution time | Completed | Messages after close
+complete | ack-no-routing | 950 | 0.41 | yes | 10
+complete | distance-vector | 1630 | 0.41 | yes | 116
+complete | flooding | 210610 | 0.41 | yes | 6636
+complete | link-state | 4228 | 0.41 | yes | 125
+complete | no-stack | 500 | 0.41 | yes | 1
+random | ack-no-routing | 84260 | 0 | no | 0
+random | distance-vector | 10588 | 20.67 | yes | 41
+random | flooding | 39262 | 0.5632 | yes | 14004
+random | link-state | 2977 | 0.868 | yes | 55
+random | no-stack | 260 | 0 | no | 0
+ring | ack-no-routing | 40150 | 0 | no | 0
+ring | distance-vector | 11120 | 40.45 | yes | 21
+ring | flooding | 10578 | 0.45 | yes | 480
+ring | link-state | 2658 | 0.45 | yes | 101
+ring | no-stack | 150 | 0 | no | 0
+scale-free | ack-no-routing | 68220 | 0 | no | 0
+scale-free | distance-vector | 8856 | 20.49 | yes | 17
+scale-free | flooding | 33823 | 0.6836 | yes | 6087
+scale-free | link-state | 2510 | 0.9962 | yes | 33
+scale-free | no-stack | 220 | 0 | no | 0
+star | ack-no-routing | 36140 | 0 | no | 0
+star | distance-vector | 3583 | 10.42 | yes | 145
+star | flooding | 6257 | 0.42 | yes | 147
+star | link-state | 1747 | 0.42 | yes | 146
+star | no-stack | 140 | 0 | no | 0
+
+Largest paired changes within each topology
+--------------------------------------------
+Metric | Topology | Largest increase | Largest decrease
+Changes are relative to the same topology and routing mode's baseline. Messages after close use absolute count changes.
+Messages sent (%) | complete | replicas-high / flooding (+3737.38) | operations-low / flooding (-99.73)
+Messages sent (%) | random | replicas-high / flooding (+1473.96) | replicas-low / flooding (-97.19)
+Messages sent (%) | ring | replicas-high / link-state (+680.66) | duration-low / ack-no-routing (-89.66)
+Messages sent (%) | scale-free | replicas-high / flooding (+818.11) | replicas-low / flooding (-94.53)
+Messages sent (%) | star | replicas-high / flooding (+798.71) | duration-low / ack-no-routing (-89.65)
+Execution time (%) | complete | operations-high / no-stack (+121.95) | operations-low / no-stack (-97.56)
+Execution time (%) | random | edge-probability-low / flooding (+871.50) | distance-vector-poll-low / distance-vector (-87.09)
+Execution time (%) | ring | replicas-high / distance-vector (+123.73) | distance-vector-poll-low / distance-vector (-89.00)
+Execution time (%) | scale-free | edges-per-node-low / flooding (+693.03) | distance-vector-poll-low / distance-vector (-87.86)
+Execution time (%) | star | operations-high / flooding (+119.05) | distance-vector-poll-low / distance-vector (-86.37)
+Completion (pp) | complete | replicas-low / no-stack (+0.00) | replicas-low / no-stack (+0.00)
+Completion (pp) | random | replicas-low / no-stack (+0.00) | duration-low / distance-vector (-100.00)
+Completion (pp) | ring | replicas-low / no-stack (+0.00) | duration-low / distance-vector (-100.00)
+Completion (pp) | scale-free | replicas-low / no-stack (+0.00) | duration-low / distance-vector (-100.00)
+Completion (pp) | star | replicas-low / no-stack (+0.00) | replicas-low / no-stack (+0.00)
+Messages after close (count) | complete | replicas-high / flooding (+123964.00) | replicas-low / flooding (-6367.00)
+Messages after close (count) | random | replicas-high / flooding (+172731.00) | replicas-low / flooding (-13993.00)
+Messages after close (count) | ring | replicas-high / flooding (+1401.00) | hop-limit-low / flooding (-480.00)
+Messages after close (count) | scale-free | replicas-high / flooding (+76443.00) | edges-per-node-low / flooding (-6035.00)
+Messages after close (count) | star | replicas-high / flooding (+555.00) | replicas-low / flooding (-122.00)
+
+Interpretation notes
+--------------------
+Each input record is one run; the input contains no repeated trials for a configuration, so these comparisons do not estimate run-to-run variability or statistical significance.
+Parameter effects compare each scenario only with the baseline having the same topology and routing mode. Execution-time percentage changes are included only when both runs complete; the C# metric remains zero when a run does not complete. Messages-after-close changes are absolute counts.
+Scenario tags identify the setting variant (for example, low/high); the JSON does not include the numeric setting values.

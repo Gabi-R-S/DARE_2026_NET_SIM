@@ -18,6 +18,7 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import StrMethodFormatter
 
 
 TOPOLOGIES = {
@@ -187,6 +188,31 @@ def write_csv_reports(results: list[SimulationResult], output_dir: Path) -> None
                 }
             )
 
+    comparison_rows = _baseline_comparison_rows(results)
+    comparison_path = output_dir / "paired_baseline_comparison.csv"
+    comparison_fields = [
+        "topology",
+        "scenario",
+        "routing_algorithm",
+        "tag",
+        "total_messages_sent",
+        "baseline_total_messages_sent",
+        "messages_sent_change_pct",
+        "execution_time",
+        "baseline_execution_time",
+        "execution_time_change_pct",
+        "ended_successfully",
+        "baseline_ended_successfully",
+        "completion_change_percentage_points",
+        "messages_after_close",
+        "baseline_messages_after_close",
+        "messages_after_close_change",
+    ]
+    with comparison_path.open("w", newline="", encoding="utf-8") as output_file:
+        writer = csv.DictWriter(output_file, fieldnames=comparison_fields)
+        writer.writeheader()
+        writer.writerows(comparison_rows)
+
 
 def _mean(values: Sequence[int | float | None]) -> float | str:
     valid = [float(value) for value in values if value is not None]
@@ -194,7 +220,7 @@ def _mean(values: Sequence[int | float | None]) -> float | str:
 
 
 def plot_baseline_comparison(
-    results: list[SimulationResult], output_path: Path
+    results: list[SimulationResult], output_dir: Path
 ) -> None:
     baseline = [result for result in results if result.scenario == "baseline"]
     if not baseline:
@@ -206,20 +232,21 @@ def plot_baseline_comparison(
         for algorithm in ROUTING_ALGORITHMS
         if any(result.routing_algorithm == algorithm for result in baseline)
     ]
-    colormap = plt.get_cmap("tab10")
+    algorithm_colors = {
+        algorithm: plt.get_cmap("tab10")(index)
+        for index, algorithm in enumerate(ROUTING_ALGORITHMS)
+    }
     measures = (
         ("total_messages_sent", "Messages sent"),
-        ("execution_time", "Execution time (seconds)"),
-        ("ended_successfully", "Completion rate"),
+        ("execution_time", "Time to successful completion"),
+        ("ended_successfully", "Successful completion (%)"),
+        ("messages_after_close", "Messages after close"),
     )
-    figure, axes = plt.subplots(1, len(measures), figsize=(17, 5))
-
-    for axis, (field, title) in zip(axes, measures):
-        width = 0.8 / max(len(algorithms), 1)
-        positions = np.arange(len(topologies), dtype=float)
-        for index, algorithm in enumerate(algorithms):
-            values: list[float] = []
-            for topology in topologies:
+    for topology in topologies:
+        for field, title in measures:
+            figure, axis = plt.subplots(figsize=(10, 7))
+            values = []
+            for algorithm in algorithms:
                 matching = [
                     getattr(result, field)
                     for result in baseline
@@ -227,48 +254,92 @@ def plot_baseline_comparison(
                     and result.routing_algorithm == algorithm
                     and getattr(result, field) is not None
                 ]
-                values.append(float(_mean(matching)) if matching else math.nan)
+                value = _mean(matching)
+                numeric_value = float(value) if value != "" else math.nan
+                if field == "ended_successfully" and not math.isnan(numeric_value):
+                    numeric_value *= 100
+                values.append(numeric_value)
+
+            positions = np.arange(len(algorithms))
             axis.bar(
-                positions + (index - (len(algorithms) - 1) / 2) * width,
+                positions,
                 values,
-                width=width,
-                color=colormap(index / max(len(algorithms), 1)),
-                label=algorithm,
+                color=[algorithm_colors[algorithm] for algorithm in algorithms],
+                width=0.72,
             )
-        axis.set_title(title)
-        axis.set_xticks(positions, topologies, rotation=25, ha="right")
-        axis.grid(axis="y", alpha=0.25)
+            if field == "total_messages_sent":
+                axis.set_yscale("log")
+                axis.set_ylabel("Messages sent (log scale)")
+                axis.yaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
+            elif field == "messages_after_close":
+                axis.set_yscale("symlog", linthresh=10)
+                axis.set_ylabel("Messages after close (symlog scale)")
+                axis.yaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
+            elif field == "ended_successfully":
+                axis.set_ylabel("Successful completion (%)")
+                axis.set_ylim(0, 110)
+            else:
+                axis.set_ylabel("Time to successful completion (seconds)")
 
-    axes[0].set_ylabel("Messages")
-    axes[1].set_ylabel("Seconds")
-    axes[2].set_ylabel("Rate")
-    axes[2].set_ylim(0, 1.05)
-    axes[-1].legend(title="Routing mode", bbox_to_anchor=(1.04, 1), loc="upper left")
-    figure.suptitle("Baseline/control comparison across network topologies")
-    figure.tight_layout()
-    figure.savefig(output_path, dpi=160, bbox_inches="tight")
-    plt.close(figure)
+            for position, value in zip(positions, values):
+                if math.isnan(value):
+                    continue
+                if field in ("total_messages_sent", "messages_after_close"):
+                    label = f"{value:,.0f}"
+                elif field == "ended_successfully":
+                    label = f"{value:.1f}%"
+                else:
+                    label = f"{value:.4f}"
+                axis.annotate(
+                    label,
+                    (position, value),
+                    xytext=(0, 7),
+                    textcoords="offset points",
+                    ha="center",
+                    va="bottom",
+                    fontsize=10,
+                    clip_on=False,
+                )
+
+            axis.set_xticks(positions, algorithms, rotation=25, ha="right", fontsize=10)
+            axis.tick_params(axis="y", labelsize=10)
+            axis.grid(axis="y", alpha=0.3, which="both")
+            axis.set_axisbelow(True)
+            axis.set_title(f"{topology.title()} topology — {title}", fontsize=15, pad=14)
+            axis.set_xlabel("Routing mode", fontsize=11)
+            figure.tight_layout()
+            figure.savefig(
+                output_dir / f"baseline_{topology}_{field}.png",
+                dpi=220,
+                bbox_inches="tight",
+            )
+            plt.close(figure)
 
 
-def _scenario_order(scenario: str) -> tuple[str, int, str]:
+def _parameter_variant(scenario: str) -> tuple[str, str]:
     match = re.fullmatch(r"(.+)-(low|high|first|last)", scenario)
     if match is None:
-        return scenario, 0, scenario
-    order = {"low": 0, "first": 0, "high": 1, "last": 1}[match.group(2)]
-    return match.group(1), order, scenario
+        return scenario, "variant"
+    return match.group(1), match.group(2)
 
 
-def _baseline_relative_changes(
+def _baseline_comparison_rows(
     results: list[SimulationResult],
-) -> dict[str, dict[str, list[float]]]:
-    baselines = {
-        (result.topology, result.routing_algorithm): result
-        for result in results
-        if result.scenario == "baseline"
-    }
-    changes: dict[str, dict[str, list[float]]] = defaultdict(
-        lambda: defaultdict(list)
-    )
+) -> list[dict[str, Any]]:
+    baselines: dict[tuple[str, str], SimulationResult] = {}
+    for result in results:
+        if result.scenario != "baseline":
+            continue
+        key = (result.topology, result.routing_algorithm)
+        if key in baselines:
+            raise ValueError(
+                "More than one baseline result exists for "
+                f"topology {result.topology!r} and routing mode "
+                f"{result.routing_algorithm!r}."
+            )
+        baselines[key] = result
+
+    rows: list[dict[str, Any]] = []
     for result in results:
         if result.scenario == "baseline":
             continue
@@ -276,65 +347,349 @@ def _baseline_relative_changes(
         if baseline is None:
             continue
 
-        for field in ("total_messages_sent", "execution_time"):
-            value = getattr(result, field)
-            baseline_value = getattr(baseline, field)
-            if value is not None and baseline_value is not None and baseline_value != 0:
-                changes[field][result.scenario].append(
-                    (float(value) - float(baseline_value))
-                    / abs(float(baseline_value))
-                    * 100
-                )
+        messages_sent_change = None
+        if baseline.total_messages_sent != 0:
+            messages_sent_change = (
+                (result.total_messages_sent - baseline.total_messages_sent)
+                / abs(baseline.total_messages_sent)
+                * 100
+            )
 
+        execution_time_change = None
+        if (
+            result.execution_time is not None
+            and baseline.execution_time is not None
+            and result.ended_successfully is True
+            and baseline.ended_successfully is True
+            and baseline.execution_time != 0
+        ):
+            execution_time_change = (
+                (result.execution_time - baseline.execution_time)
+                / abs(baseline.execution_time)
+                * 100
+            )
+
+        completion_change = None
         if (
             result.ended_successfully is not None
             and baseline.ended_successfully is not None
         ):
-            changes["ended_successfully"][result.scenario].append(
-                (float(result.ended_successfully) - float(baseline.ended_successfully))
-                * 100
+            completion_change = (
+                float(result.ended_successfully)
+                - float(baseline.ended_successfully)
+            ) * 100
+
+        messages_after_close_change = None
+        if (
+            result.messages_after_close is not None
+            and baseline.messages_after_close is not None
+        ):
+            messages_after_close_change = (
+                result.messages_after_close - baseline.messages_after_close
             )
-    return changes
+
+        rows.append(
+            {
+                "topology": result.topology,
+                "scenario": result.scenario,
+                "routing_algorithm": result.routing_algorithm,
+                "tag": result.tag,
+                "total_messages_sent": result.total_messages_sent,
+                "baseline_total_messages_sent": baseline.total_messages_sent,
+                "messages_sent_change_pct": messages_sent_change,
+                "execution_time": result.execution_time,
+                "baseline_execution_time": baseline.execution_time,
+                "execution_time_change_pct": execution_time_change,
+                "ended_successfully": result.ended_successfully,
+                "baseline_ended_successfully": baseline.ended_successfully,
+                "completion_change_percentage_points": completion_change,
+                "messages_after_close": result.messages_after_close,
+                "baseline_messages_after_close": baseline.messages_after_close,
+                "messages_after_close_change": messages_after_close_change,
+            }
+        )
+    return rows
 
 
-def plot_parameter_sensitivity(
-    results: list[SimulationResult], output_path: Path
+def plot_parameter_sweeps_by_algorithm(
+    results: list[SimulationResult], output_dir: Path
 ) -> None:
-    changes = _baseline_relative_changes(results)
-    measure_titles = (
-        ("total_messages_sent", "Messages sent (% change from baseline)"),
-        ("execution_time", "Execution time (% change from baseline)"),
-        ("ended_successfully", "Completion rate (percentage-point change)"),
+    comparison_rows = _baseline_comparison_rows(results)
+    measures = (
+        (
+            "messages_sent_change_pct",
+            "Messages sent",
+            "change from baseline (%)",
+        ),
+        (
+            "execution_time_change_pct",
+            "Time to completion",
+            "change from successful baseline (%)",
+        ),
+        (
+            "completion_change_percentage_points",
+            "Successful completion",
+            "change from baseline (percentage points)",
+        ),
+        (
+            "messages_after_close_change",
+            "Messages after close",
+            "change from baseline (messages)",
+        ),
     )
-    figure, axes = plt.subplots(1, len(measure_titles), figsize=(20, 6))
 
-    for axis, (field, title) in zip(axes, measure_titles):
-        scenarios = sorted(changes[field], key=_scenario_order)
-        values = [_mean(changes[field][scenario]) for scenario in scenarios]
-        if scenarios:
-            positions = np.arange(len(scenarios))
-            axis.bar(positions, values, color="#3b82a0")
-            axis.set_xticks(positions, scenarios, rotation=75, ha="right", fontsize=8)
-            axis.axhline(0, color="black", linewidth=0.8)
-            axis.grid(axis="y", alpha=0.25)
-        else:
-            axis.text(
-                0.5,
-                0.5,
-                "No parameter variations to compare",
-                ha="center",
-                va="center",
-                transform=axis.transAxes,
+    topologies = sorted({result.topology for result in results})
+    algorithms = [
+        algorithm
+        for algorithm in ROUTING_ALGORITHMS
+        if any(result.routing_algorithm == algorithm for result in results)
+    ]
+    variant_order = {"low": 0, "high": 1, "first": 2, "last": 3, "variant": 4}
+    variant_colors = {
+        "low": "#2563eb",
+        "high": "#ea580c",
+        "first": "#059669",
+        "last": "#9333ea",
+        "variant": "#64748b",
+    }
+
+    for topology in topologies:
+        for algorithm in algorithms:
+            matching_rows = [
+                row
+                for row in comparison_rows
+                if row["topology"] == topology
+                and row["routing_algorithm"] == algorithm
+            ]
+            if not matching_rows:
+                continue
+
+            parameter_variants: dict[str, list[tuple[str, dict[str, Any]]]] = (
+                defaultdict(list)
             )
-        axis.set_title(title)
+            for row in matching_rows:
+                parameter, variant = _parameter_variant(row["scenario"])
+                parameter_variants[parameter].append((variant, row))
 
-    figure.suptitle(
-        "Parameter sweeps relative to the matching topology/routing baseline\n"
-        "Bars average paired changes across available topology and routing combinations"
+            for field, metric, change_label in measures:
+                sweep_rows = sorted(
+                    (
+                        (parameter, variant, row)
+                        for parameter, variants in parameter_variants.items()
+                        for variant, row in variants
+                        if row[field] is not None
+                    ),
+                    key=lambda item: (
+                        item[0],
+                        variant_order[item[1]],
+                    ),
+                )
+                if not sweep_rows:
+                    continue
+
+                figure_height = max(7, 0.4 * len(sweep_rows))
+                figure, axis = plt.subplots(figsize=(13, figure_height))
+                for y_position, (parameter, variant, row) in enumerate(sweep_rows):
+                    change = row[field]
+                    color = variant_colors[variant]
+
+                    axis.hlines(
+                        y_position,
+                        min(0, change),
+                        max(0, change),
+                        color=color,
+                        linewidth=2,
+                        alpha=0.75,
+                    )
+                    axis.scatter(
+                        change,
+                        y_position,
+                        color=color,
+                        edgecolor="white",
+                        linewidth=0.8,
+                        s=64,
+                        zorder=3,
+                        label=variant,
+                    )
+                    if field.endswith("_pct"):
+                        value_label = f"{change:+.2f}%"
+                    elif field == "completion_change_percentage_points":
+                        value_label = f"{change:+.2f} pp"
+                    else:
+                        value_label = f"{change:+,.0f}"
+                    axis.annotate(
+                        value_label,
+                        (change, y_position),
+                        xytext=(6, 0),
+                        textcoords="offset points",
+                        va="center",
+                        fontsize=8.5,
+                        color="#111827",
+                        clip_on=False,
+                    )
+
+                axis.axvline(0, color="#111827", linewidth=1, alpha=0.8)
+                if field == "completion_change_percentage_points":
+                    axis.set_xlim(-105, 105)
+                    axis.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+                elif field == "messages_after_close_change":
+                    axis.set_xscale("symlog", linthresh=10)
+                    axis.xaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
+                else:
+                    axis.set_xscale("symlog", linthresh=10)
+                    axis.xaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
+
+                axis.set_yticks(
+                    np.arange(len(sweep_rows)),
+                    [f"{parameter} ({variant})" for parameter, variant, _ in sweep_rows],
+                    fontsize=9,
+                )
+                axis.invert_yaxis()
+                axis.set_xlabel(f"{change_label}; negative is less than baseline")
+                axis.set_ylabel("Changed parameter")
+                axis.set_title(
+                    f"{algorithm} — {topology.title()} topology\n"
+                    f"{metric}: each variant compared with this algorithm's "
+                    "matching baseline",
+                    fontsize=14,
+                    pad=14,
+                )
+                axis.grid(axis="x", alpha=0.25, which="both")
+                axis.set_axisbelow(True)
+
+                handles, labels = axis.get_legend_handles_labels()
+                unique_handles: dict[str, Any] = {}
+                for handle, label in zip(handles, labels):
+                    unique_handles[label] = handle
+                axis.legend(
+                    unique_handles.values(),
+                    unique_handles.keys(),
+                    title="Variant",
+                    loc="best",
+                    ncols=min(len(unique_handles), 4),
+                )
+
+                figure.tight_layout()
+                figure.savefig(
+                    output_dir
+                    / f"parameter_sweep_{algorithm}_{topology}_{field}.png",
+                    dpi=220,
+                    bbox_inches="tight",
+                )
+                plt.close(figure)
+
+
+def write_analysis_report(
+    results: list[SimulationResult],
+    comparison_rows: list[dict[str, Any]],
+    output_path: Path,
+) -> None:
+    topologies = sorted({result.topology for result in results})
+    algorithms = [
+        algorithm
+        for algorithm in ROUTING_ALGORITHMS
+        if any(result.routing_algorithm == algorithm for result in results)
+    ]
+    scenario_count = len({result.scenario for result in results})
+    successful_results = [
+        result for result in results if result.ended_successfully is True
+    ]
+    report_lines = [
+        "Simulation analysis report",
+        "==========================",
+        "",
+        f"Results analyzed: {len(results)}",
+        f"Scenarios: {scenario_count}",
+        f"Topologies: {', '.join(topologies)}",
+        f"Routing modes: {', '.join(algorithms)}",
+        (
+            f"Successful results: {len(successful_results)}/{len(results)} "
+            f"({100 * len(successful_results) / len(results):.1f}%)"
+        ),
+        "",
+        "Baseline results by topology and routing mode",
+        "---------------------------------------------",
+        "Topology | Routing mode | Messages sent | Execution time | Completed | Messages after close",
+    ]
+    baselines = sorted(
+        (result for result in results if result.scenario == "baseline"),
+        key=lambda result: (result.topology, result.routing_algorithm),
     )
-    figure.tight_layout()
-    figure.savefig(output_path, dpi=160, bbox_inches="tight")
-    plt.close(figure)
+    for result in baselines:
+        report_lines.append(
+            f"{result.topology} | {result.routing_algorithm} | "
+            f"{result.total_messages_sent} | "
+            f"{_format_optional(result.execution_time)} | "
+            f"{_format_optional(result.ended_successfully)} | "
+            f"{_format_optional(result.messages_after_close)}"
+        )
+
+    report_lines.extend(
+        [
+            "",
+            "Largest paired changes within each topology",
+            "--------------------------------------------",
+            "Metric | Topology | Largest increase | Largest decrease",
+            "Changes are relative to the same topology and routing mode's baseline. "
+            "Messages after close use absolute count changes.",
+        ]
+    )
+    effect_fields = (
+        ("messages_sent_change_pct", "Messages sent (%)"),
+        ("execution_time_change_pct", "Execution time (%)"),
+        ("completion_change_percentage_points", "Completion (pp)"),
+        ("messages_after_close_change", "Messages after close (count)"),
+    )
+    for field, label in effect_fields:
+        for topology in topologies:
+            matching = [
+                row
+                for row in comparison_rows
+                if row["topology"] == topology and row[field] is not None
+            ]
+            if not matching:
+                report_lines.append(f"{label} | {topology} | no comparable data")
+                continue
+            largest_increase = max(matching, key=lambda row: row[field])
+            largest_decrease = min(matching, key=lambda row: row[field])
+            report_lines.append(
+                f"{label} | {topology} | "
+                f"{largest_increase['scenario']} / "
+                f"{largest_increase['routing_algorithm']} "
+                f"({largest_increase[field]:+.2f}) | "
+                f"{largest_decrease['scenario']} / "
+                f"{largest_decrease['routing_algorithm']} "
+                f"({largest_decrease[field]:+.2f})"
+            )
+
+    report_lines.extend(
+        [
+            "",
+            "Interpretation notes",
+            "--------------------",
+            "Each input record is one run; the input contains no repeated trials for a "
+            "configuration, so these comparisons do not estimate run-to-run "
+            "variability or statistical significance.",
+            "Parameter effects compare each scenario only with the baseline having "
+            "the same topology and routing mode. Execution-time percentage changes "
+            "are included only when both runs complete; the C# metric remains zero "
+            "when a run does not complete. "
+            "Messages-after-close changes are absolute counts.",
+            "Scenario tags identify the setting variant (for example, low/high); "
+            "the JSON does not include the numeric setting values.",
+        ]
+    )
+    output_path.write_text("\n".join(report_lines) + "\n", encoding="utf-8")
+
+
+def _format_optional(value: Any) -> str:
+    if value is None:
+        return "not recorded"
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    if isinstance(value, float):
+        return f"{value:.4g}"
+    return str(value)
 
 
 def _default_input_path() -> Path | None:
@@ -376,9 +731,13 @@ def main(argv: list[str] | None = None) -> int:
         results = load_results(input_path)
         args.output_dir.mkdir(parents=True, exist_ok=True)
         write_csv_reports(results, args.output_dir)
-        plot_baseline_comparison(results, args.output_dir / "baseline_comparison.png")
-        plot_parameter_sensitivity(
-            results, args.output_dir / "parameter_sensitivity.png"
+        plot_baseline_comparison(results, args.output_dir)
+        comparison_rows = _baseline_comparison_rows(results)
+        plot_parameter_sweeps_by_algorithm(results, args.output_dir)
+        write_analysis_report(
+            results,
+            comparison_rows,
+            args.output_dir / "analysis_report.txt",
         )
     except (OSError, json.JSONDecodeError, ValueError) as error:
         print(f"Error: {error}", file=sys.stderr)
