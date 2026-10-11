@@ -1,11 +1,11 @@
 Simulation analysis report
 ==========================
 
-Results analyzed: 715
-Scenarios: 37
+Results analyzed: 4435
+Scenarios: 653
 Topologies: complete, random, ring, scale-free, star
 Routing modes: no-stack, ack-no-routing, flooding, distance-vector, link-state
-Successful results: 472/715 (66.0%)
+Successful results: 2826/4435 (63.7%)
 
 Baseline results by topology and routing mode
 ---------------------------------------------
@@ -40,31 +40,31 @@ Largest paired changes within each topology
 --------------------------------------------
 Metric | Topology | Largest increase | Largest decrease
 Changes are relative to the same topology and routing mode's baseline. Messages after close use absolute count changes.
-Messages sent (%) | complete | replicas-high / flooding (+3737.38) | operations-low / flooding (-99.73)
-Messages sent (%) | random | replicas-high / flooding (+1473.96) | replicas-low / flooding (-97.19)
-Messages sent (%) | ring | replicas-high / link-state (+680.66) | duration-low / ack-no-routing (-89.66)
-Messages sent (%) | scale-free | replicas-high / flooding (+818.11) | replicas-low / flooding (-94.53)
-Messages sent (%) | star | replicas-high / flooding (+798.71) | duration-low / ack-no-routing (-89.65)
+Messages sent (%) | complete | factorial-nodes-20-delay-0.001-0.001 / flooding (+3737.38) | operations-low / flooding (-99.73)
+Messages sent (%) | random | factorial-nodes-20-delay-0.001-0.01-edge-0.5 / flooding (+6549.46) | factorial-nodes-5-delay-0.001-0.01-edge-0 / flooding (-98.35)
+Messages sent (%) | ring | factorial-nodes-20-delay-0.01-0.01 / link-state (+680.66) | factorial-nodes-5-delay-0.1-0.1 / flooding (-90.17)
+Messages sent (%) | scale-free | factorial-nodes-20-delay-0.1-1 / link-state (+1867.45) | factorial-nodes-5-delay-0.05-0.5 / flooding (-96.42)
+Messages sent (%) | star | factorial-nodes-20-delay-0.05-0.05 / flooding (+799.31) | duration-low / ack-no-routing (-89.65)
 Execution time (%) | complete | operations-high / no-stack (+121.95) | operations-low / no-stack (-97.56)
-Execution time (%) | random | edge-probability-low / flooding (+871.50) | distance-vector-poll-low / distance-vector (-87.09)
-Execution time (%) | ring | replicas-high / distance-vector (+123.73) | distance-vector-poll-low / distance-vector (-89.00)
-Execution time (%) | scale-free | edges-per-node-low / flooding (+693.03) | distance-vector-poll-low / distance-vector (-87.86)
+Execution time (%) | random | factorial-nodes-20-delay-0.1-1-edge-0 / flooding (+9038.17) | distance-vector-poll-low / distance-vector (-87.09)
+Execution time (%) | ring | factorial-nodes-20-delay-0.1-0.1 / flooding (+1211.11) | distance-vector-poll-low / distance-vector (-89.00)
+Execution time (%) | scale-free | factorial-nodes-20-delay-0.1-1 / flooding (+7049.68) | distance-vector-poll-low / distance-vector (-87.86)
 Execution time (%) | star | operations-high / flooding (+119.05) | distance-vector-poll-low / distance-vector (-86.37)
-Completion (pp) | complete | replicas-low / no-stack (+0.00) | replicas-low / no-stack (+0.00)
-Completion (pp) | random | replicas-low / no-stack (+0.00) | duration-low / distance-vector (-100.00)
-Completion (pp) | ring | replicas-low / no-stack (+0.00) | duration-low / distance-vector (-100.00)
-Completion (pp) | scale-free | replicas-low / no-stack (+0.00) | duration-low / distance-vector (-100.00)
-Completion (pp) | star | replicas-low / no-stack (+0.00) | replicas-low / no-stack (+0.00)
-Messages after close (count) | complete | replicas-high / flooding (+123964.00) | replicas-low / flooding (-6367.00)
-Messages after close (count) | random | replicas-high / flooding (+172731.00) | replicas-low / flooding (-13993.00)
-Messages after close (count) | ring | replicas-high / flooding (+1401.00) | hop-limit-low / flooding (-480.00)
-Messages after close (count) | scale-free | replicas-high / flooding (+76443.00) | edges-per-node-low / flooding (-6035.00)
-Messages after close (count) | star | replicas-high / flooding (+555.00) | replicas-low / flooding (-122.00)
+Completion (pp) | complete | factorial-nodes-5-delay-0.001-0.001 / no-stack (+0.00) | factorial-nodes-5-delay-0.001-0.001 / no-stack (+0.00)
+Completion (pp) | random | factorial-nodes-5-delay-0.001-0.01-edge-0 / no-stack (+0.00) | duration-low / distance-vector (-100.00)
+Completion (pp) | ring | factorial-nodes-5-delay-0.001-0.001 / no-stack (+0.00) | duration-low / distance-vector (-100.00)
+Completion (pp) | scale-free | factorial-nodes-5-delay-0.001-0.01 / no-stack (+0.00) | duration-low / distance-vector (-100.00)
+Completion (pp) | star | factorial-nodes-5-delay-0.001-0.001 / no-stack (+0.00) | factorial-nodes-5-delay-0.001-0.001 / no-stack (+0.00)
+Messages after close (count) | complete | factorial-nodes-20-delay-0.1-0.1 / flooding (+3494789.00) | factorial-nodes-5-delay-0.025-0.025 / flooding (-6368.00)
+Messages after close (count) | random | factorial-nodes-20-delay-0.025-0.25-edge-0.5 / flooding (+895031.00) | factorial-nodes-5-delay-0.025-0.25-edge-0 / flooding (-13995.00)
+Messages after close (count) | ring | factorial-nodes-20-delay-0.05-0.05 / flooding (+2948.00) | hop-limit-low / flooding (-480.00)
+Messages after close (count) | scale-free | factorial-nodes-20-delay-0.02-0.2 / flooding (+78183.00) | edges-per-node-low / flooding (-6035.00)
+Messages after close (count) | star | factorial-nodes-20-delay-0.1-0.1 / flooding (+6010.00) | factorial-nodes-5-delay-0.001-0.001 / flooding (-122.00)
 
 Interpretation notes
 --------------------
 Each input record is one run; the input contains no repeated trials for a configuration, so these comparisons do not estimate run-to-run variability or statistical significance.
 Parameter effects compare each scenario only with the baseline having the same topology and routing mode. Execution-time percentage changes are included only when both runs complete; the C# metric remains zero when a run does not complete. Messages-after-close changes are absolute counts.
-The network-delay-low/high scenarios change minimum and maximum delay together, so they are joint-setting comparisons rather than isolated effects of either delay parameter.
-Each parameter level has one simulation run. Spearman coefficients in parameter_trends.csv are descriptive rank trends (at most three observations per topology/algorithm/factor), with no p-values, confidence intervals, or causal claims.
-Scenario tags identify the setting variant (for example, low/high); the JSON does not include the numeric setting values.
+Network-delay profiles vary minimum and maximum delay together for random and scale-free topologies. Complete, ring, and star topologies use the minimum as their fixed communication delay; their maximum setting is not consumed by those network constructors.
+The network-factorial response curves and effects average across all other crossed factor levels; one-factor parameter variations compare directly with the shared baseline. Spearman coefficients in parameter_trends.csv are descriptive rank trends across the available marginal setting means, with no p-values, confidence intervals, or causal claims.
+Scenario tags identify each setting level. Numeric node-count and edge-probability tags encode their value; network-delay tags encode the minimum and maximum delay. The analysis extracts those values from the tags.

@@ -44,7 +44,7 @@ ROUTING_ALGORITHMS = tuple(ALGORITHMS.values())
 PARAMETER_SPECS: dict[str, dict[str, Any]] = {
     "replicas": {"label": "Replica count", "baseline": 10, "unit": "replicas"},
     "network-delay": {
-        "label": "Network delay range (minimum and maximum jointly)",
+        "label": "Network delay profile",
         "baseline": None,
         "unit": "",
         "levels": {
@@ -90,34 +90,47 @@ SCENARIO_PARAMETERS: dict[str, tuple[str, float | None, str]] = {
     "network-delay-low": ("network-delay", None, "min=0.001, max=0.01"),
     "network-delay-high": ("network-delay", None, "min=0.05, max=0.5"),
     "duration-low": ("duration", 20.0, "20"),
+    "duration-medium": ("duration", 100.0, "100"),
     "duration-high": ("duration", 500.0, "500"),
     "operations-low": ("operations", 1, "1"),
+    "operations-medium": ("operations", 6, "6"),
     "operations-high": ("operations", 10, "10"),
     "send-interval-low": ("send-interval", 0.1, "0.1"),
+    "send-interval-medium": ("send-interval", 0.45, "0.45"),
     "send-interval-high": ("send-interval", 0.8, "0.8"),
     "operation-interval-low": ("operation-interval", 0.025, "0.025"),
+    "operation-interval-medium": ("operation-interval", 0.125, "0.125"),
     "operation-interval-high": ("operation-interval", 0.2, "0.2"),
     "heartbeat-low": ("heartbeat", 0.05, "0.05"),
+    "heartbeat-medium": ("heartbeat", 0.2, "0.2"),
     "heartbeat-high": ("heartbeat", 0.5, "0.5"),
     "timeout-low": ("timeout", 2.0, "2"),
+    "timeout-medium": ("timeout", 16.0, "16"),
     "timeout-high": ("timeout", 30.0, "30"),
     "hop-limit-low": ("hop-limit", 2, "2"),
+    "hop-limit-medium": ("hop-limit", 11, "11"),
     "hop-limit-high": ("hop-limit", 20, "20"),
     "forgetting-time-low": ("forgetting-time", 10.0, "10"),
+    "forgetting-time-medium": ("forgetting-time", 65.0, "65"),
     "forgetting-time-high": ("forgetting-time", 120.0, "120"),
     "ack-timeout-low": ("ack-timeout", 1.0, "1"),
+    "ack-timeout-medium": ("ack-timeout", 8.0, "8"),
     "ack-timeout-high": ("ack-timeout", 15.0, "15"),
     "distance-vector-poll-low": ("distance-vector-poll", 1.0, "1"),
+    "distance-vector-poll-medium": ("distance-vector-poll", 12.0, "12"),
     "distance-vector-poll-high": ("distance-vector-poll", 20.0, "20"),
     "seed-low": ("seed", None, "1"),
     "seed-high": ("seed", None, "2026"),
     "minimum-delay-low": ("minimum-delay", 0.001, "0.001"),
+    "minimum-delay-medium": ("minimum-delay", 0.025, "0.025"),
     "minimum-delay-high": ("minimum-delay", 0.05, "0.05"),
     "maximum-delay-low": ("maximum-delay", 0.05, "0.05"),
+    "maximum-delay-medium": ("maximum-delay", 0.3, "0.3"),
     "maximum-delay-high": ("maximum-delay", 0.5, "0.5"),
     "edge-probability-low": ("edge-probability", 0.0, "0.0"),
     "edge-probability-high": ("edge-probability", 0.5, "0.5"),
     "edges-per-node-low": ("edges-per-node", 1, "1"),
+    "edges-per-node-medium": ("edges-per-node", 3, "3"),
     "edges-per-node-high": ("edges-per-node", 4, "4"),
     "center-first": ("center", None, "node 0"),
     "center-last": ("center", None, "node 9"),
@@ -488,9 +501,40 @@ def _baseline_comparison_rows(
 def _parameter_metadata(scenario: str) -> dict[str, Any] | None:
     definition = SCENARIO_PARAMETERS.get(scenario)
     if definition is None:
+        replica_match = re.fullmatch(r"replicas-(\d+)", scenario)
+        probability_match = re.fullmatch(
+            r"edge-probability-(\d+(?:\.\d+)?|\.\d+)", scenario
+        )
+        delay_match = re.fullmatch(
+            r"network-delay-(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)", scenario
+        )
+        ack_timeout_match = re.fullmatch(r"ack-timeout-(\d+(?:\.\d+)?)", scenario)
+        if replica_match:
+            value = int(replica_match.group(1))
+            definition = ("replicas", value, str(value))
+        elif probability_match:
+            value = float(probability_match.group(1))
+            definition = ("edge-probability", value, f"{value:g}")
+        elif delay_match:
+            minimum, maximum = (float(value) for value in delay_match.groups())
+            definition = (
+                "network-delay",
+                None,
+                f"min={minimum:g}, max={maximum:g}",
+            )
+        elif ack_timeout_match:
+            value = float(ack_timeout_match.group(1))
+            definition = ("ack-timeout", value, f"{value:g}")
+    if definition is None:
         return None
     parameter, setting_value, setting_label = definition
-    variant = scenario.rsplit("-", 1)[-1]
+    variant = (
+        "level"
+        if re.fullmatch(r"network-delay-\d+(?:\.\d+)?-\d+(?:\.\d+)?", scenario)
+        else str(setting_value)
+        if scenario.startswith(("replicas-", "edge-probability-"))
+        else scenario.rsplit("-", 1)[-1]
+    )
     spec = PARAMETER_SPECS[parameter]
     return {
         "parameter": parameter,
@@ -500,7 +544,61 @@ def _parameter_metadata(scenario: str) -> dict[str, Any] | None:
         "setting_label": setting_label,
         "setting_unit": spec["unit"],
         "setting_kind": "numeric" if spec["baseline"] is not None else "categorical",
+        "factorial": False,
     }
+
+
+def _scenario_parameter_metadata(
+    scenario: str, topology: str
+) -> list[dict[str, Any]]:
+    match = re.fullmatch(
+        r"factorial-nodes-(\d+)-delay-"
+        r"(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)"
+        r"(?:-edge-(\d+(?:\.\d+)?))?",
+        scenario,
+    )
+    if match is None:
+        metadata = _parameter_metadata(scenario)
+        return [metadata] if metadata is not None else []
+
+    replicas = int(match.group(1))
+    minimum, maximum = float(match.group(2)), float(match.group(3))
+    replica_metadata = _parameter_metadata(f"replicas-{replicas}")
+    delay_metadata = _parameter_metadata(f"network-delay-{minimum:g}-{maximum:g}")
+    if replica_metadata is None or delay_metadata is None:
+        raise ValueError(f"Unable to decode factorial settings from {scenario!r}.")
+    factor_metadata = [
+        {
+            **replica_metadata,
+            "factorial": True,
+        },
+        {
+            **delay_metadata,
+            "factorial": True,
+        },
+    ]
+    if topology not in ("random", "scale-free"):
+        delay = minimum
+        factor_metadata[1].update(
+            setting_value=delay,
+            setting_label=f"{delay:g} s",
+            setting_kind="numeric",
+            baseline_setting_label="0.01 s",
+        )
+    if match.group(4) is not None:
+        probability = float(match.group(4))
+        probability_metadata = _parameter_metadata(
+            f"edge-probability-{probability:g}"
+        )
+        if probability_metadata is None:
+            raise ValueError(f"Unable to decode edge probability from {scenario!r}.")
+        factor_metadata.append(
+            {
+                **probability_metadata,
+                "factorial": True,
+            }
+        )
+    return factor_metadata
 
 
 def _parameter_response_rows(
@@ -508,24 +606,25 @@ def _parameter_response_rows(
 ) -> list[dict[str, Any]]:
     response_rows = []
     for row in comparison_rows:
-        metadata = _parameter_metadata(row["scenario"])
-        if metadata is None:
-            continue
-        parameter = metadata["parameter"]
-        spec = PARAMETER_SPECS[parameter]
-        baseline_label = (
-            spec["levels"]["baseline"]
-            if spec["baseline"] is None
-            else str(spec["baseline"])
-        )
-        response_rows.append(
-            {
-                **row,
-                **metadata,
-                "baseline_setting_value": spec["baseline"],
-                "baseline_setting_label": baseline_label,
-            }
-        )
+        for metadata in _scenario_parameter_metadata(
+            row["scenario"], row["topology"]
+        ):
+            parameter = metadata["parameter"]
+            spec = PARAMETER_SPECS[parameter]
+            baseline_label = metadata.get(
+                "baseline_setting_label",
+                spec["levels"]["baseline"]
+                if spec["baseline"] is None
+                else str(spec["baseline"]),
+            )
+            response_rows.append(
+                {
+                    **row,
+                    **metadata,
+                    "baseline_setting_value": spec["baseline"],
+                    "baseline_setting_label": baseline_label,
+                }
+            )
     return response_rows
 
 
@@ -580,13 +679,14 @@ def parameter_trend_rows(
         for result in results
         if result.scenario == "baseline"
     }
-    variations: dict[tuple[str, str, str], list[SimulationResult]] = defaultdict(list)
+    variations: dict[
+        tuple[str, str, str], list[tuple[SimulationResult, dict[str, Any]]]
+    ] = defaultdict(list)
     for result in results:
-        metadata = _parameter_metadata(result.scenario)
-        if metadata is not None:
+        for metadata in _scenario_parameter_metadata(result.scenario, result.topology):
             variations[
                 (result.topology, result.routing_algorithm, metadata["parameter"])
-            ].append(result)
+            ].append((result, metadata))
 
     metrics = (
         ("total_messages_sent", "Messages sent"),
@@ -603,20 +703,35 @@ def parameter_trend_rows(
         if baseline is None:
             continue
 
-        observations: list[tuple[float, SimulationResult]] = [
-            (float(spec["baseline"]), baseline)
+        factorial_rows = [
+            (result, metadata)
+            for result, metadata in variant_results
+            if metadata["factorial"]
         ]
-        for result in variant_results:
-            metadata = _parameter_metadata(result.scenario)
-            if metadata is not None and metadata["setting_value"] is not None:
-                observations.append((float(metadata["setting_value"]), result))
-
         for metric, metric_label in metrics:
-            measured = [
-                (x_value, value)
-                for x_value, result in observations
-                if (value := _result_metric(result, metric)) is not None
-            ]
+            if factorial_rows:
+                grouped_metrics: dict[float, list[float]] = defaultdict(list)
+                for result, metadata in factorial_rows:
+                    value = metadata["setting_value"]
+                    metric_value = _result_metric(result, metric)
+                    if value is not None and metric_value is not None:
+                        grouped_metrics[float(value)].append(metric_value)
+                measured = [
+                    (value, sum(values) / len(values))
+                    for value, values in grouped_metrics.items()
+                ]
+            else:
+                measured = [
+                    (float(spec["baseline"]), baseline_value)
+                    for baseline_value in [_result_metric(baseline, metric)]
+                    if baseline_value is not None
+                ]
+                measured.extend(
+                    (float(metadata["setting_value"]), metric_value)
+                    for result, metadata in variant_results
+                    if metadata["setting_value"] is not None
+                    and (metric_value := _result_metric(result, metric)) is not None
+                )
             rho = _spearman_rho(
                 [item[0] for item in measured],
                 [item[1] for item in measured],
@@ -713,8 +828,40 @@ def _format_metric_value(metric: str, value: float) -> str:
     return f"{value:.4g} s"
 
 
+def _factorial_marginal_values(
+    rows: list[dict[str, Any]], metric: str
+) -> dict[tuple[float | None, str], float]:
+    grouped: dict[tuple[float | None, str], list[float]] = defaultdict(list)
+    for row in rows:
+        if metric == "completion_rate_pct":
+            value = (
+                None
+                if row["ended_successfully"] is None
+                else 100.0
+                if row["ended_successfully"]
+                else 0.0
+            )
+        elif metric == "execution_time":
+            value = (
+                row["execution_time"]
+                if row["ended_successfully"] is True
+                else None
+            )
+        else:
+            value = row[metric]
+        if value is not None:
+            grouped[(row["setting_value"], row["setting_label"])].append(
+                float(value)
+            )
+    return {
+        key: sum(values) / len(values)
+        for key, values in grouped.items()
+        if values
+    }
+
+
 def _numeric_setting_value(
-    point: tuple[str, str, float | None, float, str],
+    point: tuple[str, str, float | None, float],
 ) -> float:
     value = point[2]
     if value is None:
@@ -725,25 +872,18 @@ def _numeric_setting_value(
 def plot_parameter_responses(
     results: list[SimulationResult],
     response_rows: list[dict[str, Any]],
-    trend_rows: list[dict[str, Any]],
     output_dir: Path,
 ) -> None:
     metric_definitions = (
         ("total_messages_sent", "Messages sent", "symlog"),
-        ("execution_time", "Time to successful completion", "linear"),
-        ("completion_rate_pct", "Successful completion", "completion"),
+        ("execution_time", "Successful completion time (s)", "linear"),
+        ("completion_rate_pct", "Successful completion (%)", "completion"),
         ("messages_after_close", "Messages after close", "symlog"),
     )
-    variant_markers = {
-        "baseline": "o",
-        "low": "v",
-        "high": "^",
-        "first": "s",
-        "last": "D",
-    }
     variant_colors = {
-        "baseline": "#111827",
+        "baseline": "#334155",
         "low": "#2563eb",
+        "medium": "#0f766e",
         "high": "#ea580c",
         "first": "#059669",
         "last": "#9333ea",
@@ -760,289 +900,349 @@ def plot_parameter_responses(
     effect_dir = output_dir / "parameter_effects"
     response_dir.mkdir(parents=True, exist_ok=True)
     effect_dir.mkdir(parents=True, exist_ok=True)
-    trends_by_group = {
-        (
-            row["routing_algorithm"],
-            row["topology"],
-            row["parameter"],
-            row["metric"],
-        ): row
-        for row in trend_rows
-    }
 
     for (algorithm, parameter), parameter_rows in sorted(by_parameter.items()):
         spec = PARAMETER_SPECS[parameter]
-        topologies = sorted({row["topology"] for row in parameter_rows})
-        for metric, metric_label, axis_scale in metric_definitions:
-            figure, axes = plt.subplots(2, 3, figsize=(18, 11), squeeze=False)
-            flattened_axes = list(axes.flat)
-            has_points = False
+        for topology in sorted({row["topology"] for row in parameter_rows}):
+            topology_rows = [
+                row for row in parameter_rows if row["topology"] == topology
+            ]
+            factorial_rows = [row for row in topology_rows if row["factorial"]]
+            baseline = baselines.get((topology, algorithm))
 
-            for axis, topology in zip(flattened_axes, topologies):
-                topology_rows = [
-                    row for row in parameter_rows if row["topology"] == topology
-                ]
-                baseline = baselines.get((topology, algorithm))
-                points: list[tuple[str, str, float | None, float, str]] = []
-                baseline_value = _result_metric(baseline, metric) if baseline else None
-                if baseline_value is not None:
-                    baseline_label = (
-                        spec["levels"]["baseline"]
-                        if spec["baseline"] is None
-                        else str(spec["baseline"])
-                    )
-                    points.append(
+            for metric, metric_label, axis_scale in metric_definitions:
+                points: list[tuple[str, str, float | None, float]] = []
+                if factorial_rows:
+                    marginal = _factorial_marginal_values(factorial_rows, metric)
+                    points.extend(
                         (
-                            "baseline",
-                            baseline_label,
-                            spec["baseline"],
-                            baseline_value,
-                            "baseline",
+                            str(setting_value)
+                            if setting_value is not None
+                            else setting_label,
+                            setting_label,
+                            setting_value,
+                            value,
                         )
+                        for (setting_value, setting_label), value in marginal.items()
                     )
-
-                variant_order = {"low": 0, "first": 1, "high": 2, "last": 3}
-                for row in sorted(
-                    topology_rows,
-                    key=lambda item: variant_order.get(item["variant"], 4),
-                ):
-                    value = row.get(metric)
-                    if metric == "completion_rate_pct":
-                        value = (
-                            None
-                            if row["ended_successfully"] is None
-                            else 100.0
-                            if row["ended_successfully"]
-                            else 0.0
-                        )
-                    elif metric == "execution_time" and row["ended_successfully"] is not True:
-                        value = None
-                    if value is None:
-                        continue
-                    points.append(
-                        (
-                            row["variant"],
-                            row["setting_label"],
-                            row["setting_value"],
-                            float(value),
-                            row["scenario"],
-                        )
+                else:
+                    baseline_value = (
+                        _result_metric(baseline, metric) if baseline else None
                     )
+                    if baseline_value is not None:
+                        baseline_label = (
+                            spec["levels"]["baseline"]
+                            if spec["baseline"] is None
+                            else str(spec["baseline"])
+                        )
+                        points.append(
+                            (
+                                "baseline",
+                                baseline_label,
+                                spec["baseline"],
+                                baseline_value,
+                            )
+                        )
+                    for row in topology_rows:
+                        value = row.get(metric)
+                        if metric == "completion_rate_pct":
+                            value = (
+                                None
+                                if row["ended_successfully"] is None
+                                else 100.0
+                                if row["ended_successfully"]
+                                else 0.0
+                            )
+                        elif (
+                            metric == "execution_time"
+                            and row["ended_successfully"] is not True
+                        ):
+                            value = None
+                        if value is not None:
+                            points.append(
+                                (
+                                    row["variant"],
+                                    row["setting_label"],
+                                    row["setting_value"],
+                                    float(value),
+                                )
+                            )
 
                 if not points:
-                    axis.set_visible(False)
                     continue
-                has_points = True
-                is_categorical = spec["baseline"] is None
+                is_categorical = any(point[2] is None for point in points)
                 if is_categorical:
-                    category_order = ["baseline", "low", "first", "high", "last"]
-                    category_positions = {
-                        category: index for index, category in enumerate(category_order)
-                    }
-                    points.sort(key=lambda point: category_positions[point[0]])
-                    x_values = [category_positions[point[0]] for point in points]
-                    visible_categories = [point[0] for point in points]
-                    axis.set_xticks(
-                        [category_positions[category] for category in visible_categories],
-                        [
-                            f"{point[0]}\n{point[1]}"
-                            for point in points
-                        ],
+                    points.sort(
+                        key=lambda point: (
+                            0 if point[0] == "baseline" else 1,
+                            point[1],
+                        )
                     )
+                    x_values = list(range(len(points)))
                 else:
                     points.sort(key=_numeric_setting_value)
                     x_values = [_numeric_setting_value(point) for point in points]
-                    axis.set_xticks(
-                        x_values,
-                        [f"{point[0]}\n{point[1]}" for point in points],
-                    )
+
+                figure, axis = plt.subplots(figsize=(10, 6))
+                figure.patch.set_facecolor("white")
+                axis.set_facecolor("#fbfdff")
+                axis.grid(axis="y", alpha=0.22, which="both")
+                axis.set_axisbelow(True)
+                axis.spines[["top", "right"]].set_visible(False)
+                axis.spines[["left", "bottom"]].set_color("#cbd5e1")
 
                 y_values = [point[3] for point in points]
-                if len(points) >= 2 and not is_categorical:
-                    axis.plot(x_values, y_values, color="#94a3b8", linewidth=1.5, zorder=1)
-
-                for x_value, point in zip(x_values, points):
-                    variant = point[0]
-                    y_value = point[3]
+                axis.plot(
+                    x_values,
+                    y_values,
+                    color="#94a3b8",
+                    linewidth=2,
+                    zorder=1,
+                )
+                for index, (x_value, point) in enumerate(zip(x_values, points)):
+                    variant, _, _, y_value = point
+                    color = variant_colors.get(variant, "#2563eb")
                     axis.scatter(
                         x_value,
                         y_value,
-                        marker=variant_markers[variant],
-                        color=variant_colors[variant],
-                        s=78,
+                        color=color,
+                        s=76,
                         edgecolor="white",
-                        linewidth=0.8,
+                        linewidth=1.2,
                         zorder=3,
                     )
-                    axis.annotate(
-                        _format_metric_value(metric, y_value),
-                        (x_value, y_value),
-                        xytext=(5, 5),
-                        textcoords="offset points",
-                        fontsize=8,
-                        color="#111827",
+                    if len(points) <= 9:
+                        axis.annotate(
+                            _format_metric_value(metric, y_value),
+                            (x_value, y_value),
+                            xytext=(0, 9 if index % 2 == 0 else -16),
+                            textcoords="offset points",
+                            ha="center",
+                            fontsize=8,
+                            color="#334155",
+                        )
+
+                if is_categorical:
+                    axis.set_xticks(
+                        x_values,
+                        [point[1].replace(", max=", "\nmax=") for point in points],
                     )
+                    axis.set_xlabel(spec["label"])
+                else:
+                    axis.set_xticks(
+                        x_values,
+                        [point[1] for point in points],
+                    )
+                    unit = f" ({spec['unit']})" if spec["unit"] else ""
+                    axis.set_xlabel(f"{spec['label']}{unit}")
 
                 if axis_scale == "symlog":
-                    axis.set_yscale("symlog", linthresh=1000 if metric == "total_messages_sent" else 10)
+                    threshold = (
+                        1000
+                        if metric == "total_messages_sent"
+                        else 10
+                    )
+                    axis.set_yscale("symlog", linthresh=threshold)
                     axis.yaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
                 elif axis_scale == "completion":
                     axis.set_ylim(-8, 108)
                     axis.set_yticks([0, 25, 50, 75, 100])
                     axis.yaxis.set_major_formatter(StrMethodFormatter("{x:.0f}%"))
-
-                if is_categorical:
-                    axis.set_xlabel("Setting variant (categorical)")
-                else:
-                    unit = f" ({spec['unit']})" if spec["unit"] else ""
-                    axis.set_xlabel(f"{spec['label']}{unit}")
-                    trend = trends_by_group.get(
-                        (algorithm, topology, parameter, metric)
-                    )
-                    if trend and trend["spearman_rho_descriptive"] is not None:
-                        axis.text(
-                            0.03,
-                            0.97,
-                            f"Spearman ρ={trend['spearman_rho_descriptive']:.2f}, "
-                            f"n={trend['observation_count']} (descriptive)",
-                            transform=axis.transAxes,
-                            va="top",
-                            fontsize=8,
-                            bbox={"facecolor": "white", "alpha": 0.8, "edgecolor": "none"},
-                        )
-                axis.set_title(topology, fontsize=12)
                 axis.set_ylabel(metric_label)
-                axis.grid(axis="y", alpha=0.25, which="both")
-                axis.set_axisbelow(True)
-
-            for axis in flattened_axes[len(topologies):]:
-                axis.set_visible(False)
-            if not has_points:
-                plt.close(figure)
-                continue
-
-            figure.suptitle(
-                f"{algorithm} — isolated parameter response: {spec['label']}\n"
-                f"{metric_label}; separate panels are separate topologies",
-                fontsize=15,
-            )
-            figure.tight_layout(rect=(0, 0, 1, 0.94))
-            figure.savefig(
-                response_dir
-                / f"parameter_response_{algorithm}_{parameter}_{metric}.png",
-                dpi=220,
-                bbox_inches="tight",
-            )
-            plt.close(figure)
-
-    effect_definitions = (
-        ("messages_sent_change_pct", "Messages sent", "change from baseline (%)"),
-        ("execution_time_change_pct", "Time to successful completion", "change from successful baseline (%)"),
-        (
-            "completion_change_percentage_points",
-            "Successful completion",
-            "change from baseline (percentage points)",
-        ),
-        (
-            "messages_after_close_change",
-            "Messages after close",
-            "change from baseline (messages)",
-        ),
-    )
-    variant_order = {"low": 0, "first": 1, "high": 2, "last": 3}
-    for (algorithm, parameter), parameter_rows in sorted(by_parameter.items()):
-        spec = PARAMETER_SPECS[parameter]
-        topologies = sorted({row["topology"] for row in parameter_rows})
-        for field, metric_label, change_label in effect_definitions:
-            figure, axes = plt.subplots(2, 3, figsize=(18, 11), squeeze=False)
-            flattened_axes = list(axes.flat)
-            has_points = False
-
-            for axis, topology in zip(flattened_axes, topologies):
-                topology_rows = sorted(
-                    (
-                        row
-                        for row in parameter_rows
-                        if row["topology"] == topology and row[field] is not None
-                    ),
-                    key=lambda row: variant_order.get(row["variant"], 4),
+                axis.set_title(
+                    f"{topology.replace('-', ' ').title()} — "
+                    f"{algorithm.replace('-', ' ').title()}",
+                    loc="left",
+                    fontsize=13,
+                    fontweight="bold",
+                    color="#0f172a",
+                    pad=12,
                 )
-                if not topology_rows:
-                    axis.set_visible(False)
-                    continue
-                has_points = True
+                axis.tick_params(axis="both", colors="#475569", labelsize=9)
+                axis.margins(x=0.08, y=0.18)
+                figure.suptitle(
+                    f"{spec['label']} response",
+                    x=0.1,
+                    y=0.99,
+                    ha="left",
+                    fontsize=17,
+                    fontweight="bold",
+                    color="#0f172a",
+                )
+                figure.tight_layout(rect=(0, 0, 1, 0.94))
+                figure.savefig(
+                    response_dir
+                    / f"parameter_response_{algorithm}_{parameter}_{metric}_{topology}.png",
+                    dpi=180,
+                    bbox_inches="tight",
+                    facecolor=figure.get_facecolor(),
+                )
+                plt.close(figure)
 
-                for position, row in enumerate(topology_rows):
-                    change = float(row[field])
-                    variant = row["variant"]
-                    axis.vlines(
-                        position,
-                        min(0, change),
-                        max(0, change),
-                        color=variant_colors[variant],
-                        linewidth=2,
-                        alpha=0.8,
-                    )
-                    axis.scatter(
-                        position,
-                        change,
-                        marker=variant_markers[variant],
-                        color=variant_colors[variant],
-                        edgecolor="white",
-                        linewidth=0.8,
-                        s=78,
-                        zorder=3,
-                    )
-                    if field.endswith("_pct"):
-                        value_label = f"{change:+.2f}%"
-                    elif field == "completion_change_percentage_points":
-                        value_label = f"{change:+.2f} pp"
+            effect_definitions = (
+                ("messages_sent_change_pct", "Messages sent", "change from baseline (%)"),
+                ("execution_time_change_pct", "Successful completion time", "change from baseline (%)"),
+                (
+                    "completion_change_percentage_points",
+                    "Successful completion",
+                    "change from baseline (percentage points)",
+                ),
+                (
+                    "messages_after_close_change",
+                    "Messages after close",
+                    "change from baseline (messages)",
+                ),
+            )
+            effect_metrics = {
+                "messages_sent_change_pct": "total_messages_sent",
+                "execution_time_change_pct": "execution_time",
+                "completion_change_percentage_points": "completion_rate_pct",
+                "messages_after_close_change": "messages_after_close",
+            }
+            for field, metric_label, change_label in effect_definitions:
+                if factorial_rows:
+                    metric = effect_metrics[field]
+                    marginal = _factorial_marginal_values(factorial_rows, metric)
+                    if parameter == "network-delay":
+                        baseline_label = (
+                            "min=0.01, max=0.2"
+                            if topology in ("random", "scale-free")
+                            else "0.01 s"
+                        )
+                        baseline_key = (
+                            (None, baseline_label)
+                            if topology in ("random", "scale-free")
+                            else (0.01, baseline_label)
+                        )
                     else:
-                        value_label = f"{change:+,.0f}"
-                    axis.annotate(
-                        value_label,
-                        (position, change),
-                        xytext=(4, 5 if change >= 0 else -10),
-                        textcoords="offset points",
-                        fontsize=8,
-                    )
-
-                axis.axhline(0, color="#111827", linewidth=1)
-                axis.set_xticks(
-                    range(len(topology_rows)),
-                    [
-                        f"{row['variant']}\n{row['setting_label']}"
+                        baseline_key = (
+                            spec["baseline"],
+                            str(spec["baseline"]),
+                        )
+                    baseline_value = marginal.get(baseline_key)
+                    effect_rows = []
+                    if baseline_value is not None:
+                        for (setting_value, setting_label), value in marginal.items():
+                            if field.endswith("_pct"):
+                                change = (
+                                    None
+                                    if baseline_value == 0
+                                    else (value - baseline_value)
+                                    / abs(baseline_value)
+                                    * 100
+                                )
+                            else:
+                                change = value - baseline_value
+                            if change is not None:
+                                effect_rows.append(
+                                    (setting_label, float(change), setting_value)
+                                )
+                else:
+                    effect_rows = [
+                        (
+                            row["setting_label"],
+                            float(row[field]),
+                            row["setting_value"],
+                        )
                         for row in topology_rows
-                    ],
+                        if row[field] is not None
+                    ]
+                if not effect_rows:
+                    continue
+                effect_rows.sort(
+                    key=lambda row: (
+                        row[2] is None,
+                        row[2] if row[2] is not None else row[0],
+                    )
+                )
+
+                figure, axis = plt.subplots(figsize=(10, 5.5))
+                figure.patch.set_facecolor("white")
+                axis.set_facecolor("#fbfdff")
+                axis.grid(axis="y", alpha=0.22, which="both")
+                axis.set_axisbelow(True)
+                axis.spines[["top", "right"]].set_visible(False)
+                axis.spines[["left", "bottom"]].set_color("#cbd5e1")
+                positions = np.arange(len(effect_rows))
+                changes = [row[1] for row in effect_rows]
+                axis.vlines(
+                    positions,
+                    0,
+                    changes,
+                    color="#93c5fd",
+                    linewidth=2,
+                    zorder=1,
+                )
+                axis.scatter(
+                    positions,
+                    changes,
+                    color=["#dc2626" if value < 0 else "#2563eb" for value in changes],
+                    edgecolor="white",
+                    linewidth=1.2,
+                    s=70,
+                    zorder=3,
+                )
+                axis.axhline(0, color="#334155", linewidth=1)
+                if len(effect_rows) <= 9:
+                    for position, change in zip(positions, changes):
+                        label = (
+                            f"{change:+.1f}%"
+                            if field.endswith("_pct")
+                            else f"{change:+.1f} pp"
+                            if field == "completion_change_percentage_points"
+                            else f"{change:+,.0f}"
+                        )
+                        axis.annotate(
+                            label,
+                            (position, change),
+                            xytext=(0, 7 if change >= 0 else -15),
+                            textcoords="offset points",
+                            ha="center",
+                            fontsize=8,
+                            color="#334155",
+                        )
+                axis.set_xticks(
+                    positions,
+                    [row[0] for row in effect_rows],
+                    rotation=25,
+                    ha="right",
                 )
                 if field == "completion_change_percentage_points":
                     axis.set_ylim(-108, 108)
                 else:
-                    axis.set_yscale("symlog", linthresh=1 if field.endswith("_pct") else 10)
-                axis.set_title(topology, fontsize=12)
+                    axis.set_yscale(
+                        "symlog",
+                        linthresh=1 if field.endswith("_pct") else 10,
+                    )
                 axis.set_ylabel(change_label)
-                axis.grid(axis="y", alpha=0.25, which="both")
-                axis.set_axisbelow(True)
-
-            for axis in flattened_axes[len(topologies):]:
-                axis.set_visible(False)
-            if not has_points:
+                axis.set_title(
+                    f"{topology.replace('-', ' ').title()} — "
+                    f"{algorithm.replace('-', ' ').title()}",
+                    loc="left",
+                    fontsize=13,
+                    fontweight="bold",
+                    color="#0f172a",
+                    pad=12,
+                )
+                axis.tick_params(axis="both", colors="#475569", labelsize=9)
+                figure.suptitle(
+                    f"{spec['label']} effect",
+                    x=0.1,
+                    y=0.99,
+                    ha="left",
+                    fontsize=17,
+                    fontweight="bold",
+                    color="#0f172a",
+                )
+                figure.tight_layout(rect=(0, 0, 1, 0.94))
+                figure.savefig(
+                    effect_dir
+                    / f"parameter_effect_{algorithm}_{parameter}_{field}_{topology}.png",
+                    dpi=180,
+                    bbox_inches="tight",
+                    facecolor=figure.get_facecolor(),
+                )
                 plt.close(figure)
-                continue
-
-            figure.suptitle(
-                f"{algorithm} — isolated parameter effect: {spec['label']}\n"
-                f"{metric_label}; changes are relative to the same topology/algorithm baseline",
-                fontsize=15,
-            )
-            figure.tight_layout(rect=(0, 0, 1, 0.94))
-            figure.savefig(
-                effect_dir
-                / f"parameter_effect_{algorithm}_{parameter}_{field}.png",
-                dpi=220,
-                bbox_inches="tight",
-            )
-            plt.close(figure)
 
 
 def write_analysis_report(
@@ -1141,15 +1341,20 @@ def write_analysis_report(
             "are included only when both runs complete; the C# metric remains zero "
             "when a run does not complete. "
             "Messages-after-close changes are absolute counts.",
-            "The network-delay-low/high scenarios change minimum and maximum delay "
-            "together, so they are joint-setting comparisons rather than isolated "
-            "effects of either delay parameter.",
-            "Each parameter level has one simulation run. Spearman coefficients in "
-            "parameter_trends.csv are descriptive rank trends (at most three "
-            "observations per topology/algorithm/factor), with no p-values, "
+            "Network-delay profiles vary minimum and maximum delay together for "
+            "random and scale-free topologies. Complete, ring, and star topologies "
+            "use the minimum as their fixed communication delay; their maximum "
+            "setting is not consumed by those network constructors.",
+            "The network-factorial response curves and effects average across all "
+            "other crossed factor levels; one-factor parameter variations compare "
+            "directly with the shared baseline. Spearman coefficients in "
+            "parameter_trends.csv are descriptive rank trends across the available "
+            "marginal setting means, with no p-values, "
             "confidence intervals, or causal claims.",
-            "Scenario tags identify the setting variant (for example, low/high); "
-            "the JSON does not include the numeric setting values.",
+            "Scenario tags identify each setting level. Numeric node-count and "
+            "edge-probability tags encode their value; network-delay tags encode "
+            "the minimum and maximum delay. The analysis extracts those values "
+            "from the tags.",
         ]
     )
     output_path.write_text("\n".join(report_lines) + "\n", encoding="utf-8")
@@ -1212,11 +1417,21 @@ def main(argv: list[str] | None = None) -> int:
         plot_parameter_responses(
             results,
             response_rows,
-            trend_rows,
             args.output_dir,
         )
         for obsolete_chart in args.output_dir.glob("parameter_sweep_*.png"):
             obsolete_chart.unlink()
+        for chart_directory, prefix in (
+            (args.output_dir / "parameter_responses", "parameter_response_"),
+            (args.output_dir / "parameter_effects", "parameter_effect_"),
+        ):
+            if chart_directory.is_dir():
+                for composite_chart in chart_directory.glob(f"{prefix}*.png"):
+                    if not any(
+                        composite_chart.stem.endswith(f"_{topology}")
+                        for topology in TOPOLOGIES.values()
+                    ):
+                        composite_chart.unlink()
         write_analysis_report(
             results,
             comparison_rows,

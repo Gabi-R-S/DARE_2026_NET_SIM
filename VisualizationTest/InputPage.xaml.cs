@@ -276,9 +276,9 @@ namespace VisualizationTest
             }
 
             // Validate Workload
-            if (!int.TryParse(OperationsPerReplicaTextBox.Text, out int opsPerReplica) || opsPerReplica < 1 || opsPerReplica > 100)
+            if (!int.TryParse(OperationsPerReplicaTextBox.Text, out int opsPerReplica) || opsPerReplica < 1 || opsPerReplica > 10000)
             {
-                ShowValidation("Operations per replica must be between 1 and 100.");
+                ShowValidation("Operations per replica must be between 1 and 10000.");
                 return;
             }
 
