@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>a0c386e4-e5b0-4fea-94a2-e63a0c15bed0</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>OUTPUT_ANALYSIS.py</StartupFile>
+    <StartupFile>extra_plots.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -12,6 +12,7 @@
     <Name>OUTPUT_ANALYSIS</Name>
     <RootNamespace>OUTPUT_ANALYSIS</RootNamespace>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +23,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="extra_plots.py" />
+    <Compile Include="make_plots.py" />
     <Compile Include="OUTPUT_ANALYSIS.py" />
   </ItemGroup>
   <ItemGroup>
@@ -34,15 +37,6 @@
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
       <Architecture>X64</Architecture>
     </Interpreter>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="analysis_output\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="analysis_output\baseline_comparison.png" />
-    <Content Include="analysis_output\parameter_sensitivity.png" />
-    <Content Include="analysis_output\scenario_summary.csv" />
-    <Content Include="analysis_output\simulation_results.csv" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
